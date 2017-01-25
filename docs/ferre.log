@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=latex 2016.2.19)  25 FEB 2016 11:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=latex 2016.4.12)  25 JAN 2017 12:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **ferre
 (./ferre.tex
-LaTeX2e <2016/02/01>
-Babel <3.9n> and hyphenation patterns for 51 languages loaded.
+LaTeX2e <2016/03/31>
+Babel <3.9q> and hyphenation patterns for 52 language(s) loaded.
 (/usr/pkg/teTeX/texlive/2015/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/pkg/teTeX/texlive/2015/texmf-dist/tex/latex/base/size12.clo
@@ -172,7 +172,7 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
  [1
 
-]
+] [2]
 LaTeX Font Info:    Try loading font information for OMS+ptm on input line 81.
 
 (/usr/pkg/teTeX/texlive/2015/texmf-dist/tex/latex/psnfss/omsptm.fd
@@ -184,16 +184,16 @@ LaTeX Font Info:    Try loading font information for OT1+pcr on input line 92.
 
 (/usr/pkg/teTeX/texlive/2015/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-) [2]
+) [3]
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 156.
 
-[3]
+[4]
 Overfull \hbox (4.1588pt too wide) in paragraph at lines 194--235
 [][] 
  []
 
-[4]
+[5]
 Overfull \hbox (18.3672pt too wide) in paragraph at lines 273--365
 [][] 
  []
@@ -203,29 +203,22 @@ LaTeX Warning: Float too large for page by 19.94513pt on input line 365.
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 374.
-
-LaTeX Warning: Reference `winter' on page 5 undefined on input line 392.
-
-[5] [6]
+[6] [7]
 Overfull \hbox (5.57681pt too wide) in paragraph at lines 474--483
 \OT1/ptm/m/n/12 and watch the stan-dard out-put in-for-ma-tion come out. Go ahe
 ad, plot the data in \OT1/pcr/m/n/12 interpol.mdl
  []
 
-[7]
+[8]
 File: f1.ps Graphic file (type eps)
- <f1.ps> [8] [9] [10] [11] [12] [13] [14] [15] (./ferre.aux)
-
-LaTeX Warning: There were undefined references.
-
- ) 
+ <f1.ps> [9] [10] [11] [12] [13] [14] [15] [16] [17] [18] (./ferre.aux) ) 
 Here is how much of TeX's memory you used:
- 1291 strings out of 493657
- 17591 string characters out of 6151218
- 87141 words of memory out of 5000000
- 4802 multiletter control sequences out of 15000+600000
+ 1291 strings out of 493651
+ 17591 string characters out of 6151148
+ 87207 words of memory out of 5000000
+ 4808 multiletter control sequences out of 15000+600000
  13805 words of font info for 39 fonts, out of 8000000 for 9000
  783 hyphenation exceptions out of 8191
- 25i,10n,28p,923b,247s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 25i,10n,28p,924b,247s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on ferre.dvi (15 pages, 60400 bytes).
+Output written on ferre.dvi (18 pages, 66468 bytes).

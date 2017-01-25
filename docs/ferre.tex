@@ -385,13 +385,13 @@ initialized at the values in the center of the grid, but one can also choose
 to start at the values given in the input parameter file, or at other locations 
 (see \S \ref{init}).
 
-\item Input flux file (usually associated with the .frd extension): This file 
+\item Input flux file ({\tt ffile}, usually associated with the .frd extension): This file 
 contains the actual spectra to be fit. Each line is a spectrum, with as
 many columns as frequencies (npix). In many applications the spectrum will 
 be sampled exactly on the same frequencies as the model grid, but if the two
-do not match the code can interpolate (see \S \ref{winter}).
+do not match the code can interpolate (see \S \ref{sinter}).
 
-\item Input Error file ({\tt ffile}; OPTIONAL, .err): This file has exactly the same format as the 
+\item Input Error file ({\tt erfile}; OPTIONAL, .err): This file has exactly the same format as the 
 input flux file, but with the uncertainties in the fluxes instead of the fluxes themselves. 
 If the signal-to-noise ratio is constant, this file can be omitted and the keyword SNR 
 can be used instead in the control file (input.nml).
@@ -655,6 +655,7 @@ make their contribution to the $\chi^2$ negligible by inflating the uncertaintie
 for those data points.
 
 \subsection{Smoothing and interpolating models on the fly}
+\label{sinter}
 
 FERRE, by default, expects the wavelengths of the model grid (those at which
 the model fluxes have been sampled) and the observations to match. If they don't,
@@ -707,6 +708,52 @@ will have 120 columns and 30 lines.
 The sampling in wavelength/velocity space for the LSF must be exactly the same as 
 the library's. Smoothing and interpolation can be used in combination.
 
+\subsection{Continuum normalization}
+
+Continuum normalization is a common procedure in the analysis of high-resolution 
+stellar spectra. Usually the relative flux levels over small wavelength intervals 
+are measured with far greater precision that the absolute flux or even the
+relative flux variation over longer wavelength ranges. Continuum normalization 
+consists in removing low frequency variations, retaining the fast ones corresponding
+to the sharp aborption/emission features corresponding to atomic or molecular transitions.
+
+Traditionally low-order polynomials are iteratively fitted to the data. Sigma-clipping
+or similar algorithms are used to reject the absorption/emission lines, so that the 
+polynomials track the variations in the continuum. Then data are divided by the polynomials
+to remove the slow continuum variations. This is the algorithm implemented in 
+IRAF\footnote{IRAF, the Image Reduction and Analysis Facility, is a general-purpose software 
+system for the reduction and analysis of astronomical data, written and supported by the US
+National Optical Astronomy Observatories (NOAO) in Tucson, Arizona. NOAO is operated by 
+the Association of Universities for Research in Astronomy (AURA), Inc. under 
+cooperative agreement with the National Science Foundation. See iraf.noao.edu for details.}, 
+which is usually applied interactively.
+
+Performing continuum normalization within FERRE ensures that {\bf exacly the same} 
+code is run on both models and data.
+Consistency is highly desirable in this step in order to achieve the best possible results.
+The iterative sigma-clipping algorithm described above involves a non-linear transformation,
+and therefore the result depends on the signal-to-noise of the data, and therefore 
+iterations are not implemented and only one pass is performed in FERRE. 
+Setting CONT=1 in the control file activates the polynomial fitting. The keyword NCONT 
+must then be set to the order desired for the polynomial (0 for a constant, 
+1 for a straight line, etc.). 
+
+Two additional algorithms for continuum normalization are available:
+\begin{itemize}
+\item Segmented normalization (CONT=2): the input data arrays are split into NCONT segments, 
+and the values in each are divided by their mean values (see Fig. 1 and associated text in 
+Allende Prieto et al. 2014)
+\item Running mean (CONT=3): the input data are divided by a running mean computed with a window of NCONT pixels.
+\end{itemize}
+
+When continuum normalization is on, the best-fitting models in the output file ({\tt offile})
+have been process with the algorithm of choice, while the input data ({\tt ffile}) have not.
+Since it is usually desirable to compare apples to apples, one can use the keyword 
+SFFILE to specify the name of a new output file that will contain a new version of the input data
+which has been continuum normalized -- the one that has been internally used in FERRE to 
+find the optimal model.
+
+
 \subsection{Multithreading}
 
 By default the execution of FERRE is sequential, it analyzes all the targets in 
@@ -727,7 +774,8 @@ be set to 0 for the code to use all the available cores in a processor.
 
 The development of FERRE has benefited from numerous discussions and suggestions
 from colleagues, including 
-Lars Koesterke (Texas Advanced Computing Center) and Jo Bovy (University of Toronto).
+Lars Koesterke (Texas Advanced Computing Center), Jo Bovy (University of Toronto), and
+Jon Holtzman (New Mexico State University).
 
 While the bulk of FERRE has been written from scratch, it benefits from a number of FORTRAN
 modules publicly available from other authors:
@@ -749,7 +797,7 @@ Translated to FORTRAN90 by A. Miller.
 \item {\it uob.f90}: Original code by M. J. D. Powell (Cambridge University) for his UOBYQA algorithm. 
 Converted to FORTRAN90 by A. Miller.
 
-\item {\it trn.f90}: Truncanted Newto Algorithm code written by S. G. Nash (George Mason University).
+\item {\it trn.f90}: Truncanted Newton Algorithm code written by S. G. Nash (George Mason University).
 Converted to FORTRAN90 by A. Miller.
 
 \item {\it m\_mrgrnk.f90}: Sorting code by M. Olagnon (IFREMER).
@@ -765,6 +813,51 @@ have been the Century survey galactic halo project, SEGUE, the ELM survey,
 APOGEE, and the Gaia-ESO survey.
 
 \begin{enumerate}
+
+\item Fern{\'a}ndez-Alvar, E., Carigi, L., Allende Prieto, C., et al.\ 2017, MNRAS, 465, 1586 
+
+
+\item Schiavon, R.~P., Zamora, O., Carrera, R., et al.\ 2017, MNRAS, 465, 501 
+
+
+\item Anders, F., Chiappini, C., Rodrigues, T.~S., et al.\ 2017, A\&A, 597, A30 
+
+
+\item del Burgo, C., \& Allende Prieto, C.\ 2016, MNRAS, 463, 1400 
+
+
+\item Allende Prieto, C.\ 2016, A\&A, 595, A129 
+
+
+\item Dafonte, C., Fustes, D., Manteiga, M., et al.\ 2016, A\&A, 594, A68 
+
+
+\item Cunha, K., Frinchaboy, P.~M., Souto, D., et al.\ 2016, AN, 337, 922 
+
+
+\item Fern{\'a}ndez-Alvar, E., Allende Prieto, C., Beers, T.~C., et al.\ 2016, A\&A, 593, A28 
+
+
+\item Aguado, D.~S., Allende Prieto, C., Gonz{\'a}lez Hern{\'a}ndez, J.~I., et al.\ 2016, A\&A, 593, A10 
+
+
+\item Martell, S.~L., Shetrone, M.~D., Lucatello, S., et al.\ 2016, ApJ, 825, 146 
+
+
+\item Garc{\'{\i}}a P{\'e}rez, A.~E., Allende Prieto, C., Holtzman, J.~A., et al.\ 2016, AJ, 151, 144 
+
+
+\item Bertran de Lis, S., Allende Prieto, C., Majewski, S.~R., et al.\ 2016, A\&A, 590, A74 
+
+
+\item Beck, P.~G., Allende Prieto, C., Van Reeth, T., et al.\ 2016, A\&A, 589, A27 
+
+
+\item Troup, N.~W., Nidever, D.~L., De Lee, N., et al.\ 2016, AJ, 151, 85 
+
+
+\item Brown, W.~R., Gianninas, A., Kilic, M., Kenyon, S.~J., \& Allende Prieto, C.\ 2016, ApJ, 818, 155 
+
 
 \item Allende Prieto, C., \& del Burgo, C.\ 2016, MNRAS, 455, 3864 
 
@@ -1043,6 +1136,7 @@ Prieto, C., Beers, T.~C., et al.\ 2003, AJ, 126, 1362
 \section{References}
 
 \begin{itemize}
+\item Allende Prieto, C., Fern{\'a}ndez-Alvar, E., Schlesinger, K.~J., et al.\ 2014, A\&A, 568, A7 
 \item Nelder, J A. \&  Mead, R. 1965. "A simplex method for function minimization". 
 Computer Journal 7: 308, 313
 \item  Boender, C.G.E., Rinnooy Kan, A.H.G., Strougie, L. \& Timmer, G. T. 1982. 
