@@ -1,0 +1,60 @@
+subroutine fsort
+
+!sorting opfile, offile and sffile when nthreads>1
+
+use share, only: dp,flen,pfile,opfile,offile,sffile, &
+		siobuffer,xliobuffer,nfilter
+
+implicit none
+
+!locals
+character(flen)			:: opfile2,offile2,sffile2
+character(flen) 		:: id,id2
+character(siobuffer*512)	:: opline 
+character(xliobuffer*512)	:: ofline,sfline
+real(dp)        		:: val
+integer				:: stat
+
+
+open(1,file=pfile,status='old',recl=siobuffer,action='read')
+open(2,file=opfile,status='old',recl=siobuffer,action='read')
+open(3,file=offile,status='old',recl=xliobuffer,action='read')
+if (sffile.gt.' ' .and. nfilter > 1) then
+	open(4,file=sffile,status='old',recl=xliobuffer,action='read')
+	open(5,file=sffile2,recl=xliobuffer,action='write')
+endif
+open(6,file=opfile2,recl=siobuffer,action='write')	! output pars
+open(7,file=offile2,recl=xliobuffer,action='write')	! model flux
+
+do 
+	read(1,iostat=stat) id,val
+	if (is_iostat_end(stat)) exit
+	rewind(2)
+	rewind(3)
+	if (sffile.gt.' ' .and. nfilter > 1) rewind(4)
+	do
+		read(2,*) opline
+		read(3,*) ofline
+		if (sffile.gt.' ' .and. nfilter > 1) read(4,*) sfline
+		read(opline,*) id2,val
+		if (id == id2) then
+			write(6,*) opline
+			write(7,*) ofline
+		  	if (sffile.gt.' ' .and. nfilter > 1) write(5,*)sfline
+			exit
+		endif
+	enddo
+enddo
+
+close(1)
+close(2)
+close(3)
+close(6)
+close(7)
+if (sffile.gt.' ' .and. nfilter > 1) then
+	close(4)
+	close(5)
+endif
+
+end subroutine fsort
+

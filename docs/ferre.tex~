@@ -1,0 +1,722 @@
+\documentclass[12pt]{article}
+
+\usepackage{times,graphicx,rotating}
+%times,palatino,bookman, palatino, newcent
+
+\usepackage{geometry}
+ \geometry{ a4paper, total={210mm,297mm},
+ left=25mm,
+ right=25mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+
+\begin{document}
+
+\title{FER\reflectbox{R}\reflectbox{E} User's Guide}
+
+\date{\today}
+\author{C. Allende Prieto}
+
+\maketitle
+
+FERRE is a data analysis code written in FORTRAN90. 
+It matches models to data, taking a set of observations 
+and identifying the model parameters that best
+reproduce the data, in a chi-squared sense. 
+Model predictions are to be given as an array whose values are a function of 
+the model parameters, i.e. numerically. 
+FERRE holds this array in memory, or in direct-access binary file,
+and interpolates in it to evaluate model predictions. The code returns, 
+in addition to the optimal set of parameters, their uncertainties, covariances,  and the corresponding model prediction. 
+
+\tableofcontents
+
+\section{Introduction}
+\label{intro}
+
+Using models to interpret observations is a very common task in 
+science. Models are often sophisticated, sometimes the result 
+of solving complex sets equations, and can only be evaluated numerically.
+The data sets to be analyzed can be very large, regarding both 
+the number of samples and the data per sample. And so can be the models, 
+which may involve a large number of parameters. 
+
+FERRE matches physical models to observed data. It was created to 
+deal with the common problem of having numerical models that are
+costly to evaluate, and need to be used to interpret large data sets.
+FERRE provides flexibility to search for all model parameters, or 
+hold constant some them while we search for others. The code is written
+to be truly N-dimensional and fast.
+
+Models are to be
+encapsulated in a multi-dimensional array, with as many dimensions
+as parameters. The model array is held in memory for speed, but it can
+also be held as a data base on disk. Models are interpolated with a choice
+of algorithms (linear, Bezier quadratic, cubic, and cubic splines), with interpolations carried out in a sequential fashion. 
+
+Several optimization algorithms are available to search for the 
+best-fitting model parameters: 
+the Nelder-Mead algorithm (Nelder \& Mead 1965), 
+the  Boender-Timmer-Rinnoy Kan global algorithm (Boender et al. 1982), 
+Powell's UOBYQA algorithm (Powell 2000), 
+a Truncated Newton algorithm (Dembo \& Steihaug 1983), 
+or a weighted sum over the parameters space. Several schemes are also available for estimating error bars on the derived abundances. 
+
+Some applications can benefit from data compression applied to models based on 
+Principal Component Analysis, and parallelization
+over multiple cores, which are both handled in a way that is
+fairly transparent to users.
+FERRE has a history of successful applications to the analysis of
+astronomical spectra.
+
+\section{Optaining and compiling the code}
+\label{compiling}
+
+FERRE is free software. It is written in FORTRAN90, and parallelized
+with OpenMP. It is been successfully compiled with gfortran, g95, 
+the Intel compiler (ifort), the  Sun Studio Compiler, the PGI compiler, 
+the IBM compiler (xlf90), and a few other.
+
+The code can be obtained from \\
+{\tt http://leda.as.utexas.edu/ferre} \\
+Once the tar ball with the source code is downloaded and unpacked, 
+you should end up with three
+folders: src (the 'code'), test (test data), 
+and doc (this manual). Change directories to src and invoke
+make to compile the code  \\
+$>$cd  ferre/src \\
+$>$make  \\
+\noindent and you should end up with two executables, 
+one for FERRE ('a.out') and one for  converting
+model grids from ASCII format to (direct-access) binaries.
+
+\section{Running the code}
+\label{running}
+
+To run FERRE we need a model grid (see Section \ref{grid}), a control
+file ({\tt input.nml}; see \S \ref{nml}), 
+and input data files (see \S \ref{input}).
+Once all these are in place, we simply need to invoke the ferre executable
+from a working directory, where the aforementioned files 
+(or symbolic links to them) need to be. After describing the format 
+for the input files, we illustrate how to run FERRE with an example
+in Section \ref{test}.
+
+\section{Model grid}
+\label{grid}
+
+In order to run FERRE you need to make your model predictions available 
+as a data file. 
+The model of your choice will predict
+the same quantities that we have observations
+for, as a function of the model parameters. This is precisely what
+is contained in the file that contains the model grid, 
+a multi-dimensional array
+with as many dimensions as model parameters. In general, there will 
+be multiple observations, e.g. multiple quantities or the same quantity
+observed as a function of time. This gives one additional dimension
+to the model grid. The grid must be perfectly regular, 
+i.e. if two parameters are considered, and the first one is sampled
+with 4 values  and  the second one with 6 values, the grid will 
+have 24 models, corresponding to all possible combinations of
+the values for the two parameters.    
+
+The format of the file that contains the model grid (a.k.a. the SYNTH
+module) is very simple. The model prediction corresponding to a given
+combination of parameters take a full line in the file. In our previous
+example with two parameters, and 4 and 6 values for each of the parameters,
+respectively, the file would have 24 lines. If the array of observed
+quantities has 20 elements, then each line in the file will have 20 
+columns. The numbers, the model predictions, are preceded by
+a header explaining the contents.   The order of the model predictions
+can be easily recovered. Since the grid is regular, a series of
+nested loops, according to the information  specified in the file header, 
+gives  the values of the parameters that correspond to each line 
+in the file.    
+
+An example may help. If we are dealing with spectroscopy of stars,
+and the observations are relative photon fluxes at different wavelengths,
+our model grid could include spectra predicted as a function of 
+effective temperature, surface gravity, and 
+metallicity\footnote{Most stars are approximately made of 80\%  H, 18\% He, 
+and about 2% of the rest of elements. It is the latter group of elements, 
+those heavier than He, what matters the most for shaping stellar spectra, and as such it is one of the parameters that needs to be considered in 
+models.}.
+If we consider a model grid of spectra that includes 100 wavelengths, 
+with 10 effective temperatures, 10 gravities,
+and 10 metallicities, our grid file will have 1000 lines, with 100 columns each.
+
+Since the model grids are perfectly regular, hypercubes of data that
+describe the model behind them, with constant steps in the parameters
+that define them, a few quantities can describe them. Those quantities
+are provided in the header of the file. For example, the values that
+correspond to each of the parameters can be described with a linear
+equation, $Y=aX+b$, one for each parameter.  The relevant coefficients  
+are given  in the file header, identified with the keywords 
+LLIMITS (coefficient $b$) and STEPS (coefficient $a$). 
+
+The model grid file always begins with the line \\
+{\tt \&SYNTH}\\
+which tells FERRE the header is a name list with that name.
+Only a few of the keywords possible in the grid header are mandatory: 
+\begin{itemize}
+\item n\_of\_dim: Number of dimensions (parameters) of the model grid,
+\item n\_p: An array with the number of data points in the grid for each dimension (it is an array with as many elements as dimensions the grid has),
+\item npix: Number of data points per sample (frequencies per spectrum for
+	spectroscopy,
+\item llimits: Array with the minimum values for each of the model parameters, and 
+\item steps: Array with the steps (difference between two consecutive nodes) for each dimension.
+\end{itemize}
+
+These, and other optional keywords
+are listed in Table 1. Many of the optional keywords are
+intended to deal with spectroscopic data; they are mainly 
+for tracking the contents of the file, and they are clearly
+marked in Table 1.
+
+\begin{table}
+\label{t1}
+\caption{Parameters that can be used in the header of a FERRE model grid. Only the first few at the top of the list are usually required.}
+\begin{tabular}{lcl}
+\hline
+Parameter  & Type (elements) & Meaning \\
+\hline
+\hline
+Mandatory  & Parameters \\
+\hline
+n\_of\_dim & integer            & Number of dimensions \\
+n\_p        & integer (n\_of\_dim)  & Number of data points per dimensions \\
+npix       & integer            & Number of observations per sample \\
+llimits    & integer (n\_of\_dim)  & Lower limits for the model parameter arrays \\
+steps      & integer (n\_of\_dim)  & Steps for each of the parameter arrays \\
+\hline
+Optional   & Parameters \\
+\hline
+multi      &  integer              & Number of headers after the main one \\
+synthfile\_internal &  string       & Internal name of the model grid file \\
+id         &  string       & File identifier \\
+date       &  string       & Date when the file was assembled     \\
+npca       &  integer (*)  & Number of PCA components per PCA section \\
+label      &  string (n\_of\_dim)  &  Tags identifying the parameters of the model \\
+transposed    & integer    & A value $>0$ indicates data are transposed \\
+comments1...6     &  Comment fields \\
+\hline
+Optional   & Parameters  & intended for use with spectroscopic data \\
+\hline
+wave       & float (2)     & Coeffs. in $\lambda =$ wave(1) + (i-1)*wave(2) (i=1...npix) \\
+logw       & integer       & Values of 1/2/3 indicate we use $\lambda$/log10($\lambda$)/ln($\lambda$) \\
+vacuum     &  integer      & Values of 0/1 indicate air/vacuum wavelengths \\
+resolution    & float      & Resolving power ($\lambda$/FWHM) of the spectra \\
+original\_sampling    & float & Velocity sampling in original calculations (km/s) \\
+synspec    &  integer      & When $>0$ indicates spectra computed with Synspec \\
+modo    & integer          & When synspec=1, this the value of 'imode' \\
+invalid\_code    &  float  & Value used to indicate data are unavailable \\
+constant    & float  &   Constant value subtracted to the entire grid \\
+continuum    & float (4)  & Coefficients used for continuum normalization \\
+precontinuum    &  float (4) & Coefficients for a pre-normalization \\
+file\_data19    & string & Atomic line list used in the synthesis \\
+file\_data20    & string & Molecular line list used in the synthesis \\
+\hline
+\end{tabular} 
+\end{table}
+
+\section{Control file}
+\label{nml}
+
+The control file is named {\tt input.nml}. It tells FERRE what should do:
+the dimensions of the problem, the name of the input files,
+how to search for the solutions, or how to interpolate. The control files
+must always begin with the line \\
+{\tt \&LISTA}\\
+As with the model grid file, only a few of the keywords are mandatory:
+\begin{itemize}
+\item ndim: Number of dimensions/parameters the problem has (must match n\_of\_dim in the model grid file), 
+\item nov: Number of parameters to vary (those we wish to search for; the remainder of the parameters will be held at constant values of the user's choice), 
+\item indv: Array of indices corresponding to the parameters to vary (following the order given in the model grid), 
+\item synthfile(1): File name for the model grid (can use several), 
+\item pfile: Parameter file (name of the file with 'input' parameters; see \S \ref{data} for details), 
+\item ffile: Data file (name of the file with the observations; see \S \ref{data} for details), 
+\item erfile: Error data file (name of the file with the uncertainties associated to the data file, in the same format; see \S \ref{data} for details), 
+\item opfile: Output parameter file (output from FERRE, which contains the
+best-fitting model parameters for each sample), and 
+\item offile: Output data file (output from FERRE, containing the best-fitting model predictions for each sample).
+\end{itemize}
+
+These and the remainder of the 
+possible keywords are explained in Table 2.
+
+\begin{table}
+\label{t2}
+\caption{Parameters that can be used in the FERRE control file ({\tt input.nml}). Only the first few at the top of the list are mandatory.}
+\begin{tabular}{lcl}
+\hline
+Parameter  & Type (elements) & Meaning \\
+\hline
+\hline
+Mandatory  & Parameters \\
+\hline
+ndim     & integer            & Number of dimensions/parameters (should match 
+n\_of\_dim) \\
+nov      & integer            & Number of parameters to search \\
+         &                    & nov=0 if we only want to interpolate in the grid \\
+indv     & integer (nov)         & Array with the indices for the parameters to search \\
+synthfile & string (*)           & File name(s) for the model grid(s) \\
+pfile     &   string             & Name of the input parameter file \\
+ffile     &   string             & Name of the input data file (the observations we want to model) \\
+erfile    &   string             & Name of the file with the uncertainties 
+	in the input data\\
+opfile    &   string             & Name of the output parameter file with the optmized parameters \\
+offile    &   string             & Name of the output best-fitting models \\ 
+\hline
+Optional   & Parameters \\
+\hline
+indini    &  integer (nov)       & Signals how to initialize the search \\
+          &                      & 0 means at a random position \\
+          &                      & 1 at the grid center        \\
+          &                      & $>1$ at the center of indini(j=1...nov) equidistant cells \\ 
+nobj      &    integer           & Number of samples (spectra) to analyze (all by default) \\
+nlambda   &    integer           & Number of data points (frequencies) per sample \\
+%fixfile   & 
+%filterfile
+%wfile
+%sffile
+%lsffile
+%f\_format
+%f\_access
+%fformat
+%snr
+%only\_object
+%ycutoff
+%wphot
+%balance
+%optimize
+%impact
+%mforce
+%chiout
+%trkout
+%nfilter
+%init
+%nruns
+%errbar
+%mcruns
+%covprint
+%indi
+%winter
+%twinter
+%inter
+%mono
+%algor
+%scope
+%stopcr
+%simp
+%nthreads
+%pcaproject
+%pcachi
+%lsf
+%nlsf
+%ntie
+%indtie
+%typetie
+%ttie0
+%ttie
+\hline
+\end{tabular} 
+\end{table}
+
+\section{Input/output parameter and data files}
+\label{input}
+
+Usually FERRE will take, in addition to the model grid and the control file, 
+three input files, and produce two output files. We describe below the 
+contents and format for these files. 
+
+\subsection{Input data files}
+\label{input}
+
+\begin{itemize}
+\item Input parameter file (usually associated with the .ipf extension): 
+This file contains an identifier for each spectrum in the first column, and then as many additional columns as parameters in the model grid (ndim). The values for the parameters do not need to be known unless
+we are holding some of them constant in the search. By default, the searches are
+initialized at the values in the center of the grid, but one can also choose 
+to start at the values given in the input parameter file.
+\item Input flux file (usually associated with the .frd extension): This file 
+contains the actual spectra to be fit. Each line is a spectrum, with as
+many columns as frequencies (npix). In many applications the spectrum will 
+be sampled exactly on the same frequencies as the model grid, but if the two
+do not match the code can interpolate.
+\item Input Error file (OPTIONAL, .err): This file has exactly the same format as the input flux file, but with the uncertainties in the fluxes instead of the fluxes themselves. If the signal-to-noise ratio is constant, this file can be omitted and the keyword SNR can be used instead in the control file (input.nml).
+\item Input wavelength file (OPTIONAL, .wav): This file specifies the wavelengths associated with each input spectrum when these do not match
+those in the model grid.
+\end{itemize}
+
+\subsection{Output data files}
+\label{output}
+
+FERRE will usually produce two output files
+\begin{itemize}
+\item Output parameter file (.opf): with a format similar to the input parameter
+file, plus additional columns. The first column is identical to the first one
+in the .ipf: the identifier for each spectrum. This is followed by 
+as many columns as parameters in the grid (ndim), with the values fixed or 
+derived in the search. Up to 
+this point the .opf is identical to the .ipf in format, but then there is
+again ndim additional columns with the uncertainties in the parameters 
+(these will be zero for the parameters that were held constant). Three more columns follow, giving the fraction of photometric data points (useful when multiple grids combining spectroscopy and photometry are used), the average 
+log(S/N)$^2$ for the spectrum, and $\log(\chi^2)$ for the fit, where $\chi^2$ is  the reduced chi-squared. Additional columns with the covariance matrix of the errors can be output setting to 1 the keyword COVPRINT.
+\item Output flux file (.mdl): With the same format as the input flux file, this file contains the best-fitting model, derived by interpolation in the grid for the corresponding parameters in the output parameter file.
+\end{itemize}
+
+\section{Examples}
+\label{test}
+
+Bundled together with the source code, there are several examples, 
+all based on a grid of models used in the SEGUE Stellar Parameters  Pipeline
+(Lee et al. 2008a,b; Allende Prieto et al. 2008). The grid is in the file
+{\tt f\_ki13\_1000.dat}, which is a 3D grid of model stellar spectra spanning the range $4400\le \lambda \le 5500$ \AA,
+that covers $-3.83\le$[Fe/H]$\le0.67$, $450\le T_{\rm eff} \le 7500$ K, 
+and $1\le \log g \le 5$. We will first interpolate models in the grid, 
+then analyze a set of fake observations to inferred the model parameters, and lastly fix two of the parameters and derive the third.
+
+\subsection{interpolating in a grid}
+
+The control file, described in Section \ref{nml}, has a keyword 
+{\tt nov} to specify how many of the {\tt ndim} dimensions in the grid are to be searched. The same keyword, set to zero, can be used to interpolate spectra.
+
+As an exercise we will interpolate three models in the aforementioned stellar grid. We will get spectra for a star like the Sun ([Fe/H]$=0$, $T_{\rm eff}=5777$ K,  and $\log g=4.437$), and two more similar stars, but with lower metallicity, [Fe/H]$=-1$ and $-2$. 
+
+The control file has to be named {\tt input.nml}, so we will copy the example
+in \\
+{\tt input.nml\_interpol} to {\tt input.nml}. This file looks like this \\
+ \&LISTA \\
+ NDIM = 3 \\
+ NOV = 0 \\
+ SYNTHFILE(1) = 'f\_ki13\_1000.dat' \\
+ PFILE = 'interpol.ipf ' \\
+ OFFILE = 'interpol.mdl' \\
+ \// 
+
+
+Only the minimum necessary parameters are included in this file: we state the number of dimensions, {tt nov=0} for interpolation, the grid name, an input parameter file with the desired parameters, and an output flux file where the interpolated fluxes will end up. 
+
+To run the code in the test directory, where the input parameter file and the input.nml file are, call the ferre executable \\
+$>$ ../src/a.out \\
+and watch the standard output information come out. Go ahead, plot the data in {\tt interpol.mdl} (one spectrum per line, each with 670 columns/wavelengths) and examine how the depth of the lines reduces with the metal abundance of the star. If you want to reconstruct the wavelength scale of the spectra, look at the information in the {\sc wave} and {\sc npix} keywords in the header of the model grid: $\lambda = 10.^{0.000144864784013797 \times (k-1) + 3.64345108784598}$, with $k=1,2...,670$.
+
+
+
+\subsection{inferring all the parameters in the grid}
+
+Next we will try to fit a bunch of fake observations. The observations
+must have the same resolution as the model grid (coded in the {\sc resolution}
+keyword in the header of the grid), and be sampled on the same wavelength scale
+for consistency. In this case or {\it observations} are nothing but models from the grid to which we have injected Gaussian noise at a 5\% level. 
+
+This example is given in the file {\tt input.nml\_all}, which looks like this \\
+ \&LISTA \\ 
+ NDIM = 3 \\
+ NOV = 3 \\
+ INDV= 1 2 3 \\
+ SYNTHFILE(1) = 'f\_ki13\_1000.dat' \\
+ PFILE = 'ki13\_1000.ipf ' \\
+ FFILE = 'ki13\_1000.frd ' \\
+ ERFILE = 'ki13\_1000.err' \\
+ OPFILE = 'ki13\_1000.opf' \\
+ OFFILE = 'ki13\_1000.mdl' \\
+ ERRBAR = 1 \\
+ \// 
+
+Again, this is a nearly minimal file that specifies the number of dimensions {\tt ndim}, how many we're actually searching {\tt nov}, their indices {\tt indv}, the name of the grid file, the input parameters, observations and error bars ({\tt pfile, ffile, erfile}), as well as the name for the sought-after parameters ({\tt opfile})
+and best-fitting spectra ({\tt offile}). We also have an optional keyword for telling FERRE how to compute the error bars. By default the code uses a simple procedure that looks how far one has to perturb the solution to cause a large change in the $\chi^2$ ({\tt errbar=0}), but setting {\tt errbar=1} makes the code to invert the curvature matrix and take the diagonal for the variances.
+
+\begin{figure}[t!]
+\label{f1}
+\includegraphics[width=14cm]{f1.ps}
+\caption{Comparison between the parameters for the simulated {\it observations}
+and those recovered by FERRE: parameters  1, 2 and  3 correspond to [Fe/H], $T_{\rm eff}$, and $\log g$, respectively. 
+The top panel shows the output (recovered) %
+parameters versus the input ('true') values, and the bottom panels show (black 
+histograms) the distribution of residuals (recovered -- true). The red curves  
+are Gaussian fitted to the data. The blue histograms show the distribution of 
+uncertainties estimated by the code ({\tt errbar=1}). In addition to estimates 
+of the mean offset and distribution width from the Gaussian fits ($<$O--I$>$) 
+and $\sigma_g$), the lower panels show a robust determination ($\sigma_r$) and 
+a straight calculation of the standard deviation ($\sigma_{s}$).
+}
+\end{figure}
+
+As in the previous example, we copy the file {\tt input.nml\_all} to {\tt input.nml} and run ferre in the test directory \\
+../src/a.out \\
+where the output files will appear after a few seconds. Plot one of the spectra
+in the input file {\tt ki13\_1000.frd} -- there is one per line. Compare it with 
+the best fitting model in the same line of the {\tt ki13\_1000.mdl} file. 
+Look at  the best-fitting parameters in {\tt ki13\_1000.opf} and compare 
+them with the true parameters of the fake observations in {\tt ki13\_1000.ipf}. In some cases, especially at low metallicities, the errors are significant.
+The information that can be extracted from a stellar spectrum that has  been continuum normalized, has low resolution ($R\equiv \lambda/\delta\lambda \sim 1000$), narrow wavelength coverage (450-550 nm), and a signal-to-noise ratio of 20, is limited. Fig. \ref{f1} shows some statics for the residuals of the
+62 spectra in this example.
+
+
+In this case, since we are fitting all three parameters, the input parameter file does not need to include sensible values, unless we what to give the code a sensible place to start the search\footnote{To get the code to start the search from the parameters in the input parameter file one has to specify the option {\tt init=0}.}. By default the code starts searching at the grid center, but there are several other options available.
+
+\subsection{holding constant some parameters while fitting others}
+
+Ferre gives you flexibility about what parameters to search and which ones 
+to hold constant. If we repeat the previous exercise but change in {\tt input.nml} \\
+NOV = 1 \\
+INDV =  2 \\
+the search will only be done for the second parameter of the grid ($T_{\rm eff}$), holding constant the first and the third ([Fe/H] and $\log g$) to the values in the input parameter file ({\tt ki13\_1000.ipf}), which is our test case contains the 'true' values for the simulated {\it observations}.
+
+If we repeat the statistics for the differences between the output and input ('true') effective temperatures, we will find that the scatter has reduced from 
+about 130 down to just 60 K. As might be expected, knowing the true values of the other two parameters leads to more accurate determination of the third.
+
+\section{Literature using FERRE}
+
+The following list is not complete. The main applications of the code so far 
+have been the Century survey galactic halo project, SEGUE, the ELM survey, APOGEE, and the Gaia-ESO survey.
+
+\begin{enumerate}
+
+\item Howes, L.~M., Asplund, 
+M., Casey, A.~R., et al.\ 2014, MNRAS, 445, 4241 
+
+
+\item Pinsonneault, 
+M.~H., Elsworth, Y., Epstein, C., et al.\ 2014, ApJS, 215, 19 
+
+
+\item Mikolaitis, {\v S}., Hill, V., Recio-Blanco, A., et al.\ 2014, A\&A, 572, AA33 
+
+
+\item Nidever, D.~L., Bovy, 
+J., Bird, J.~C., et al.\ 2014, ApJ, 796, 38 
+
+
+\item Kilic, M., Brown, W.~R., 
+Gianninas, A., et al.\ 2014, MNRAS, 444, L1 
+
+
+\item Smiljanic, R., Korn, A.~J., Bergemann, M., et al.\ 2014, A\&A, 570, AA122 
+
+
+\item Bovy, J., Nidever, D.~L., 
+Rix, H.-W., et al.\ 2014, ApJ, 790, 127 
+
+
+\item Allende Prieto, C., Fern{\'a}ndez-Alvar, E., Schlesinger, K.~J., et al.\ 2014, A\&A, 568, AA7 
+
+
+\item Schultheis, M., 
+Zasowski, G., Allende Prieto, C., et al.\ 2014, AJ, 148, 24 
+
+
+\item Recio-Blanco, A., de Laverny, P., Kordopatis, G., et al.\ 2014, A\&A, 567, AA5 
+
+
+\item Hayden, M.~R., Holtzman, 
+J.~A., Bovy, J., et al.\ 2014, AJ, 147, 116 
+
+
+\item Bergemann, M., Ruchti, G.~R., Serenelli, A., et al.\ 2014, A\&A, 565, AA89 
+
+
+\item Ahn, C.~P., Alexandroff, 
+R., Allende Prieto, C., et al.\ 2014, ApJS, 211, 17 
+
+
+\item Xue, X.-X., Ma, Z., Rix, 
+H.-W., et al.\ 2014, ApJ, 784, 170 
+
+
+\item Anders, F., Chiappini, C., Santiago, B.~X., et al.\ 2014, A\&A, 564, AA115 
+
+
+\item Palladino, L.~E., 
+Schlesinger, K.~J., Holley-Bockelmann, K., et al.\ 2014, ApJ, 780, 7 
+
+
+\item Majewski, S.~R., 
+Hasselquist, S., {\L}okas, E.~L., et al.\ 2013, ApJ, 777, LL13 
+
+
+\item Frinchaboy, P.~M., 
+Thompson, B., Jackson, K.~M., et al.\ 2013, ApJ, 777, LL1 
+
+
+\item 
+M{\'e}sz{\'a}ros, S., Holtzman, J., Garc{\'{\i}}a P{\'e}rez, A.~E., et al.\ 
+2013, AJ, 146, 133 
+
+
+\item Brown, W.~R., Kilic, M., 
+Allende Prieto, C., Gianninas, A., \& Kenyon, S.~J.\ 2013, ApJ, 769, 66 
+
+
+\item M{\'e}sz{\'a}ros, S., \& Allende Prieto, C.\ 2013, MNRAS, 430, 3285 
+
+
+\item
+Garc{\'{\i}}a P{\'e}rez, A.~E., Cunha, K., Shetrone, M., et al.\ 2013, 
+ApJ, 767, LL9 
+
+
+\item Smith, V.~V., Cunha, K., 
+Shetrone, M.~D., et al.\ 2013, ApJ, 765, 16 
+
+
+\item Ahn, C.~P., Alexandroff, 
+R., Allende Prieto, C., et al.\ 2012, ApJS, 203, 21 
+
+
+\item Hermes, J.~J., Kilic, 
+M., Brown, W.~R., et al.\ 2012, ApJ, 757, L21 
+
+
+\item Kilic, M., Brown, W.~R., 
+Allende Prieto, C., et al.\ 2012, ApJ, 751, 141 
+
+
+\item Schlaufman, K.~C., 
+Rockosi, C.~M., Lee, Y.~S., et al.\ 2012, ApJ, 749, 77 
+
+
+\item Brown, W.~R., Kilic, M., 
+Allende Prieto, C., \& Kenyon, S.~J.\ 2012, ApJ, 744, 142 
+
+
+\item Kilic, M., Brown, W.~R., 
+Hermes, J.~J., et al.\ 2011, MNRAS, 418, L157 
+
+
+\item Brown, W.~R., Kilic, M., 
+Hermes, J.~J., et al.\ 2011, ApJ, 737, LL23 
+
+
+\item Schlaufman, K.~C., 
+Rockosi, C.~M., Lee, Y.~S., Beers, T.~C., 
+\& Allende Prieto, C.\ 2011, ApJ, 734, 49 
+
+
+\item Kilic, M., Brown, W.~R., 
+Kenyon, S.~J., et al.\ 2011, MNRAS, 413, L101 
+
+
+\item Aihara, H., Allende 
+Prieto, C., An, D., et al.\ 2011, ApJS, 193, 29 
+
+
+\item Lee, Y.~S., Beers, T.~C., 
+Allende Prieto, C., et al.\ 2011, AJ, 141, 90 
+
+
+\item Brown, W.~R., Kilic, M., 
+Allende Prieto, C., \& Kenyon, S.~J.\ 2011, MNRAS, 411, L31 
+
+
+\item Allende Prieto, C.\ 
+2011, MNRAS, 411, 807 
+
+
+\item Kilic, M., Brown, W.~R., 
+Allende Prieto, C., et al.\ 2011, ApJ, 727, 3 
+
+
+\item Brown, W.~R., Kilic, M., 
+Allende Prieto, C., \& Kenyon, S.~J.\ 2010, ApJ, 723, 1072 
+
+
+\item Kilic, M., Allende 
+Prieto, C., Brown, W.~R., et al.\ 2010, ApJ, 721, L158 
+
+
+\item Kilic, M., Brown, W.~R., 
+Allende Prieto, C., Kenyon, S.~J., \& Panei, J.~A.\ 2010, ApJ, 716, 122 
+
+
+\item del Burgo, C., 
+Allende Prieto, C., 
+\& Peacocke, T.\ 2010, Journal of Instrumentation, 5, 1006 
+
+
+\item Schlaufman, K.~C., 
+Rockosi, C.~M., Allende Prieto, C., et al.\ 2009, ApJ, 703, 2177 
+
+
+\item Allende Prieto, 
+C., Hubeny, I., \& Smith, J.~A.\ 2009, MNRAS, 396, 759 
+
+
+\item Abazajian, K.~N., 
+Adelman-McCarthy, J.~K., Ag{\"u}eros, M.~A., et al.\ 2009, ApJS, 182, 543 
+
+
+\item Kilic, M., Brown, W.~R., 
+Allende Prieto, C., et al.\ 2009, ApJ, 695, L92 
+
+
+\item Allende Prieto, 
+C., Sivarani, T., Beers, T.~C., et al.\ 2008, AJ, 136, 2070 
+
+
+\item Lee, Y.~S., Beers, T.~C., 
+Sivarani, T., et al.\ 2008, AJ, 136, 2050 
+
+
+\item Lee, Y.~S., Beers, T.~C., 
+Sivarani, T., et al.\ 2008, AJ, 136, 2022 
+
+
+\item 
+Adelman-McCarthy, J.~K., Ag{\"u}eros, M.~A., Allam, S.~S., et al.\ 2008, 
+ApJS, 175, 297 
+
+
+\item Brown, W.~R., Beers, 
+T.~C., Wilhelm, R., et al.\ 2008, AJ, 135, 564 
+
+
+\item Kilic, M., Brown, W.~R., 
+Allende Prieto, C., Pinsonneault, M.~H., 
+\& Kenyon, S.~J.\ 2007, ApJ, 664, 1088 
+
+
+\item Dall, T.~H., Foellmi, C., Pritchard, J., et al.\ 2007, A\&A, 470, 1201 
+
+
+\item Kilic, M., Allende 
+Prieto, C., Brown, W.~R., \& Koester, D.\ 2007, ApJ, 660, 1451 
+
+
+\item Allende Prieto, 
+C., Beers, T.~C., Wilhelm, R., et al.\ 2006, ApJ, 636, 804 
+
+
+\item Brown, W.~R., Geller, 
+M.~J., Kenyon, S.~J., et al.\ 2005, AJ, 130, 1097 
+
+
+\item Allende Prieto, C.\ 
+2004, Astronomische Nachrichten, 325, 604 
+
+
+\item Allende Prieto, 
+C., Beers, T.~C., Li, Y., et al.\ 2004, 
+"Origin and Evolution of the Elements", from the Carnegie Observatories Centennial Symposia. Carnegie Observatories Astrophysics Series. Edited by A. McWilliam and M. Rauch, 2004. Pasadena: Carnegie Observatories
+
+\item Brown, W.~R., Allende 
+Prieto, C., Beers, T.~C., et al.\ 2003, AJ, 126, 1362 
+
+\end{enumerate}
+
+\section{References}
+
+\begin{itemize}
+\item Nelder, J A. \&  Mead, R. 1965. "A simplex method for function minimization". Computer Journal 7: 308–313
+\item  Boender, C.G.E., Rinnooy Kan, A.H.G., Strougie, L. \& Timmer, G. T. 1982. "A stochastic method for global optimization". Mathematical Programming 22: 125–140
+\item Powell, M. J. D. 2000, "UOBYQA: unconstrained optimization by
+quadratic approximation"  Report DAMTP 2000/NA14, University of Cambridge
+\item Dembo, R.S. \& Steihaug, T., 1983, "Truncated-Newton Algorithms for Large-Scale Unconstrained Optimization", Math. Prog. 26, 190-212 
+\end{itemize}
+
+\end{document}
+

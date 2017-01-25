@@ -1,0 +1,12 @@
+ &LISTA
+ NDIM = 3
+ NOV = 3
+ INDV= 1 2 3
+ SYNTHFILE(1) = 'f_ki13_1000.dat'
+ PFILE = 'ki13_1000.ipf '
+ FFILE = 'ki13_1000.frd '
+ ERFILE = 'ki13_1000.err'
+ OPFILE = 'ki13_1000.opf'
+ OFFILE = 'ki13_1000.mdl'
+ ERRBAR = 1
+ /

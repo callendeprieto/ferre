@@ -1,0 +1,11 @@
+improve linear interpolation routine (booklib currently) -- too slow 
+		compared to splines
+
+move wresample and convol into flx.f90 -- done
+
+write trivial routine that checks for NaNs on input
+	(numbers not equal to themselves) and
+	call that after reading data to decide if
+	spectrum is to be skipped
+
+

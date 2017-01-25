@@ -1,0 +1,8 @@
+pro	gets,delta,sigmaR
+
+	delta2=delta[sort(delta)]
+	delta2=delta2[fix(nel*0.1585):fix(nel*0.8415)]
+	sigmaR=sqrt((max(delta2)-min(delta2))^2)/2.
+
+print,'sigma,sigmaR=',stdev(delta),sigmaR
+end
