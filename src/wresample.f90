@@ -59,7 +59,7 @@ case default
   write(*,*) 'ERROR in wresample'
   write(*,*) 'twinter must be 0 or 1'
   write(*,*) 'not ',twinter
-  stop	
+  stop
 end select
 
 end subroutine wresample

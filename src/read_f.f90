@@ -120,7 +120,7 @@ if (multi == 0 .or. npca(1) > 0) then
 		if (lsf > 0 .and. pcachi == 1) then
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'pcachi = ',pcachi,' must be set to 0 when lsf > 0'
-			stop	
+			stop
 		endif
 		if (filterfile .gt. ' ' .and. pcachi == 1) then
 			write(*,*) 'read_f: WARNING'
@@ -130,23 +130,23 @@ if (multi == 0 .or. npca(1) > 0) then
 		if(pcachi == 0. .and. pcaproject == 1) then
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'pcaproject = ',pcaproject,' must be set to 0 when pcachi = 0'
-			stop		
+			stop
 		endif
 		if(winter == 2 .and. pcachi == 1) then
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'pcachi = ',pcachi,' must be set to 0 when winter = 2 with PCA grids'
-			stop		
+			stop
 		endif 	   
 	else
 		if (pcachi == 1) then
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'pcachi = ',pcachi,' must be set to 0 for non PCA grids'
-			stop	
+			stop
 		endif
 		if (pcaproject == 1) then
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'pcaproject = ',pcaproject,' must be set to 0 for non PCA grids'
-			stop	
+			stop
 		endif		
 	endif
 
@@ -188,7 +188,7 @@ do ii=1,multi
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'the value of the CONSTANT keyword for an npca grid'
 			write(*,*) 'has been modified'
-			stop	
+			stop
 	endif
 			
 	if (ii == 1) then 
@@ -210,7 +210,7 @@ do ii=1,multi
 			if (pcachi == 1) then
 				write(*,*) 'read_f: ERROR'
 				write(*,*) 'pcachi = ',pcachi,' must be set to 0 for non PCA grids'
-				stop	
+				stop
 			endif
 			
 		endif
@@ -577,7 +577,7 @@ do j=2,maxsynth
  	   			if (lsf > 0 .and. pcachi == 1) then
 					write(*,*) 'read_f: ERROR'
 					write(*,*) 'pcachi = ',pcachi,' must be set to 0 when lsf > 0'
-					stop	
+					stop
 				endif
 				if (filterfile .gt. ' ' .and. pcachi == 1) then
 					write(*,*) 'read_f: WARNING'
@@ -587,23 +587,23 @@ do j=2,maxsynth
 				if(pcachi == 0. .and. pcaproject == 1) then
 					write(*,*) 'read_f: ERROR'
 					write(*,*) 'pcaproject = ',pcaproject,' must be set to 0 when pcachi = 0'
-					stop		
+					stop
 				endif
 				if(winter == 2 .and. pcachi == 1) then
 					write(*,*) 'read_f: ERROR'
 					write(*,*) 'pcachi = ',pcachi,' must be set to 0 when winter = 2 with PCA grids'
-					stop		
+					stop
 				endif 	
 			else
 				if (pcachi == 1) then
 					write(*,*) 'read_f: ERROR'
 					write(*,*) 'pcachi = ',pcachi,' must be set to 0 for non PCA grids'
-					stop	
+					stop
 				endif
 				if (pcaproject == 1) then
 					write(*,*) 'read_f: ERROR'
 					write(*,*) 'pcaproject = ',pcaproject,' must be set to 0 for non PCA grids'
-					stop	
+					stop
 				endif
 			endif
 			

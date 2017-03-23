@@ -486,7 +486,7 @@ do j=1,nobj
 			write(*,*)'ferre: ERROR'
 			write(*,*)'-- lsf must be 0,1,2,3,4,11,12, 13 or 14 '
 			write(*,*)'-- this should have been caught in load_control!'
-			stop			
+			stop
 		end select
 	endif	
 
@@ -554,7 +554,7 @@ do j=1,nobj
  	  case default
  	    write(*,*)'ferre: ERROR'
  	    write(*,*)'winter has an ilegal value of ',winter
- 	    stop 	  	
+ 	    stop
 	  end select
 	  
 	  if (abs(ierr) > 0) then

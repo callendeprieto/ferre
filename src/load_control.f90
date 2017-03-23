@@ -226,7 +226,7 @@ endif
 if(pcachi == 0. .and. pcaproject == 1) then
 	write(*,*) 'load_control: ERROR'
 	write(*,*) 'pcaproject = ',pcaproject,' must be set to 0 when pcachi = 0'
-	stop		
+	stop
 endif
 !lsf
 if (minval(abs(lsf-(/0,1,2,3,4,11,12,13,14/))) > 0) then
