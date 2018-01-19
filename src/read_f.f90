@@ -168,13 +168,16 @@ if (multi == 0 .or. npca(1) > 0) then
 		hs(1)%lws=logw
 		hs(1)%lambdamin=wave(1)
 		hs(1)%lambdamax=wave(1)+npix*wave(2)
+                write(*,*)'lambdamin=',wave(1)
+                write(*,*)'npix=',npix
+                write(*,*)'wave(2)=',wave(2)
 		select case (logw)
 			case (1)
 				hs(1)%lambdamin=10._dp**hs(1)%lambdamin
-				hs(1)%lambdamax=10._dp**hs(1)%lambdamin
+				hs(1)%lambdamax=10._dp**hs(1)%lambdamax
 			case (2)
 				hs(1)%lambdamin=exp(hs(1)%lambdamin)
-				hs(1)%lambdamax=exp(hs(1)%lambdamin)
+				hs(1)%lambdamax=exp(hs(1)%lambdamax)
 		end select
 	endif
 	
@@ -225,6 +228,9 @@ do ii=1,multi
 		hs(1)%lws=logw		
 		hs(1)%lambdamin=wave(1)
 		hs(1)%lambdamax=wave(1)+npix*wave(2)
+                write(*,*)'lambdamin=',wave(1)
+                write(*,*)'npix=',npix
+                write(*,*)'wave(2)=',wave(2)
 		select case (logw)
 			case (1)
 				hs(1)%lambdamin=10._dp**hs(1)%lambdamin
@@ -249,10 +255,10 @@ do ii=1,multi
 		select case (logw)
 			case (1)
 				hs(nsynth)%lambdamin=10._dp**hs(nsynth)%lambdamin
-				hs(nsynth)%lambdamax=10._dp**hs(nsynth)%lambdamin
+				hs(nsynth)%lambdamax=10._dp**hs(nsynth)%lambdamax
 			case (2)
 				hs(nsynth)%lambdamin=exp(hs(nsynth)%lambdamin)
-				hs(nsynth)%lambdamax=exp(hs(nsynth)%lambdamin)
+				hs(nsynth)%lambdamax=exp(hs(nsynth)%lambdamax)
 		end select
 		
 		!consistency checks for dimensions in this and previous synth modules
@@ -644,9 +650,21 @@ do j=2,maxsynth
 				hs(nsynth)%lambda0=wave(1)
 				hs(nsynth)%lambda1=wave(2)
 				hs(nsynth)%lws=logw	
+				hs(nsynth)%lambdamin=wave(1)
+				hs(nsynth)%lambdamax=wave(1)+npix*wave(2)
+				select case (logw)
+					case (1)
+						hs(nsynth)%lambdamin=10._dp**hs(nsynth)%lambdamin
+						hs(nsynth)%lambdamax=10._dp**hs(nsynth)%lambdamax
+					case (2)
+						hs(nsynth)%lambdamin=exp(hs(nsynth)%lambdamin)
+						hs(nsynth)%lambdamax=exp(hs(nsynth)%lambdamax)
+				end select
+
 			endif
 			
 		endif
+
 		
 		do ii=1,multi
 	
@@ -693,10 +711,10 @@ do j=2,maxsynth
 			select case (logw)
 				case (1)
 					hs(nsynth)%lambdamin=10._dp**hs(nsynth)%lambdamin
-					hs(nsynth)%lambdamax=10._dp**hs(nsynth)%lambdamin
+					hs(nsynth)%lambdamax=10._dp**hs(nsynth)%lambdamax
 				case (2)
 					hs(nsynth)%lambdamin=exp(hs(nsynth)%lambdamin)
-					hs(nsynth)%lambdamax=exp(hs(nsynth)%lambdamin)
+					hs(nsynth)%lambdamax=exp(hs(nsynth)%lambdamax)
 			end select
 			
 			
@@ -725,13 +743,8 @@ do j=2,maxsynth
 		enddo
 		npix=npix2
 		
-		write(*,*)'at this point, npix1,npix=',npix1,npix
-		write(*,*)'nsynth=',nsynth
-		do i=1,nsynth
-			write(*,*)hs(i)%res,hs(i)%pixbegin,hs(i)%pixend,  &
-			          hs(i)%lambda0,hs(i)%lambda1,hs(i)%lws,  &
-				  hs(i)%lambdamin,hs(i)%lambdamax
-		enddo
+		!write(*,*)'at this point, npix1,npix=',npix1,npix
+		!write(*,*)'nsynth=',nsynth
 
 		if (n_of_dim.ne.ndim) then
 			write(*,*) 'ERROR in read_f'
@@ -827,14 +840,14 @@ do j=2,maxsynth
 
 			close(1)
 	    
-	    	!calculate recordlength
-	    	if (transposed == 0) then
+	    	        !calculate recordlength
+	    	        if (transposed == 0) then
 				inquire (iolength=recordlength) f(npix1+1:npix,1)
 			else
 				inquire (iolength=recordlength) f(1,:)
 			endif
 			
-		    !compose name for binary synth file
+		        !compose name for binary synth file
 			ii=len_trim(synthfile(j))
 			synthfile_binary=synthfile(j)
 			synthfile_binary=synthfile_binary(1:ii-3)
@@ -859,23 +872,30 @@ do j=2,maxsynth
 			
 
 		else
-						
-			if (transposed == 0) then 			
+
+			close(1)
+	    			
+			open(1,file=synthfile(j),delim='apostrophe',recl=xliobuffer,action='read')
+			npix2=npix
+			do ii=0,multi
+				read(1,nml=synth)
+			enddo
+			npix=npix2
+
+			if (transposed == 0) then
 				do ii=1,ntot
 					f(1:npix1,ii)=f2(:,ii)
 					read(1,*) f(npix1+1:npix,ii)
-				enddo		
-				!fix this? -> f(1:npix1,1:ntot)=f2(1:npix1,1:ntot)
+				enddo
 			else
 				do ii=1,npix1
 					f(ii,1:ntot)=f2(ii,1:ntot)
 				enddo	
-				!fix this? -> f(1:npix1:1:ntot)=f2(1:npix1,1:ntot)
 				do ii=npix+1,npix
 					read(1,*) f(ii,1:ntot)
-				enddo	
+				enddo
 			endif
-
+			
 		endif
 						
 		close(1)
@@ -909,6 +929,28 @@ do j=2,maxsynth
 	endif
 enddo
 
+!write(*,*)'nsynth=',nsynth
+write(*,*)''
+write(*,*)'final value: npix=',npix
+write(*,*)''
+write(*,*)'synthfile summary'
+write(*,*)'*******************************************************************'
+write(*,*)'   #      R     start-pix  end-pix    start-lambda      end-lambda'
+do i=1,nsynth
+	write(*,'(i5,x,f9.1,i8,x,i8,x,f16.3,x,f16.3)')i,hs(i)%res, & 
+          hs(i)%pixbegin,hs(i)%pixend, &
+	  !hs(i)%lambda0,hs(i)%lambda1,hs(i)%lws,  &
+	  hs(i)%lambdamin,hs(i)%lambdamax
+enddo
+write(*,*)'*******************************************************************'
+
+!reset xliobuffer for ffile/sffile
+xliobuffer=25*npix !npix data x 25 characters/datum
+if (npca(1) > 0) then !npca files contain means, v and w
+	nelnpca=count(npca > 0)
+	totalnpca=sum(npca(1:nelnpca))
+	xliobuffer=25*totalnpca  !meanspca,vpca and wpca require longer rows
+endif
 
 !scaling to avoid extreme numbers
 scaled=1

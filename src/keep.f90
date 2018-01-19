@@ -787,6 +787,7 @@ GO TO 410
 130 IF (nfev >= maxfn) THEN
     ier=200 ! Added to avoid an infinite loop (C. Allende Prieto, April 4, 2017)
     write(*,*)'Maximum number of function evaluations exceeded. Giving up!'
+    stop
     GO TO 350
 ENDIF
 itn = itn + 1

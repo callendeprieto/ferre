@@ -1,16 +1,17 @@
 MODULE fun
 
+use share, only: dp,ndim,nov,indv,                    &
+                 ntie,indtie,typetie,ttie0,ttie,      &
+                 nlambda1,mlsf,nlsf,                  &
+                 trkout
+
 implicit none
 
 contains
 
 SUBROUTINE objfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, func)
- 
-use share, only: dp,ndim,nov,indv,                    &
-                 ntie,indtie,typetie,ttie0,ttie,      &
-                 nlambda1,mlsf,nlsf,                  &
-                 trkout
-				
+
+ 				
 implicit none
  
 !in/out
@@ -87,5 +88,48 @@ if (trkout /= 0) then
 endif
 
 END SUBROUTINE objfun
+
+!********************************************************************************
+
+function sampler (w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, par_num, zp )
+
+
+implicit none
+
+!I/O
+real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(inout)	:: pf(ndim)		! vector of fixed parameters
+real(dp), intent(in)    :: pf0(ndim)            ! params read from pffile
+						! (in physical units)
+real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
+real(dp), intent(in)	:: lambda_obs(nlambda1)	! vavelengths for observations
+real(dp), intent(in)    :: e_obs(nlambda1)      ! uncertainties in observations 
+real(dp), intent(in)    :: mobs             ! mean or median of obs array
+real(dp), intent(in)    :: lsfarr(mlsf,nlsf)    ! lsfarray
+
+integer ( kind = 4 ) par_num
+real ( kind = 8 ) sampler
+real ( kind = 8 ) zp(par_num)
+
+!locals
+integer                 :: i
+real (dp)               :: func
+real (dp)               :: p(nov)
+real (kind = 8)         :: chiscale
+
+p(1:nov)=zp(1:par_num)
+
+call objfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, func)
+
+chiscale=sum(w/e_obs**2)/real(nlambda1)
+
+!sampler must be the likelihood = -0.5*chi2
+sampler = - 0.5D+00 * func * 50. * chiscale
+!sampler = - 0.5D+00 * sum ( ( zp(1:par_num) - 0.5D0 ) ** 2 /0.1d0 **2 )
+
+    
+return
+end
+
 
 END MODULE fun

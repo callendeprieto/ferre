@@ -24,6 +24,8 @@ namelist / lista / nruns,errbar,mcruns,covprint,indi,winter,twinter
 namelist / lista / inter,mono,algor,scope,stopcr,simp,nthreads
 namelist / lista / pcaproject,pcachi,lsf,nlsf
 namelist / lista / cont,ncont,obscont
+namelist / lista / ext_chain_filename,ext_gr_filename
+namelist / lista / chain_num, gen_num, burnin_limit
 
 
 indini(1:maxndim)=-1
@@ -207,7 +209,7 @@ if (mono == 1 .and. inter /= 3) then
         write(*,*) 'mono = ',mono,' is only active for inter=3!'
 endif
 !-2<=algor<=4
-if (algor < -1 .or. algor > 4) then
+if (algor < -1 .or. algor > 5) then
 	write(*,*) 'load_control: ERROR'
 	write(*,*) 'algor = ',algor,' has an ilegal value (should be -1,0,1,2,3 or 4)' 
 	stop
@@ -270,6 +272,7 @@ if ((only_object(1) > 0 .or. only_object(2) < 10**lmaxnobj) .and. nthreads /= 1)
         write(*,*)'nthreads=',nthreads
 	stop
 endif
+if (burnin_limit < 0) burnin_limit = gen_num/2
 		
 write(*,*)'load_control -> ndim=',ndim
 write(*,*)'load_control -> nov =',nov
@@ -277,6 +280,11 @@ write(*,*)'load_control -> snr =',snr
 write(*,*)'load_control -> nruns=',nruns
 write(*,*)'load_control -> lsf=',lsf
 write(*,*)'load_control -> nthreads=',nthreads
+
+if (algor == 5) then
+ write(*,*)'load_control -> gen_num=',gen_num
+ write(*,*)'load_control -> burnin_limit=',burnin_limit
+endif
 
 		
 end subroutine load_control

@@ -9,7 +9,6 @@ implicit none
 real(dp), allocatable	   :: pf(:)		! vector of fixed parameters
 real(dp), allocatable      :: pf0(:)            ! vector of params. read from pfile (in physical units) 
 real(dp), allocatable	   :: spf(:)		!vector of uncertaint. all pars.
-real(dp), allocatable	   :: p(:)		!vector of variable parameters
 real(dp), allocatable	   :: pt(:,:)    	!storage for var. params. for individual nruns
 real(dp), allocatable	   :: obs(:)		! vector of observations
 real(dp)                   :: mobs          ! mean or median of obs array
@@ -333,7 +332,7 @@ write(*,*)'about to enter parallel region!'
 
 !$omp parallel num_threads(nthreads)                            	&
 !$omp	default(none)                                    	        &
-!$omp   private(pf,pf0,spf,p,pt,obs,mobs,e_obs,w,fit,sfit,              &
+!$omp   private(pf,pf0,spf,pt,obs,mobs,e_obs,w,fit,sfit,              &
 !$omp		 j,i,k,l,    						&
 !$omp	         tid,nthreads_env,					&
 !$omp		 ii,ii1,ii2,jj,kk,offset,stlen,                       	&
@@ -387,7 +386,6 @@ write(*,*)'main         -> tid =',tid
 allocate (pf(ndim))
 allocate (pf0(ndim))
 allocate (spf(ndim))
-allocate (p(nov))
 if (errbar == -2 .and. nruns > 1) allocate(pt(nruns,nov))
 allocate (opf(ndim))
 allocate (ospf(ndim))
@@ -594,7 +592,7 @@ do j=1,nobj
 			call quit(status)
 	  	endif
 	  endif	  
-	  
+    
 	  !make sure we do not have errors=0 (used on the error calcs.)
 	  if (minval(e_obs) <= tiny(e_obs)) then
 	        write(*,*) 'ferre: WARNING'
@@ -607,7 +605,7 @@ do j=1,nobj
 	  
 	!$omp end critical
 
-    !write(*,*) 'status,tid,pf=',status,tid,pf
+        !write(*,*) 'status,tid,pf=',status,tid,pf
 	!check status
 	if (status == 0) then  !check1 status	
 	  if (nov > 0) then    !3rd nov if
@@ -638,6 +636,7 @@ do j=1,nobj
 
 	  	!apply scaling
 	  	if (scaled == 1) obs=obs/scalef
+
 	  	
 		!determine mean/median for obs when mforce>0
 		mobs=0.0_dp
@@ -705,9 +704,10 @@ do j=1,nobj
 			chiscale=sum(w/e_obs**2)/real(nlambda1)
 			
 			if (abs(chiscale) >  0.0_dp) then 
-				w=w/e_obs**2/chiscale
+			    w=w/e_obs**2/chiscale
 			else
-				status=-3
+			    status=-3
+                            write(*,*)'This object appears to have all data equal to zero. It will be skipped.'
 			endif
 		
 			!write(*,*)'weights=',w(1:14)
@@ -732,14 +732,17 @@ do j=1,nobj
 			e_obs=abs(obs/snr)
 		
 	    endif
-	    
+
 	
 	    !continuum normalization
 	    if (cont>0 .and. obscont /= 0) then 
 	      call continuum(obs,lambda_obs,e_obs,fit,nlambda1,cont,ncont)
-	      obs=obs/fit
-	      e_obs=e_obs/fit
+              where (fit /= 0._dp)
+	          obs=obs/fit
+	          e_obs=e_obs/fit
+              endwhere
 	    endif
+
 
 	  endif  !3rd nov if
 	
@@ -785,52 +788,22 @@ do j=1,nobj
 	
 	if (status == 0 .and. nov > 0) then   !check2 status and 4th nov if
 
- 	  !set initial values for the search
-	  call pinin(k,0,w,pf,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,p)
-
-	  call getmin(algor,w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr1,p)  
-
-	  do i=1,nov
-		if (p(i).gt.1.0_dp) then
-			pf(indv(i))=1.0_dp
-		else if (p(i).le.0.0_dp) then
-			pf(indv(i))=1.e-8_dp
-		else
-			pf(indv(i)) = p(i)
-		endif
-	  enddo
+	  call getmin(algor,k,0,fname,chiscale, & 
+		      w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
+		      spf,lchi,cov)  
 
 	  !keep track of results when using nrunsigma
-	  if (errbar == -2 .and. nruns>1) pt(k,1:nov)=pf(indv(1:nov))
-
-	  lchi=-1.0_dp
-	  cov(1:nov,1:nov)=0.0_dp
-	  select case (errbar)
-	  case (0)
-	  	call getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr1,spf,lchi) 
-	    	if (covprint .eq. 1) call cova(w,lambda_obs,mobs,lsfarr1,pf,e_obs,cov)
-	  case (1)
-	  	call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)	  	
-	  case (2)
-	  	call mcsigma(chiscale,w,pf,pf0,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)
-	  case (-2)
-		!we use covsigma to calculate lchi
- 	 	call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)
-                if (k >= nruns .and. nruns > 1) then 
-		!calculate cov. and errors from the nruns solutions
-		  call nrunsigma(pt,spf,cov)
-	  	endif
-          case (3)
-	  	call pdfsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)		
-	  case default
-		write(*,*) 'ferre: ERROR'
-	  	write(*,*) 'errbar=',errbar,' must be 0, 1, 2, -2, or 3'
-	  	stop
-	  end select
+	  if (errbar == -2 .and. nruns>1) then 
+		pt(k,1:nov)=pf(indv(1:nov))
+          	if (k >= nruns) then 
+	  	!calculate cov. and errors from the nruns solutions
+	  		call nrunsigma(pt,spf,cov)
+		endif
+	  endif
 	  	 
-      do i=1,nov
+      	  do i=1,nov
             if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
-      enddo            
+      	  enddo            
 
 	  WRITE (*,*)
 	  WRITE (*,*)j,fname
@@ -872,56 +845,22 @@ do j=1,nobj
 			chiscale=snr**2
 		endif		
 
+	  	call getmin(algor,k,1,fname, chiscale, & 
+			    w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
+			    spf,lchi,cov)  
 
-	 	!initialization for the amoeba
-  		call pinin(i,1,w,pf,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,p)
-
-		!minimization		
-		call getmin(algor,w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr1,p)                          
-					    
-	  	do i=1,nov
-			if (p(i).gt.1.0_dp) then
-				pf(indv(i))=1.0_dp
-			else if (p(i).lt.0.0_dp) then
-				pf(indv(i))=0.0_dp
-			else
-				pf(indv(i)) = p(i)
+	  	!keep track of results when using nrunsigma
+	  	if (errbar == -2 .and. nruns>1) then 
+			pt(k,1:nov)=pf(indv(1:nov))
+          		if (k >= nruns) then 
+	  		!calculate cov. and errors from the nruns solutions
+	  			call nrunsigma(pt,spf,cov)
 			endif
-	  	enddo		       
-
-
-		!keep track of results when using nrunsigma
-	  	if (errbar == -2 .and. nruns > 1) pt(k,1:nov)=pf(indv(1:nov))
-             
-	  	lchi=-1.0_dp
-		cov(1:nov,1:nov)=0.0_dp
-	  	select case (errbar)
-	  	case (0)
-	  	  call getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr1,spf,lchi) 
-	 	  if (covprint .eq. 1) call cova(w,lambda_obs,mobs,lsfarr1,pf,e_obs,cov)
-	  	case (1)
-		  call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)	  	
-		case (2)
-		  call mcsigma(chiscale,w,pf,pf0,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)
-		case (-2)
-		  !we use covsigma to calculate lchi
- 		  call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)
-       	          if (k >= nruns .and. nruns > 1) then 
-		  !calculate cov. and errors from the nruns solutions
-		  	call nrunsigma(pt,spf,cov)
-	  	  endif
-       	  	case (3)
-		  call pdfsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr1,e_obs,spf,lchi,cov)		
-	  	case default
-		  write(*,*) 'ferre: ERROR'
-	  	  write(*,*) 'errbar=',errbar,' must be 0, 1, 2, -2, or 3'
-	  	  stop
-	  	end select
-
-                do i=1,nov
-                	if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
-                enddo     
-        		
+	  	endif
+	  	 
+      	  	do i=1,nov
+          	  if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
+      	  	enddo            	
 
 		WRITE (*,*)j,fname
 		WRITE (*,'(A4,1X,4(f8.4,1X))')  ' SOL',pf(1:ndim)
@@ -992,8 +931,7 @@ do j=1,nobj
 	endif
 		
 	!output chi**2 surface
-	if (chiout.gt.0.and.chiout.lt.2) call chisurf(w,obs,lambda_obs,fname)
-	if (chiout.ge.2) call minlocus(1,fname,w,pf,obs,lambda_obs,e_obs,mobs,p)	
+	if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
 
 	!from  normalized to physical units
 	do i=1,ndim
@@ -1034,7 +972,10 @@ do j=1,nobj
 	
 	!compute median(S/N)
 	medsnr=0.0_dp
-	if (nov > 0) call median(obs/e_obs,nlambda1,medsnr)
+	if (nov > 0) then 
+            call rmedian(obs,e_obs,nlambda1,medsnr)
+            if (status == 0) write(*,*)'median snr =',medsnr
+        endif
 
 
 	if (status > -10 .and. k>= nruns .and. nov > 0) then

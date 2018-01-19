@@ -1,27 +1,30 @@
 
-SUBROUTINE median(x, n, xmed)
+SUBROUTINE median(x2, n, xmed)
 
-! Find the median of X(1), ... , X(N), using as much of the quicksort
+! Find the median of X2(1), ... , X2(N), using as much of the quicksort
 ! algorithm as is needed to isolate it.
-! N.B. On exit, the array X is partially ordered.
 
 !     Latest revision - 26 November 1996
 !	  From A. Miller repository
 !	  Modified to take real type from module share, C. Allende Prieto 2011
+!	  Changed input array from x to x2, so that it is not changed, CAP 2017 
 
 use share, only: dp
 
 IMPLICIT NONE
 
 INTEGER, INTENT(IN)                    :: n
-REAL(dp), INTENT(IN OUT), DIMENSION(n) :: x
+REAL(dp), INTENT(IN), DIMENSION(n)     :: x2
 REAL(dp), INTENT(OUT)                  :: xmed
 
 ! Local variables
-
+REAL(dp), DIMENSION(n)  :: x
 REAL(dp):: temp, xhi, xlo, xmax, xmin
 LOGICAL :: odd
 INTEGER :: hi, lo, nby2, nby2p1, mid, i, j, k
+
+!make a copy to avoid altering it
+x=x2
 
 nby2 = n / 2
 nby2p1 = nby2 + 1

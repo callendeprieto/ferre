@@ -19,7 +19,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.7.2'  !version
+character(len=12)    	:: ver = 'v4.7.6'  !version
 
 
 !params to read or built from synthfile 
@@ -85,7 +85,7 @@ integer			:: indini(maxndim)!init type for var pars.
 integer         	:: nlambda  = 0   !# of frequencies in the input spectra
 integer         	:: nlambda1 = 0   !actual # of frequencies used in chi2 eval
 integer(longenough)	:: nobj	= 10**lmaxnobj	!number of objects
-						                    !nobj<= 0 program counts them
+						!nobj<= 0 program counts them
 character(len=flen) 	:: synthfile(maxsynth)  !grid file(s)
 character(len=flen) 	:: fixfile(maxsynth)	!file(s) for flux ratio corrections
 character(len=flen)     :: filterfile=''!file with input reference weights
@@ -136,6 +136,8 @@ integer			:: errbar = 0	!method for error determination
 						!0=getsigma,1=covsigma,2=mcsigma
 						!-2=nrunsigma	
 						!3=pdfsigma 
+                                                !NOTE:
+                                                !when algor=5 the MCMC error bars are adopted regardless of errbar
 integer			:: mcruns = 10		!# of Monte-Carlo runs (mcsigma)
 integer			:: covprint = 0         !output the cov. matrix to opfile
 integer			:: indi(maxndim)	!order for the interpolations	
@@ -158,6 +160,7 @@ integer			:: algor = 1  !1  ->N-M Miller's implementation
 					      !2  ->Boender-Timmer-Rinnoy Kan global algorithm 
 					      !3  ->Powell's UOBYQA algorithm
 					      !4  ->Nash's Truncated Newton algorithm
+                                              !5  -> MCMC
 					      !0  -> find best-fitting 'pixel' 
 					      !-1 -> sum over param.space
 
@@ -209,6 +212,25 @@ integer, parameter	:: iquad=1			!switch on surface fitting
 								  
 !params to share between main, objfun, and getsigma/mcsigma
 real(dp), allocatable	:: probe(:) 		! scales to get error bars
+
+!params for MCMC
+!first the ones kind of fixed
+integer ( kind = 4 ),parameter    :: cr_num=3
+real ( kind = 8 ),parameter       :: gr_threshold = 1.2
+integer ( kind = 4 ),parameter    :: jumpstep = 5
+integer ( kind = 4 ),parameter    :: pair_num = 3
+integer ( kind = 4 ),parameter    :: printstep = 10
+character ( len = 255 ),parameter :: restart_read_filename = ''
+character ( len = 255 ),parameter :: restart_write_filename = ''
+
+!now the MCMC parameters to be changed in the control file
+character (len=flen)              :: ext_chain_filename=''  !e.g.'.chain000.dat'
+character (len=flen)              :: ext_gr_filename = ''   ! e.g. '.gr'
+integer ( kind = 4 )              :: chain_num = 10
+integer ( kind = 4 )              :: gen_num = 500
+integer ( kind = 4)               :: burnin_limit  = -1 !reset in load_control
+
+
 
 !params to share between read_f and lin/qua/cub
 real(dp), allocatable	:: f(:,:)		!synth grid
