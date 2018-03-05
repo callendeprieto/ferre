@@ -786,211 +786,212 @@ do j=1,nobj
 
 	do k=1,abs(nruns)	!loop on nruns/object
 	
-	if (status == 0 .and. nov > 0) then   !check2 status and 4th nov if
+	 if (status == 0 .and. nov > 0) then   !check2 status and 4th nov if
 
-	  call getmin(algor,k,0,fname,chiscale, & 
+	    call getmin(algor,k,0,fname,chiscale, & 
 		      w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
 		      spf,lchi,cov)  
 
-	  !keep track of results when using nrunsigma
-	  if (errbar == -2 .and. nruns>1) then 
-		pt(k,1:nov)=pf(indv(1:nov))
+	    !keep track of results when using nrunsigma
+	    if (errbar == -2 .and. nruns>1) then 
+	 	pt(k,1:nov)=pf(indv(1:nov))
           	if (k >= nruns) then 
 	  	!calculate cov. and errors from the nruns solutions
 	  		call nrunsigma(pt,spf,cov)
 		endif
-	  endif
+	    endif
 	  	 
-      	  do i=1,nov
-            if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
-      	  enddo            
+      	    do i=1,nov
+              if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
+      	    enddo            
 
-	  WRITE (*,*)
-	  WRITE (*,*)j,fname
-	  WRITE (*,'(A4,1X,4(f8.4,1X))')  ' SOL',pf(1:ndim)
-	  WRITE (*,'(A4,1X,4(f8.4,1X))')  ' ERR',spf(1:ndim)
+	    WRITE (*,*)
+	    WRITE (*,*)j,fname
+	    WRITE (*,'(A4,1X,4(f8.4,1X))')  ' SOL',pf(1:ndim)
+	    WRITE (*,'(A4,1X,4(f8.4,1X))')  ' ERR',spf(1:ndim)
 
 
-	  !optimize weights and rerun
-	  if(optimize == 1 .and. lchi < 4.0_dp) then
+  	    !optimize weights and rerun
+	    if(optimize == 1 .and. lchi < 4.0_dp) then
 	  
-	      call optimum(obs,lambda_obs,e_obs,mobs,lsfarr1,pf,w,opterr)
+	        call optimum(obs,lambda_obs,e_obs,mobs,lsfarr1,pf,w,opterr)
 		
-	      if (opterr.eq.0) then 		!check opterr
+	        if (opterr.eq.0) then 		!check opterr
 		
-	    !restrict wavelength to use in chi**2 if ycutoff>0
-		!(the extra-weight to phot pixels is taken care of 
-		! inside optimum)
-		where (obs < ycutoff) w = 0.0_dp
-		if (npca(1) == 0) where (obs <= 0.0_dp) w = 0.0_dp
-		if (pcachi == 0) where (obs <= 0.0_dp) w = 0.0_dp
-		!renormalize
-		if (sum(abs(w)) >  0.0_dp) then 
+	          !restrict wavelength to use in chi**2 if ycutoff>0
+		  !(the extra-weight to phot pixels is taken care of 
+		  ! inside optimum)
+		  where (obs < ycutoff) w = 0.0_dp
+		  if (npca(1) == 0) where (obs <= 0.0_dp) w = 0.0_dp
+		  if (pcachi == 0) where (obs <= 0.0_dp) w = 0.0_dp
+
+		  !renormalize
+		  if (sum(abs(w)) >  0.0_dp) then 
 			!renormalize
 			w=w/sum(w)*real(nlambda1)
-	  	else
-			status=-1		
-	  	endif			
+	  	  else
+		  	status=-1		
+	  	  endif			
 		
-		if (snr == -1._dp) then !use flux errors
-			!set e_obs to 1 when w=0 (avoiding division by 0)	
-			where (w == 0.0_dp) e_obs=1._dp
-			chiscale=sum(w/e_obs**2)/real(nlambda1)
-			if (abs(chiscale) >  0.0_dp) then 
-				w=w/e_obs**2/chiscale
-			else
-				status=-3
-			endif			
-		else
-			chiscale=snr**2
-		endif		
+		  if (snr == -1._dp) then !use flux errors
+		  	!set e_obs to 1 when w=0 (avoiding division by 0)	
+		  	where (w == 0.0_dp) e_obs=1._dp
+		  	chiscale=sum(w/e_obs**2)/real(nlambda1)
+		  	if (abs(chiscale) >  0.0_dp) then 
+		  		w=w/e_obs**2/chiscale
+		  	else
+		  		status=-3
+		  	endif			
+		  else
+		  	chiscale=snr**2
+		  endif		
 
-	  	call getmin(algor,k,1,fname, chiscale, & 
-			    w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
-			    spf,lchi,cov)  
+	  	  call getmin(algor,k,1,fname, chiscale, & 
+		  	    w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
+		  	    spf,lchi,cov)  
 
-	  	!keep track of results when using nrunsigma
-	  	if (errbar == -2 .and. nruns>1) then 
-			pt(k,1:nov)=pf(indv(1:nov))
-          		if (k >= nruns) then 
-	  		!calculate cov. and errors from the nruns solutions
-	  			call nrunsigma(pt,spf,cov)
-			endif
-	  	endif
+	  	  !keep track of results when using nrunsigma
+	  	  if (errbar == -2 .and. nruns>1) then 
+		  	pt(k,1:nov)=pf(indv(1:nov))
+          	  	if (k >= nruns) then 
+	  	  	!calculate cov. and errors from the nruns solutions
+	  	  		call nrunsigma(pt,spf,cov)
+		  	endif
+	  	  endif
 	  	 
-      	  	do i=1,nov
-          	  if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
-      	  	enddo            	
+      	  	  do i=1,nov
+          	    if (abs(spf(indv(i))).ge.999) spf(indv(i))=-1.0_dp
+      	  	  enddo            	
 
-		WRITE (*,*)j,fname
-		WRITE (*,'(A4,1X,4(f8.4,1X))')  ' SOL',pf(1:ndim)
-		WRITE (*,'(A4,1X,4(f8.4,1X))')  ' ERR',spf(1:ndim)
+		  WRITE (*,*)j,fname
+		  WRITE (*,'(A4,1X,4(f8.4,1X))')  ' SOL',pf(1:ndim)
+		  WRITE (*,'(A4,1X,4(f8.4,1X))')  ' ERR',spf(1:ndim)
 		
-	      endif	!check opterr				
-	  endif ! optimization	
+	        endif	!check opterr				
+	    endif ! optimization	
 	 
-	endif ! check2 status and 4th nov if
+	 endif ! check2 status and 4th nov if
 	
-	if (lchi<bestlchi) then
+	 if (lchi<bestlchi) then
 		bestpf=pf
 		bestspf=spf
 		bestlchi=lchi
 		bestcov=cov
-	endif
+	 endif
 		
-	!writing flux file(s)
-	if (status > -10 .and. k>= nruns) then 
-
-		if (nruns>1 .and. k==nruns) then 
-			pf(1:ndim)=bestpf(1:ndim)
-			lchi=bestlchi
-			if (errbar /= -2) then 
-				spf(1:ndim)=bestspf(1:ndim)
-				cov(1:nov,1:nov)=bestcov(1:nov,1:nov)
-			endif
-		endif
-
-               !getting and writing model fluxes
-                call flx(pf,lambda_obs,e_obs,mobs,lsfarr1,fit)
 		
-		!$omp critical
-		!writing smoothed/normalized observed fluxes
-		if((nfilter > 1 .or. cont > 0) .and. sffile.gt.' ') then
-			if (fformat == 0) then
-			    write(7,'(2000000(es12.5,1x))') obs(1:nlambda1)*scalef
-			else if (fformat == 1) then
-			    write(7,'(a9,a3,3(f5.2,8x),2000000(es12.5,1x))', &
-			    advance='NO') iqmargin,' : ',dum,dum,dum,obs(1:nlambda1)*scalef
-				write(7,'(F12.1)') -2.
-			endif
-		endif
+	 !output chi**2 surface
+	 if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
+
+	 !from  normalized to physical units
+	 do i=1,ndim
+	 	ulimit=llimits(i)+steps(i)*(n_p(i)-1)
+	  	opf(i)=pf(i)*(ulimit-llimits(i))+llimits(i)
+	  	ospf(i)=spf(i)*(ulimit-llimits(i))
+	 enddo	
 
 
-	  	!npca (de)projection if necessary
-	  	if (npca(1) > 0 .and. pcaproject == 1 .and. nlambda1 < totalnpca) then
-			call decompress(fit,obspca)					
-			if (fformat == 0) then
-			   	write(4,'(2000000(es12.5,1x))') obspca(1:totalnpca)
-			else if (fformat == 1) then
-			   	write(4,'(a9,a3,3(f5.2,7x),2000000(es12.5,1x))', &
-			   	advance='NO')iqmargin,' : ',dum,dum,dum,obspca(1:totalnpca)
-			 		write(4,'(F12.1)') -2.	
-			endif
-		else		
-			if (fformat == 0) then
-			  	write(4,'(2000000(es12.5,1x))') fit(1:nlambda1)*scalef
-			else if (fformat == 1) then
-			   	write(4,'(a9,a3,3(f5.2,7x),2000000(es12.5,1x))', &
-			   	advance='NO')iqmargin,' : ',dum,dum,dum,fit(1:nlambda1)*scalef
-			 		write(4,'(F12.1)') -2.	
-			endif
-		endif
-                !$omp end critical
+	 if (covprint == 1) then
+	 	ocov(:,:)=0.0_dp
+	  	do i=1,nov
+	  		ii1=indv(i)
+	  		ulimit=llimits(ii1)+steps(ii1)*(n_p(ii1)-1)
+	  		do l=1,nov
+	  			ii2=indv(l)
+	  			ulimit2=llimits(ii2)+steps(ii2)*(n_p(ii2)-1)
+	  			ocov(ii2,ii1)=cov(l,i)*(ulimit-llimits(ii1))*(ulimit2-llimits(ii2))
+	  		enddo
+	 	enddo
+	 endif
 
-
-	endif
-		
-	!output chi**2 surface
-	if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
-
-	!from  normalized to physical units
-	do i=1,ndim
-		ulimit=llimits(i)+steps(i)*(n_p(i)-1)
-		opf(i)=pf(i)*(ulimit-llimits(i))+llimits(i)
-		ospf(i)=spf(i)*(ulimit-llimits(i))
-	enddo	
-
-
-	if (covprint == 1) then
-		ocov(:,:)=0.0_dp
-		do i=1,nov
-			ii1=indv(i)
-			ulimit=llimits(ii1)+steps(ii1)*(n_p(ii1)-1)
-			do l=1,nov
-				ii2=indv(l)
-				ulimit2=llimits(ii2)+steps(ii2)*(n_p(ii2)-1)
-				ocov(ii2,ii1)=cov(l,i)*(ulimit-llimits(ii1))*(ulimit2-llimits(ii2))
-			enddo
-		enddo
-	endif
-
-	where (ospf < 0. .or. ospf > 99999.) 	ospf=-999.999_dp
-	where (opf > 99999.)		  	 opf=-999.999_dp
-	if (status /=0) then
+	 where (ospf < 0. .or. ospf > 99999.) 	ospf=-999.999_dp
+	 where (opf > 99999.)		  	 opf=-999.999_dp
+	 if (status /=0) then
 		ospf=-999.999_dp
 		opf=-999.999_dp
-	   	chiscale=1.0_dp
-	    lchi=-999.999_dp 
-	endif
+	     	chiscale=1.0_dp
+	  	lchi=-999.999_dp 
+	 endif
 	
-	!contribution made by the photometry
-	!to the final solution (weight of spectroscopy  = 1.-cphot)
-	cphot=0.0_dp
-	do i=1,nphotpix
-		cphot=cphot+w(photpixels(i))
-	enddo
+	 !contribution made by the photometry
+	 !to the final solution (weight of spectroscopy  = 1.-cphot)
+	 cphot=0.0_dp
+  	 do i=1,nphotpix
+  		cphot=cphot+w(photpixels(i))
+	 enddo
 	
-	!compute median(S/N)
-	medsnr=0.0_dp
-	if (nov > 0) then 
-            call rmedian(obs,e_obs,nlambda1,medsnr)
-            if (status == 0) write(*,*)'median snr =',medsnr
-        endif
+	 !compute median(S/N)
+	 medsnr=0.0_dp
+	 if (nov > 0) then 
+             call rmedian(obs,e_obs,nlambda1,medsnr)
+             if (status == 0) write(*,*)'median snr =',medsnr
+         endif
 
 
-	if (status > -10 .and. k>= nruns .and. nov > 0) then
+	 !writing parameters and flux file(s)
+	 if (status > -10 .and. k>= nruns) then 
+         !$omp critical
 
-            !$omp critical
-	    if (covprint .eq. 1) then 
-			write(3,'(1x,a150,100(1x,ES12.4))')fname,opf,ospf,cphot,   &
-        		medsnr,lchi,ocov
-	    else 
-			write(3,'(1x,a150,100(1x,F9.3))')fname,opf,ospf,cphot,   &
-        		medsnr,lchi
-	    endif
-            !$omp end critical
+	   if (nov > 0) then
 
-	endif
+	      if (covprint .eq. 1) then 
+	          write(3,'(1x,a150,100(1x,ES12.4))')fname,opf,ospf,cphot,   &
+        	  medsnr,lchi,ocov
+	      else 
+		  write(3,'(1x,a150,100(1x,F9.3))')fname,opf,ospf,cphot,   &
+        	  medsnr,lchi
+	      endif
+
+           endif
+
+           if (nruns>1 .and. k==nruns) then 
+		pf(1:ndim)=bestpf(1:ndim)
+		lchi=bestlchi
+		if (errbar /= -2) then 
+			spf(1:ndim)=bestspf(1:ndim)
+			cov(1:nov,1:nov)=bestcov(1:nov,1:nov)
+		endif
+	   endif
+
+           !getting and writing model fluxes
+           call flx(pf,lambda_obs,e_obs,mobs,lsfarr1,fit)
+		
+	   !writing smoothed/normalized observed fluxes
+	   if((nfilter > 1 .or. cont > 0) .and. sffile.gt.' ') then
+		if (fformat == 0) then
+		    write(7,'(2000000(es12.5,1x))') obs(1:nlambda1)*scalef
+		else if (fformat == 1) then
+		    write(7,'(a9,a3,3(f5.2,8x),2000000(es12.5,1x))', &
+		    advance='NO') iqmargin,' : ',dum,dum,dum,obs(1:nlambda1)*scalef
+			write(7,'(F12.1)') -2.
+		endif
+	   endif
+
+
+	   !npca (de)projection if necessary
+	   if (npca(1) > 0 .and. pcaproject == 1 .and. nlambda1 < totalnpca) then
+		call decompress(fit,obspca)					
+		if (fformat == 0) then
+		   	write(4,'(2000000(es12.5,1x))') obspca(1:totalnpca)
+		else if (fformat == 1) then
+		   	write(4,'(a9,a3,3(f5.2,7x),2000000(es12.5,1x))', &
+		   	advance='NO')iqmargin,' : ',dum,dum,dum,obspca(1:totalnpca)
+		 		write(4,'(F12.1)') -2.	
+		endif
+	   else		
+		if (fformat == 0) then
+		  	write(4,'(2000000(es12.5,1x))') fit(1:nlambda1)*scalef
+		else if (fformat == 1) then
+		   	write(4,'(a9,a3,3(f5.2,7x),2000000(es12.5,1x))', &
+		   	advance='NO')iqmargin,' : ',dum,dum,dum,fit(1:nlambda1)*scalef
+		 		write(4,'(F12.1)') -2.	
+		endif
+	   endif
+
+
+          !$omp end critical
+	  endif
+
 
 	enddo	!loop on nruns
 
