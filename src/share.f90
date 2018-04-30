@@ -19,7 +19,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.7.7'  !version
+character(len=12)    	:: ver = 'v4.7.9'  !version
 
 
 !params to read or built from synthfile 
@@ -138,7 +138,6 @@ integer			:: errbar = 0	!method for error determination
 						!3=pdfsigma 
                                                 !NOTE:
                                                 !when algor=5 the MCMC error bars are adopted regardless of errbar
-integer			:: mcruns = 10		!# of Monte-Carlo runs (mcsigma)
 integer			:: covprint = 0         !output the cov. matrix to opfile
 integer			:: indi(maxndim)	!order for the interpolations	
 integer			:: winter = 0		!interpolate in wavelength

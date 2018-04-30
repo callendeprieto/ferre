@@ -690,6 +690,7 @@ subroutine chain_write ( chain_filename, chain_num, fit, gen_num, par_num, z )
   integer ( kind = 4 ) j
   integer ( kind = 4 ) k
   real ( kind = 8 ) z(par_num,chain_num,gen_num)
+
 !
 !  Write parameter samples of all chains.
 !

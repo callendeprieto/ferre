@@ -278,6 +278,7 @@ select case (lsf)
 		dlsf=1  !relevant when lsf=3,13
 	case (2,4,12,14)
 		mlsf=npix
+                if (npca(1) > 0) mlsf=totalnpca
 		dlsf=1  !relevant when lsf=4,14
 	case default
 		write(*,*)'ferre: ERROR'
@@ -361,7 +362,7 @@ write(*,*)'about to enter parallel region!'
 !$omp            f_format,f_access,fformat,snr,only_object,         	&
 !$omp            ycutoff,wphot,balance,optimize,impact,             	&
 !$omp            mforce,chiout,trkout,cont,ncont,obscont,              	&
-!$omp            nfilter,init,nruns,errbar,mcruns,covprint,indi,    	&
+!$omp            nfilter,init,nruns,errbar,covprint,indi,    	&
 !$omp            inter,mono,algor,scope,stopcr,simp,                	&
 !$omp            nlambda1,winter,                                   	&
 !$omp            probe,                                             	&
@@ -728,7 +729,7 @@ do j=1,nobj
 			!boxcar smoothing
 			if (nfilter >  1) call smooth1(obs,nlambda1,nfilter)
 		
-			!load e_obs, to be used by mcsigma
+			!load e_obs
 			e_obs=abs(obs/snr)
 		
 	    endif
@@ -887,7 +888,6 @@ do j=1,nobj
 		opf(i)=pf(i)*(ulimit-llimits(i))+llimits(i)
 		ospf(i)=spf(i)*(ulimit-llimits(i))
 	enddo	
-
 
 	if (covprint == 1) then
 		ocov(:,:)=0.0_dp

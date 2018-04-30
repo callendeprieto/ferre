@@ -48,10 +48,6 @@ if (opti == 0) then !regular run
           		p(j)=uu(j,i)/dble(indini(j)) + 1._dp/(2._dp*indini(j))
         	endif   
 	  	enddo
-	  case (2) !use sum over param. space
-	    call getmin(-1,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,p)
-	  case (3) !use best-fitting pixel
-	    call getmin(0,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,p)
 	  case default
 	    write(*,*)'init has an illegal value'
 	    stop 
@@ -66,10 +62,6 @@ else !optimized run
 		  p(1:nov)=opf(indv(1:nov))
 	case (1) !start from the result of the unoptimized run
 		  p(1:nov)=pf(indv(1:nov))
-	case (2) !use sum over param. space
-	          call getmin(-1,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,p)
-	case (3) !use best-fitting pixel
-	    call getmin(0,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,p)
 	case default
 	    write(*,*)'init has an illegal value'
 	    stop 

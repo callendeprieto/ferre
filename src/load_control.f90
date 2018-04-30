@@ -20,7 +20,7 @@ namelist / lista / opfile,offile,sffile,lsffile
 namelist / lista / f_format,f_access,fformat
 namelist / lista / snr,only_object,ycutoff,wphot,balance
 namelist / lista / optimize,impact,mforce,chiout,trkout,nfilter,init
-namelist / lista / nruns,errbar,mcruns,covprint,indi,winter,twinter
+namelist / lista / nruns,errbar,covprint,indi,winter,twinter
 namelist / lista / inter,mono,algor,scope,stopcr,simp,nthreads
 namelist / lista / pcaproject,pcachi,lsf,nlsf
 namelist / lista / cont,ncont,obscont
@@ -148,30 +148,17 @@ endif
 !3>=errbar>=0
 if (errbar > 3 .or. (errbar < 0 .and. errbar /= -2)) then
 	write(*,*) 'load_control: ERROR'
-	write(*,*) 'errbar = ',errbar,' should be 0, 1, 2, -2 or 3'
+	write(*,*) 'errbar = ',errbar,' should be 0, 1, 2, or 3'
 	stop
 endif
-if (errbar == -2 .and. abs(nruns)<2) then 
+if (errbar == 2 .and. abs(nruns)<2) then 
 	write(*,*) 'load_control:  ERROR'
 	write(*,*) 'errbar = ',errbar,'(nrunsigma) requires abs(nruns)>1'
 	stop
 endif
-if (errbar == -2 .and. nruns < 2) then
+if (errbar == 2 .and. nruns < 2) then
         write(*,*) 'load_control:  WARN'
         write(*,*) 'To get error bars using errbar=-2 (nrunsigma)  you should set nruns>1'
-endif
-if (errbar == 2 .and. abs(nruns)>1) then 
-        write(*,*) 'load_control:  WARN'
-        write(*,*) 'errbar = ',errbar,'(mcsigma) and abs(nruns)>1'
-	write(*,*) 'therefore you are searching ',mcruns*abs(nruns),' times'
-	write(*,*) 'and the searches for deriving error bars are always'
-	write(*,*) 'initialized at the center, regardless of init'
-endif
-!mcruns>1
-if (mcruns < 2) then
-	write(*,*) 'load_control: ERROR'
-	write(*,*) 'mcruns = ',mcruns,' is < 2'
-	stop
 endif
 !winter can only be 0, 1 or 2
 if (winter < 0 .or. winter > 2) then

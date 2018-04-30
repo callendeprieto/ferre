@@ -234,10 +234,10 @@ do ii=1,multi
 		select case (logw)
 			case (1)
 				hs(1)%lambdamin=10._dp**hs(1)%lambdamin
-				hs(1)%lambdamax=10._dp**hs(1)%lambdamin
+				hs(1)%lambdamax=10._dp**hs(1)%lambdamax
 			case (2)
 				hs(1)%lambdamin=exp(hs(1)%lambdamin)
-				hs(1)%lambdamax=exp(hs(1)%lambdamin)
+				hs(1)%lambdamax=exp(hs(1)%lambdamax)
 		end select
 		
 	else

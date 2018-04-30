@@ -148,7 +148,7 @@ select case (algorithm)
 		call lmqnbc(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,ier,nov,p,func,g,zeros,ones,ipivot, & 
 		          iprint,maxit,maxf,eta,stepmx,accrcy,xtol)
 
-        case (5)
+       case (5)
                 call mcmcde(fname, w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
                             p,cov,gr_conv)
 
@@ -166,7 +166,7 @@ select case (algorithm)
 	
 	case default
         write(*,*) 'ERROR in getmin'
-        write(*,*) 'algorithm is not in the allowed range (-1,0,1,2,3,4)'
+        write(*,*) 'algorithm is not in the allowed range (-1,0,1,2,3,4,5)'
         stop
 
 end select
@@ -196,8 +196,6 @@ if (algorithm /= 5) then
     case (1)
 	call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr,e_obs,spf,lchi,cov)	  	
     case (2)
-  	call mcsigma(chiscale,w,pf,pf0,obs,lambda_obs,mobs,lsfarr,e_obs,spf,lchi,cov)
-    case (-2)
 	!we use covsigma to calculate lchi; spf and cov are computed outside getmin
  	call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr,e_obs,spf,lchi,cov)
     case (3)
@@ -205,7 +203,7 @@ if (algorithm /= 5) then
 
     case default
 	write(*,*) 'ferre: ERROR'
- 	write(*,*) 'errbar=',errbar,' must be 0, 1, 2, -2, or 3'
+ 	write(*,*) 'errbar=',errbar,' must be 0, 1, 2, or 3'
   	stop
   end select
 endif
