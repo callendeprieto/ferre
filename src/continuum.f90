@@ -62,7 +62,9 @@ do j=1,nsynth
 		  p2=hs(j)%pixend
 	  endif
 
+	  !write(*,*)'lambdamin,lambdamax=',hs(j)%lambdamin,hs(j)%lambdamax
 	  !write(*,*)'p1,p2=',p1,p2
+	  !write(*,*)'wx(p1),wx(p2)=',wx(p1),wx(p2)
 
 	  nel=p2-p1+1
 

@@ -358,7 +358,7 @@ write(*,*)'about to enter parallel region!'
 !$omp            ntie,indtie,typetie,ttie0,ttie,                        &
 !$omp            nlambda,nobj,                 	                        &
 !$omp		 synthfile,fixfile,filterfile,pfile,ffile,erfile,   	&
-!$omp		 opfile,offile,sffile,lsffile,	         	    	&
+!$omp		 opfile,offile,sffile,lsffile,wfile,       	    	&
 !$omp            f_format,f_access,fformat,snr,only_object,         	&
 !$omp            ycutoff,wphot,balance,optimize,impact,             	&
 !$omp            mforce,chiout,trkout,cont,ncont,obscont,              	&
@@ -494,7 +494,7 @@ do j=1,nobj
 	
 	!write(*,*)'lsfarr1 in ferre=',lsfarr1(1,:)
 	  
-    if (nov > 0) then 	!2nd nov if
+        if (nov > 0) then 	!2nd nov if
 	
 	  !reading3 -- observed spectrum and wavelengths
  	  obs(:)=0.0_dp
@@ -602,6 +602,17 @@ do j=1,nobj
 		where (e_obs < tiny(e_obs)) e_obs=maxval(e_obs)*1.e6_dp+1._dp
 	  endif
 
+	  
+	else    !even when nov =0 we may want to read the observed/targeted wavelengths for interpolation
+	  if (wfile.gt.' ' .and. winter > 0) then 
+ 	      if (fformat == 1) then 
+ 	    	  read(1,*,iostat=ierr) iqmargin,iqh,dum,dum,dum,obs(:)
+ 	     	  lambda_obs(1:nlambda)=waveline(1:nlambda)
+ 	      else 
+ 	    	  read(1,*,iostat=ierr) obs(:)
+ 	    	  read(8,*,iostat=ierr) lambda_obs(:)
+ 	      endif	   	
+ 	   endif
 	endif	! 2nd nov if
 	  
 	!$omp end critical

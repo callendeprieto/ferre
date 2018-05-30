@@ -11,7 +11,7 @@ do i=1,100
         x(i)=i-1.0_dp
 enddo
 
-open(1,file='kk2')
+open(unit=1,file='kk2')
 do i=1,17
 read(1,*)par(i)
 !write(*,*)par(i)
