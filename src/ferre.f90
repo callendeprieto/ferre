@@ -890,53 +890,9 @@ do j=1,nobj
 		bestcov=cov
 	endif
 			
-	!output chi**2 surface
-	if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
 
-	!from  normalized to physical units
-	do i=1,ndim
-		ulimit=llimits(i)+steps(i)*(n_p(i)-1)
-		opf(i)=pf(i)*(ulimit-llimits(i))+llimits(i)
-		ospf(i)=spf(i)*(ulimit-llimits(i))
-	enddo	
 
-	if (covprint == 1) then
-		ocov(:,:)=0.0_dp
-		do i=1,nov
-			ii1=indv(i)
-			ulimit=llimits(ii1)+steps(ii1)*(n_p(ii1)-1)
-			do l=1,nov
-				ii2=indv(l)
-				ulimit2=llimits(ii2)+steps(ii2)*(n_p(ii2)-1)
-				ocov(ii2,ii1)=cov(l,i)*(ulimit-llimits(ii1))*(ulimit2-llimits(ii2))
-			enddo
-		enddo
-	endif
-
-	where (ospf < 0. .or. ospf > 99999.) 	ospf=-999.999_dp
-	where (opf > 99999.)		  	 opf=-999.999_dp
-	if (status /=0) then
-		ospf=-999.999_dp
-		opf=-999.999_dp
-	   	chiscale=1.0_dp
-	    lchi=-999.999_dp 
-	endif
-	
-	!contribution made by the photometry
-	!to the final solution (weight of spectroscopy  = 1.-cphot)
-	cphot=0.0_dp
-	do i=1,nphotpix
-		cphot=cphot+w(photpixels(i))
-	enddo
-	
-	!compute median(S/N)
-	medsnr=0.0_dp
-	if (nov > 0) then 
-            call rmedian(obs,e_obs,nlambda1,medsnr)
-            if (status == 0) write(*,*)'median snr =',medsnr
-        endif
-
-	!writing flux file(s)
+	!writing output file(s)
 	if (status > -10 .and. k>= nruns) then 
 
 		if (nruns>1 .and. k==nruns) then 
@@ -983,6 +939,53 @@ do j=1,nobj
 			 		write(4,'(F12.1)') -2.	
 			endif
 		endif
+		
+	
+		!output chi**2 surface
+		if (chiout.gt.0) call chisurf(w,obs,lambda_obs,fname)
+
+		!from  normalized to physical units
+		do i=1,ndim
+		  ulimit=llimits(i)+steps(i)*(n_p(i)-1)
+		  opf(i)=pf(i)*(ulimit-llimits(i))+llimits(i)
+		  ospf(i)=spf(i)*(ulimit-llimits(i))
+		enddo	
+
+		if (covprint == 1) then
+		  ocov(:,:)=0.0_dp
+		  do i=1,nov
+			ii1=indv(i)
+			ulimit=llimits(ii1)+steps(ii1)*(n_p(ii1)-1)
+			do l=1,nov
+				ii2=indv(l)
+				ulimit2=llimits(ii2)+steps(ii2)*(n_p(ii2)-1)
+				ocov(ii2,ii1)=cov(l,i)*(ulimit-llimits(ii1))*(ulimit2-llimits(ii2))
+			enddo
+		  enddo
+		endif
+
+		where (ospf < 0. .or. ospf > 99999.) 	ospf=-999.999_dp
+		where (opf > 99999.)		  	 opf=-999.999_dp
+		if (status /=0) then
+		  ospf=-999.999_dp
+		  opf=-999.999_dp
+		  chiscale=1.0_dp
+		  lchi=-999.999_dp 
+		endif
+	
+		!contribution made by the photometry
+		!to the final solution (weight of spectroscopy  = 1.-cphot)
+		cphot=0.0_dp
+		do i=1,nphotpix
+		  cphot=cphot+w(photpixels(i))
+		enddo
+	
+		!compute median(S/N)
+		medsnr=0.0_dp
+		if (nov > 0) then 
+		  call rmedian(obs,e_obs,nlambda1,medsnr)
+		  if (status == 0) write(*,*)'median snr =',medsnr
+		endif		
 
 	        if (nov > 0) then
 	            if (covprint .eq. 1) then 
@@ -995,7 +998,7 @@ do j=1,nobj
                 endif 
                 !$omp end critical
 
-	endif
+	endif !if on status > -10 and k>= nruns
 
 
 	enddo	!loop on nruns
