@@ -313,7 +313,8 @@ init      &   integer            & Choice of starting point(s) for searches (def
 	&                      &    1 to follow the rules set by keyword indini \\
 %	&                      &   2 use the likelyhood solution \\
 %	&                      &   3 start at best-fitting pix \\
-indini    &  integer (ndim)      &  Fine control of starting points (default 1) \\
+indini    &  integer (ndim)      &  Individual control of starting points for each param. (default 1) \\
+        &                      & $-1$ start at the value in {\tt pfile} \\
         &                      &  0 start at random \\
         &                      &    1 start at the grid center \\
         &                      &    $>$1 start at the center of indini(i) equidistant cells \\

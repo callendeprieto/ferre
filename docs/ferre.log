@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=latex 2016.4.12)  30 APR 2018 15:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=latex 2016.4.12)  29 NOV 2018 14:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -194,17 +194,17 @@ Overfull \hbox (4.1588pt too wide) in paragraph at lines 194--235
  []
 
 [5]
-Overfull \hbox (18.3672pt too wide) in paragraph at lines 273--364
+Overfull \hbox (18.3672pt too wide) in paragraph at lines 273--365
 [][] 
  []
 
 
-LaTeX Warning: Float too large for page by 5.44514pt on input line 364.
+LaTeX Warning: Float too large for page by 19.94513pt on input line 365.
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 373.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 374.
 [6] [7]
-Overfull \hbox (5.57681pt too wide) in paragraph at lines 473--482
+Overfull \hbox (5.57681pt too wide) in paragraph at lines 474--483
 \OT1/ptm/m/n/12 and watch the stan-dard out-put in-for-ma-tion come out. Go ahe
 ad, plot the data in \OT1/pcr/m/n/12 interpol.mdl
  []
@@ -221,4 +221,4 @@ Here is how much of TeX's memory you used:
  783 hyphenation exceptions out of 8191
  25i,10n,28p,924b,247s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on ferre.dvi (18 pages, 66412 bytes).
+Output written on ferre.dvi (18 pages, 66496 bytes).

@@ -28,7 +28,7 @@ namelist / lista / ext_chain_filename,ext_gr_filename
 namelist / lista / chain_num, gen_num, burnin_limit
 
 
-indini(1:maxndim)=-1
+indini(1:maxndim)=-10
 indi(1:maxndim)=-1
 open(1,file='input.nml',delim='apostrophe',recl=siobuffer)
 read(1,nml=lista)
@@ -123,17 +123,17 @@ endif
 !default is start searching at grid center
 !for nruns=1 (default) or at random for nruns>1
 !but user may customize this behavior using inini(1:nov)
-if (maxval(indini(1:nov)) < 0) then
+if (maxval(indini(1:nov)) == -10) then
 	indini(1:nov)=1
 	if (abs(nruns)>1) indini(1:nov)=0
 endif
-if (minval(indini(1:nov)) < 0) then
+if (minval(indini(1:nov)) < -1) then
 	write(*,*) 'load_control: ERROR'
 	write(*,*) 'indini is not defined for all variable  parameters'
-	write(*,*) '(it contains entries < 1)'
+	write(*,*) '(it contains entries < -1)'
 	stop
 endif
-if (product(indini(1:nov)) < nruns .and. product(indini(1:nov)) > 0) then
+if (product(abs(indini(1:nov))) < nruns .and. product(indini(1:nov)) > 0) then
 	write(*,*) 'load_control: ERROR'
 	write(*,*) 'nruns [=',nruns,']  > product(indini(1:nov)) [=',product(indini(1:nov)),']' 
 	write(*,*) 'there is not enough starting points! '

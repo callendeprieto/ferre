@@ -19,7 +19,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.8.1'  !version
+character(len=12)    	:: ver = 'v4.8.3'  !version
 
 
 !params to read or built from synthfile 
@@ -78,6 +78,7 @@ real(dp)                :: ttie(maxndim,maxndim) !arrays with coeff. for ties
 			 ! p(indtie(j))= ttie0(j)+sum(ttie(j,1:ndim)*p(1:ndim))
 			 ! j=1,ntie
 integer			:: indini(maxndim)!init type for var pars.
+                         !<0 start at value in pfile 
 			 !0 start at random
 			 !1 start at grid center
 			 !>1 start at the center of indini(j) equidistant cells 
