@@ -53,6 +53,7 @@ if (indtie(1) > 0) then
           do i=1,ntie
                 pphys(indtie(i))=ttie0(i)+sum(ttie(i,1:ndim)*pphys(1:ndim))
           enddo
+ 52       pphys(1:ndim)=pphys(1:ndim)+pf0(1:ndim)
 	endif
 	call normal(pphys)
 	pp(1:ndim)=pphys(1:ndim)
