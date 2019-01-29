@@ -66,7 +66,7 @@ m_mrgrnk.f90 lsq.f90 rnglib.f90 ranlib.f90 pdflib.f90 mcmc.f90
 
 MODS = $(SOURCE_MODULES:.f90=.mod)
 
-OBJS = $(SOURCE_MODULES:.f90=.o)
+OBJS = $(SOURCE_MODULES:.f90=.o) $(SOURCE:.f90=.o)
 
 all: a.out ascii2bin  install
 
