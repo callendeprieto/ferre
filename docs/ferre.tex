@@ -89,17 +89,17 @@ the Intel compiler (ifort), the  Sun Studio Compiler, the PGI compiler,
 the IBM compiler (xlf90), and a few other.
 
 The code can be obtained from \\
-{\tt http://hebe.as.utexas.edu/ferre} \\
-Once the tar ball with the source code is downloaded and unpacked, 
-you should end up with three
-folders: src (the 'code'), test (test data), 
+{\tt https://github.com/callendeprieto/ferre} \\
+You should end up with four
+folders: src (the 'code'), test (test data), bin (empty folder for the executables), 
 and doc (this manual). Change directories to src and invoke
 make to compile the code  \\
 $>$cd  ferre/src \\
 $>$make  \\
 \noindent and you should end up with two executables, 
-one for FERRE ('a.out') and one for  converting
-model grids from ASCII format to (direct-access) binaries.
+one for FERRE ('a.out', copied to the bin folder as 'ferre.x') and 
+another one (ascii2bin) for  converting model grids from ASCII 
+format to (direct-access) binaries.
 
 \section{Running the code}
 \label{running}
@@ -736,7 +736,8 @@ and therefore the result depends on the signal-to-noise of the data, and therefo
 iterations are not implemented and only one pass is performed in FERRE. 
 Setting CONT=1 in the control file activates the polynomial fitting. The keyword NCONT 
 must then be set to the order desired for the polynomial (0 for a constant, 
-1 for a straight line, etc.). 
+1 for a straight line, etc.). One can optionally exclude data points with errors 
+larger than a threshold (REJECTCONT), using a parameter with the same name.
 
 Two additional algorithms for continuum normalization are available:
 \begin{itemize}
