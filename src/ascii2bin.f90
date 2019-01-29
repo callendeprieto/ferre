@@ -21,9 +21,10 @@ implicit none
 
 !locals	
 real(dp),allocatable ::  record(:)
-integer 			 ::	ii,j,i,n_of_dim,recordlength,npix1,npix2
-integer				 :: n_p1(maxndim)
-integer				 ::	logw=0	!wavelength scale equidistant in log10?
+integer                          ::  istat ! allocate status var
+integer 			 ::  ii,j,i,n_of_dim,recordlength,npix1,npix2
+integer				 ::  n_p1(maxndim)
+integer				 ::  logw=0	!wavelength scale equidistant in log10?
 integer			     ::  vacuum=0 ! wavelength scale in vacuum or std. air
 integer				 ::	modo=-1000 ! synspec imode used
 integer				 :: nelnpca = 0, totalnpca = 0
@@ -212,9 +213,12 @@ enddo
 
 if (npca(1) > 0) then !npca files contain means, v and w
 
-	allocate(meanspca(totalnpca))
-	allocate(vpca(totalnpca))
-	allocate(wpca(totalnpca,npix/nelnpca))
+	allocate(meanspca(totalnpca),stat=istat)
+	call checkstat(istat,'meanspca')
+	allocate(vpca(totalnpca),stat=istat)
+	call checkstat(istat,'vpca')
+	allocate(wpca(totalnpca,npix/nelnpca),stat=istat)
+	call checkstat(istat,'wpca')
 		
 	!read 
 	read(1,*)meanspca
@@ -231,10 +235,11 @@ close(2)
 
 !allocate record
 if (transposed == 0) then 
-	allocate (record(npix))
+	allocate (record(npix),stat=istat)
 else
-	allocate (record(ntot))
+	allocate (record(ntot),stat=istat)
 endif
+call checkstat(istat,'record')
 
 if (style.eq.'fmt') then 
 

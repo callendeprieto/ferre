@@ -5,7 +5,7 @@
 
 F90 = gfortran 
 #F90 = /gpfs/apps/GCC/4.6.1/bin/gfortran
-OPT = -O2 -fopenmp -ftree-vectorize
+OPT = -O2 -fopenmp -ftree-vectorize 
 #OPT= -O2 -fopenmp -pg
 #OPT= -O2 -fopenmp -R /gpfs/apps/GCC/4.6.1/lib 
 #OPT= -O0
@@ -48,7 +48,7 @@ OS2 = ${shell perl -e 'my $$osVersion = `uname -r`; chomp($$osVersion); print "$
 OS3 = ${shell perl -e 'my $$osVersion = `machine`; chomp($$osVersion); print "$$osVersion"'}
 OS4 = ${shell perl -e 'my $$osVersion = `hostname`; chomp($$osVersion); print "$$osVersion"'}
 
-SOURCE = ferre.f90 lin.f90 getee.f90 read_f.f90 \
+SOURCE = ferre.f90 lin.f90 getee.f90 checkstat.f90 read_f.f90 \
 getsigma.f90 load_control.f90 optimum.f90 chisurf.f90 median.f90 rmedian.f90 \
 minlocus.f90 getaa.f90 \
 qbezier.f90 qua.f90 cbezier.f90 cub.f90 nea.f90 spl.f90 likely.f90 \
@@ -57,7 +57,8 @@ flx.f90 smooth1.f90 smooth2.f90 getmin.f90 pinin.f90 getuu.f90 \
 cova.f90 covsigma.f90 continuum.f90 pem.f90 \
 pdfsigma.f90 nrunsigma.f90 \
 getlsf.f90 lsf_gauss.f90 normal.f90 physical.f90 fsort.f90 \
-setuplambda.f90 wresample.f90 convol.f90 decompress.f90 count_words.f90 quit.f90 
+setuplambda.f90 wresample.f90 convol.f90 decompress.f90 \
+count_words.f90 quit.f90 
 
 SOURCE_MODULES = share.f90 fun.f90 nelder_mead.f90 \
 booklib.f90 random.f90 timer.f90 btr.f90 uob.f90 trn.f90 \
@@ -70,8 +71,8 @@ OBJS = $(SOURCE_MODULES:.f90=.o)
 all: a.out ascii2bin  install
 
 #ascii2bin converter
-ascii2bin: share.mod ascii2bin.f90
-	${F90} ${OPT} share.f90 ascii2bin.f90 -o ascii2bin
+ascii2bin: share.mod timer.mod checkstat.o quit.o ascii2bin.f90
+	${F90} ${OPT} share.f90 timer.f90 checkstat.f90 quit.f90 ascii2bin.f90 -o ascii2bin
 
 # 2nd and final step - compiling and linking
 a.out:  ${OBJS} ${SOURCE}

@@ -35,6 +35,7 @@ real(dp), allocatable   ::  fixratio(:) !flux ratio correction
 real(dp),allocatable    ::  record(:)	!dummy array for inquire about the record size
 integer 		::  j,i,k,n_of_dim,n_p1(maxndim),npix1,npix2,status
 integer			::  ii,jj,offset
+integer			::  istat ! allocate status var
 integer			::  recordlength ! for unformatted synth files
 integer			::  logw=0	!wavelength scale equidistant in log10?
 integer			::  vacuum=0 ! wavelength scale in vacuum or std. air
@@ -191,7 +192,7 @@ do ii=1,multi
 			write(*,*) 'read_f: ERROR'
 			write(*,*) 'the value of the CONSTANT keyword for an npca grid'
 			write(*,*) 'has been modified'
-			stop
+			stop 1
 	endif
 			
 	if (ii == 1) then 
@@ -330,7 +331,8 @@ if (n_of_dim.lt.nov) then
 endif
 
 
-allocate(ntimes(ndim))
+allocate(ntimes(ndim),stat=istat)
+call checkstat(istat,'ntimes')
 ntot=n_p(ndim)
 ntimes(ndim)=1
 do j=2,ndim
@@ -342,9 +344,12 @@ enddo
 if (npca(1) > 0) then !npca files contain means, v and w
 
 	nvar=npix/nelnpca
-	allocate(meanspca(totalnpca))
-	allocate(vpca(totalnpca))
-	allocate(wpca(totalnpca,nvar))
+	allocate(meanspca(totalnpca),stat=istat)
+        call checkstat(istat,'meanspca')
+	allocate(vpca(totalnpca),stat=istat)
+        call checkstat(istat,'vpca')
+	allocate(wpca(totalnpca,nvar),stat=istat)
+        call checkstat(istat,'wpca')
 	
 	!read 
 	read(1,*)meanspca
@@ -359,7 +364,8 @@ if (npca(1) > 0) then !npca files contain means, v and w
 	if (pcaproject == 1) then
 			
 		!prepare auxiliary array ff
-		allocate(ff(nvar,totalnpca))
+		allocate(ff(nvar,totalnpca),stat=istat)
+                call checkstat(istat,'ff')
 	
 		k=1
 		do ii=1,nelnpca
@@ -401,9 +407,10 @@ if (f_access == 1) then
 	if (f_format == 1) then 
 
 		!allocate record and calculate recordlength
-		allocate (record(npix))
+		allocate (record(npix),stat=istat)
+                call checkstat(istat,'record')
 		inquire (iolength=recordlength) record
-    	deallocate(record)
+    	        deallocate(record)
 
 		!compose name for binary synth file
 		ii=len_trim(synthfile(1))
@@ -438,7 +445,8 @@ if (f_access == 1) then
 endif
 
 
-allocate (f(npix,ntot))	!allocate f
+allocate (f(npix,ntot),stat=istat)	!allocate f
+call checkstat(istat,'f')
 
 
 !if the synth file is binary we close the ascii version
@@ -509,7 +517,8 @@ if (fixfile(1).gt.' ') then
 		write(*,*) 'fixfile cannot be used with PCA grids (filterfile can)'
 		stop
 	else
-		allocate(fixratio(npix))
+		allocate(fixratio(npix),stat=istat)
+                call checkstat(istat,'fixratio')
 		open(1,file=fixfile(1),delim='apostrophe',recl=liobuffer)
 		read(1,*) fixratio
 		close(1)
@@ -522,7 +531,8 @@ endif
 
 
 if (abs(resolution-0._dp) < 1e-6_dp) then 	!we deal with photometry
-	allocate (photpixels(npix1))
+	allocate (photpixels(npix1),stat=istat)
+	call checkstat(istat,'photpixels')
 	do j=1,npix1
 		photpixels(j)=j
 	enddo
@@ -768,9 +778,12 @@ do j=2,maxsynth
 			endif
 
 			nvar=npix/nelnpca
-			allocate(meanspca(totalnpca))
-			allocate(vpca(totalnpca))
-			allocate(wpca(totalnpca,nvar))
+			allocate(meanspca(totalnpca),stat=istat)
+                        call checkstat(istat,'meanspca')
+			allocate(vpca(totalnpca),stat=istat)
+                        call checkstat(istat,'vpca')
+			allocate(wpca(totalnpca,nvar),stat=istat)
+       			call checkstat(istat,'wpca')   
 	
 			!read 
 			read(1,*)meanspca
@@ -785,7 +798,8 @@ do j=2,maxsynth
 			if (pcaproject == 1) then
 
 				!build auxiliary array ff
-				allocate(ff(nvar,totalnpca))
+				allocate(ff(nvar,totalnpca),stat=istat)
+ 				call checkstat(istat,'ff')
 	
 				k=1
 				do ii=1,totalnpca
@@ -804,23 +818,27 @@ do j=2,maxsynth
 		endif
 		
 		
-		allocate(f2(npix1,ntot))!allocate f2
+		allocate(f2(npix1,ntot),stat=istat)!allocate f2
+                call checkstat(istat,'f2')
 		f2=f
 
 		
 		if (abs(resolution-0._dp) < 1e-6_dp) then  	!we deal with photometry
 			if (nphotpix.gt.0) then
-				allocate (photpixels2(nphotpix))
+				allocate (photpixels2(nphotpix),stat=istat)
+                                call checkstat(istat,'photpixels2')
 				photpixels2=photpixels
 				deallocate(photpixels)
-				allocate (photpixels(npix+nphotpix))
+				allocate (photpixels(npix+nphotpix),stat=istat)
+                         	call checkstat(istat,'photpixels')
 				photpixels(1:nphotpix)=photpixels2
 				deallocate (photpixels2,stat=status)
 				do ii=1,npix
 					photpixels(nphotpix+ii)=npix1+ii
 				enddo
 			else
-				allocate (photpixels(npix))
+				allocate (photpixels(npix),stat=istat)
+  				call checkstat(istat,'photpixels')
 				do ii=1,npix
 					photpixels(ii)=npix1+ii
 				enddo
@@ -831,7 +849,8 @@ do j=2,maxsynth
 		npix=npix1+npix
 
 		deallocate(f)
-		allocate(f(npix,ntot))!allocate newf
+		allocate(f(npix,ntot),stat=istat)!allocate newf
+ 		call checkstat(istat,'f')
 
 		!if the synth file is binary we close the ascii version
 		!and open the binary one, then read
@@ -911,7 +930,8 @@ do j=2,maxsynth
 				stop
 			else
 			
-				allocate(fixratio(npix-npix1))
+				allocate(fixratio(npix-npix1),stat=istat)
+ 				call checkstat(istat,'fixratio')
 				open(1,file=fixfile(j),delim='apostrophe',recl=liobuffer)
 				read(1,*)fixratio
 				close(1)

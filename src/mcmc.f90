@@ -62,6 +62,7 @@ LOGICAL                    :: gr_conv           ! .true. or .false. for converge
 !locals
 real ( kind = 8 )              :: fit(chain_num,gen_num)  !fitness for the samples in chains
 real ( kind = 8 ), allocatable :: gr(:,:) ! Gelman-Rubin statistic (nov x gr_num) 
+integer ( kind = 4)            :: istat
 integer ( kind = 4)            :: i ! dummy index
 integer ( kind = 4 )           :: gr_num ! number of times the G-R statistic may be computed
 integer ( kind = 4 )           :: gr_count !number of generations at which the G-R statistic has been computed
@@ -81,7 +82,8 @@ if (ext_gr_filename /= '')  gr_filename = trim(fname) // trim(ext_gr_filename)
 
 !compute gr_num and book memory for array gr
 gr_num = gen_num/printstep
-allocate( gr(nov,gr_num) )
+allocate( gr(nov,gr_num) , stat=istat)
+call checkstat(istat,'gr')
 
 !set limits
 limits(1,1:nov) = 0.0D+00
@@ -547,6 +549,7 @@ subroutine chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
   real ( kind = 8 ) fit(chain_num,gen_num)
   integer ( kind = 4 ) gen_index
   integer ( kind = 4 ) i
+  integer ( kind = 4) istat
   integer ( kind = 4 ) ind1
   integer ( kind = 4 ) ind3
   integer ( kind = 4 ) j
@@ -562,7 +565,8 @@ subroutine chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
   klo = gen_index / 2
   knum = gen_index + 1 - klo
 
-  allocate ( avg(1:chain_num) )
+  allocate ( avg(1:chain_num) , stat=istat)
+  call checkstat(istat,'avg')
 
   do j = 1, chain_num
     avg(j) = sum ( fit(j,klo:gen_index) ) / real ( knum, kind = 8 )
@@ -582,7 +586,8 @@ subroutine chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
 !  Determine the indices of the chains having averages 1/4 "above" 
 !  and "below" the average.
 !
-  allocate ( avg_sorted(1:chain_num) )
+  allocate ( avg_sorted(1:chain_num) , stat=istat)
+  call checkstat(istat,'avg_sorted')
 
   call r8vec_copy ( chain_num, avg, avg_sorted )
 
@@ -855,6 +860,7 @@ subroutine cr_index_choose ( cr_index, cr_num, cr_prob )
 
   integer ( kind = 4 ) cr_index
   real ( kind = 8 ) cr_prob(cr_num)
+  integer ( kind = 4 ) istat
   integer ( kind = 4 ) i
   integer ( kind = 4 ) n
   integer ( kind = 4 ), allocatable :: tmp_index(:) 
@@ -865,7 +871,8 @@ subroutine cr_index_choose ( cr_index, cr_num, cr_prob )
 
   else
  
-    allocate ( tmp_index(1:cr_num) )
+    allocate ( tmp_index(1:cr_num) , stat=istat)
+    call checkstat(istat,'tmp_index')
 
     n = 1
     call i4vec_multinomial_sample ( n, cr_prob, cr_num, tmp_index )
@@ -3091,6 +3098,7 @@ subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
   integer ( kind = 4 ) cr_index
   real ( kind = 8 ), allocatable :: diff(:)
   real ( kind = 8 ), allocatable :: eps(:)
+  integer ( kind = 4 ) istat
   integer ( kind = 4 ) gen_index
   integer ( kind = 4 ) i
   integer ( kind = 4 ) jump_dim(par_num)
@@ -3117,7 +3125,8 @@ subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
 !
 !  Pick pairs of other chains for crossover.
 !
-  allocate ( r(1:2,1:pair_num) )
+  allocate ( r(1:2,1:pair_num) , stat=istat)
+  call checkstat(istat,'r')
 
   do i = 1, pair_num
 
@@ -3147,7 +3156,8 @@ subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
 !
 !  Calculate E in equation 4 of Vrugt.
 !
-  allocate ( noise_e(1:par_num) )
+  allocate ( noise_e(1:par_num) , stat=istat )
+  call checkstat(istat,'noise_e')
 
   do i = 1, par_num
     noise_e(i) = b * ( 2.0D+00 * r8_uniform_01_sample ( ) - 1.0D+00 )
@@ -3155,7 +3165,8 @@ subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
 !
 !  Get epsilon value from multinormal distribution                      
 !
-  allocate ( eps(1:par_num) )
+  allocate ( eps(1:par_num) , stat=istat)
+  call checkstat(istat,'eps')
 
   av = 0.0D+00
   sd = 1.0D-10
@@ -3165,7 +3176,8 @@ subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
 !
 !  Generate the candidate sample ZP based on equation 4 of Vrugt.
 !
-  allocate ( diff(1:par_num) )
+  allocate ( diff(1:par_num) , stat=istat)
+  call checkstat(istat,'diff')
 
   call diff_compute ( chain_num, gen_index, gen_num, jump_dim, jump_num, &
     pair_num, par_num, r, z, diff )

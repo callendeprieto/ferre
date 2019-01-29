@@ -23,7 +23,8 @@ real(dp), allocatable   ::      flux(nlambda1)   !temporary storage
 integer                 ::      j,index(1)
 
 
-allocate (f2(ntot))	 !allocate f2
+allocate (f2(ntot),stat=istat)	 !allocate f2
+call checkstat(istat,'f2')
 
 do j=1,ntot
 	if (winter == 2) then

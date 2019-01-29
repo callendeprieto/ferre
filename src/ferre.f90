@@ -24,7 +24,8 @@ real(dp), allocatable	   :: sfit(:)		! vector of fit model fluxes
 !locals
 integer(longenough)        :: j				!counter
 integer                    :: i,k,l			!+counters
-integer                    :: tid,nthreads_env			  			   !omp
+integer                    :: istat			!allocate status var
+integer                    :: tid,nthreads_env		   !omp
 !$ integer                 :: omp_get_thread_num, omp_get_num_threads  !omp
 integer	                   :: ii,jj,kk,ii1,ii2,offset,stlen   !temp variables
 real(dp)                   :: ulimit,ulimit2    !temp variables
@@ -111,16 +112,19 @@ endif
 
 
 
-allocate (probe(ndim))		!allocate variables in share module (shared for omp)
+allocate (probe(ndim),stat=istat)	!allocate variables in share module (shared for omp)
+call checkstat(istat,'probe')
 probe(:)=  0.2_dp			!probe > 0. ( and normally<0.5)
 
 !setup wavelength scale, if needed
 if (winter > 0) then
 	if (npca(1) > 0) then 
-		allocate(lambda_syn(totalnpca))
+		allocate(lambda_syn(totalnpca),stat=istat)
+		call checkstat(istat,'lambda_syn')
 		call setuplambda(lambda_syn,totalnpca)
 	else
-		allocate(lambda_syn(npix))
+		allocate(lambda_syn(npix),stat=istat)
+		call checkstat(istat,'lambda_syn')
 		call setuplambda(lambda_syn,npix)
 	endif
 endif
@@ -175,7 +179,8 @@ case (1)  !interpolate observations
 case (2)  !interpolate library
 	nlambda1=nlambda
 end select
-allocate (wref(nlambda1))
+allocate (wref(nlambda1),stat=istat)
+call checkstat(istat,'wref')
 wref(:) =  1.0_dp
 
 !adopt wref from filter file if provided
@@ -234,7 +239,8 @@ if (nov > 0) then !1st nov if
 	endif
 	
 	!allocate waveline
-	allocate (waveline(nlambda))
+	allocate (waveline(nlambda),stat=istat)
+	call checkstat(istat,'waveline')
 	waveline(:) = 0.0_dp		
 	
 	!read wavelength line
@@ -289,13 +295,15 @@ end select
 
 if (lsf > 0 .and. lsf < 10) then !lsf is the same for all objects
 	if (lsf < 3) then !is read from file
-		allocate(lsfarr(mlsf,nlsf))
+		allocate(lsfarr(mlsf,nlsf),stat=istat)
+		call checkstat(istat,'lsfarr')
 		lsfarr(:,:)=0.0_dp
 		open(9,file=lsffile,status='old',recl=xliobuffer,action='read')
 		read(9,*,iostat=ierr) lsfarr
 		close(9)
 	else  ! we read lsfcof from file
-		allocate(lsfcof(mlsf,dlsf))
+		allocate(lsfcof(mlsf,dlsf),stat=istat)
+		call checkstat(istat,'lsfcof')
 		lsfcof(:,:)=0.0_dp
 		open(9,file=lsffile,status='old',recl=xliobuffer,action='read')
 		read(9,*,iostat=ierr) lsfcof
@@ -303,7 +311,8 @@ if (lsf > 0 .and. lsf < 10) then !lsf is the same for all objects
 		close(9)
 		nlsf=ceiling(1.4*maxval(lsfcof(:,1)))*2+1 !set nlsf
 		write(*,*)'main         -> nlsf = ',nlsf 
-		allocate(lsfarr(mlsf,nlsf))
+		allocate(lsfarr(mlsf,nlsf),stat=istat)
+		call checkstat(istat,'lsfarr')
 		lsfarr(:,:)=0.0_dp		
 		!and calculate lsfarr
 		call getlsf(lsfcof,lsfarr)
@@ -313,7 +322,8 @@ endif
 !if lsfarr is parametrized and depends on the object, we
 !need to scan the entire set of coefficients to decide on nlsf
 if (lsf == 13 .or. lsf == 14) then
-	allocate(lsfcof(mlsf,dlsf))
+	allocate(lsfcof(mlsf,dlsf),stat=istat)
+	call checkstat(istat,'lsfcof')
 	lsfcof(:,:)=0.0_dp
 	open(9,file=lsffile,status='old',recl=xliobuffer,action='read')
 	j=0
@@ -333,8 +343,9 @@ write(*,*)'about to enter parallel region!'
 
 !$omp parallel num_threads(nthreads)                            	&
 !$omp	default(none)                                    	        &
-!$omp   private(pf,pf0,spf,pt,obs,mobs,e_obs,w,fit,sfit,              &
+!$omp   private(pf,pf0,spf,pt,obs,mobs,e_obs,w,fit,sfit,                &
 !$omp		 j,i,k,l,    						&
+!$omp   	 istat,                               		        & 
 !$omp	         tid,nthreads_env,					&
 !$omp		 ii,ii1,ii2,jj,kk,offset,stlen,                       	&
 !$omp            ulimit,ulimit2,cphot,ierr,opterr,	                &
@@ -361,7 +372,7 @@ write(*,*)'about to enter parallel region!'
 !$omp		 opfile,offile,sffile,lsffile,wfile,       	    	&
 !$omp            f_format,f_access,fformat,snr,only_object,         	&
 !$omp            ycutoff,wphot,balance,optimize,impact,             	&
-!$omp            mforce,chiout,trkout,cont,ncont,obscont,              	&
+!$omp            mforce,chiout,trkout,cont,ncont,obscont,rejectcont,	&
 !$omp            nfilter,init,nruns,errbar,covprint,indi,    	&
 !$omp            inter,mono,algor,scope,stopcr,simp,                	&
 !$omp            nlambda1,winter,                                   	&
@@ -384,18 +395,32 @@ tid=1
 write(*,*)'main         -> tid =',tid
 
 !allocate locals that are private for omp
-allocate (pf(ndim))
-allocate (pf0(ndim))
-allocate (spf(ndim))
-if (errbar == -2 .and. nruns > 1) allocate(pt(nruns,nov))
-allocate (opf(ndim))
-allocate (ospf(ndim))
-allocate (bestpf(ndim))
-allocate (bestspf(ndim))
-allocate (cov(nov,nov))
-allocate (bestcov(nov,nov))
-if (covprint == 1) allocate (ocov(ndim,ndim))
-
+allocate (pf(ndim),stat=istat)
+call checkstat(istat,'pf')
+allocate (opf(ndim),stat=istat)
+call checkstat(istat,'opf')
+allocate (pf0(ndim),stat=istat)
+call checkstat(istat,'pf0')
+allocate (spf(ndim),stat=istat)
+call checkstat(istat,'spf')
+if (errbar == -2 .and. nruns > 1) then
+	allocate(pt(nruns,nov),stat=istat)
+	call checkstat(istat,'pt')
+endif
+allocate (ospf(ndim),stat=istat)
+call checkstat(istat,'ospf')
+allocate (bestpf(ndim),stat=istat)
+call checkstat(istat,'bestpf')
+allocate (bestspf(ndim),stat=istat)
+call checkstat(istat,'bestspf')
+allocate (cov(nov,nov),stat=istat)
+call checkstat(istat,'cov')
+allocate (bestcov(nov,nov),stat=istat)
+call checkstat(istat,'bestcov')
+if (covprint == 1) then
+	allocate (ocov(ndim,ndim),stat=istat)
+	call checkstat(istat,'ocov')
+endif
 
 !allocate w,obs,e_obs,fit, and obs_in/lambda_obs when needed
 select case (winter)
@@ -404,28 +429,41 @@ case (0)  !data and library share the same wavelength array
 case (1)  !interpolate observations 
 	!nlambda1=totalnpca when lsf>0 and npca grid
 	!nlambda1=npix otherwise
-	allocate(lambda_obs(nlambda))
-	allocate(obs_in(nlambda))
-	allocate(e_obs_in(nlambda))
+	allocate(lambda_obs(nlambda),stat=istat)
+	call checkstat(istat,'lambda_obs')
+	allocate(obs_in(nlambda),stat=istat)
+	call checkstat(istat,'obs_in')
+	allocate(e_obs_in(nlambda),stat=istat)
+	call checkstat(istat,'e_obs_in')
 case (2)  !interpolate library
 	!nlambda1=nlambda
-	allocate(lambda_obs(nlambda))
+	allocate(lambda_obs(nlambda),stat=istat)
+	call checkstat(istat,'lambda_obs')
 end select
 	
-allocate (w(nlambda1))			
-allocate (obs(nlambda1))		
-allocate (e_obs(nlambda1))		
-allocate (fit(nlambda1))
-allocate (sfit(npix))
+allocate (w(nlambda1),stat=istat)			
+call checkstat(istat,'w')
+allocate (obs(nlambda1),stat=istat)		
+call checkstat(istat,'obs')
+allocate (e_obs(nlambda1),stat=istat)		
+call checkstat(istat,'e_obs')
+allocate (fit(nlambda1),stat=istat)
+call checkstat(istat,'fit')
+allocate (sfit(npix),stat=istat)
+call checkstat(istat,'sfit')
 
 if (npca(1) > 0) then 
-	allocate(obspca(totalnpca))
-	allocate(e_obspca(totalnpca))
+	allocate(obspca(totalnpca),stat=istat)
+	call checkstat(istat,'obspca')
+	allocate(e_obspca(totalnpca),stat=istat)
+	call checkstat(istat,'e_obspca')
 endif
 
 !allocate object-specific lsfarr1 when needed
-allocate(lsfarr1(mlsf,nlsf))
-allocate(lsfcof1(mlsf,dlsf))
+allocate(lsfarr1(mlsf,nlsf),stat=istat)
+call checkstat(istat,'lsfarr1')
+allocate(lsfcof1(mlsf,dlsf),stat=istat)
+call checkstat(istat,'lsfcof1')
 if (lsf > 10) open(9,file=lsffile,status='old',recl=xliobuffer,action='read')
 
 !processing
@@ -748,7 +786,7 @@ do j=1,nobj
 	
 	    !continuum normalization
 	    if (cont>0 .and. obscont /= 0) then 
-	      call continuum(obs,lambda_obs,e_obs,fit,nlambda1,cont,ncont)
+	      call continuum(obs,lambda_obs,e_obs,fit,nlambda1,cont,ncont,rejectcont)
               where (fit /= 0._dp)
 	          obs=obs/fit
 	          e_obs=e_obs/fit

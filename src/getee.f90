@@ -34,6 +34,7 @@ use share, only: ndim,inter,indi,ee,imap
 implicit none
 
 integer			:: i,j,k,nr,c1,c2,base
+integer			:: istat	!allocate status var
 integer, allocatable 	:: eeindi(:,:)  !copy of ee with columns
 					!swapped according to indi
 integer 		:: powers(ndim) !(2**0, 2**1, 2**2...)
@@ -48,9 +49,12 @@ select case (inter)
 		base=2
 end select
 
-allocate (ee(ndim,base**ndim))
-allocate (eeindi(ndim,base**ndim))
-allocate (imap(base**ndim))
+allocate (ee(ndim,base**ndim),stat=istat)
+call checkstat(istat,'ee')
+allocate (eeindi(ndim,base**ndim),stat=istat)
+call checkstat(istat,'eeindi')
+allocate (imap(base**ndim),stat=istat)
+call checkstat(istat,'imap')
 
 do i=1,ndim
 	nr=base**(i-1)

@@ -33,12 +33,14 @@ integer, intent(in)			:: np(ndim)
 
 !local
 integer					::	i,j
+integer					::    	istat !allocate status var
 integer					::	v(ndim) !values
 integer					::	c(ndim)	!counters
 integer					::	nr(ndim)!number of repetitions
 
 
-allocate(aa(ndim,ntot))
+allocate(aa(ndim,ntot),stat=istat)
+call checkstat(istat,'aa')
 
 !write(*,*)'ntot=',ntot
 
