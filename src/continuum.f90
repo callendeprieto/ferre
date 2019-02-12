@@ -78,11 +78,11 @@ do j=1,nsynth
 		        x2(1:nx)=1.
 		        xaxis2(1:nx)=xaxis(1:nx)
 		        do i=1,nel
-		          if (sx(p1+i-1) < rejectcont) then
-			    nel2=nel2+1
-			    xaxis2(nel2)=xaxis(p1+i-1)
-			    x2(nel2)=x(p1+i-1)
-			  endif
+			    if (sx(p1+i-1) < rejectcont) then
+			      nel2=nel2+1
+			      xaxis2(nel2)=xaxis(p1+i-1)
+			      x2(nel2)=x(p1+i-1)
+			    endif
 		        enddo
 		        if (nel2 <= n) then
 		          !give up 
@@ -90,8 +90,8 @@ do j=1,nsynth
 		          write(*,*) 'Too few points pass the rejectcont=',rejectcont,' filter'
 		          write(*,*) 'It is not applied!'
 		          nel2=nel
-		          xaxis2(1:nel2)=xaxis(1:nel2)
-		          x2(1:nel2)=x(1:nel2)
+		          xaxis2(1:nel2)=xaxis(p1:p2)
+		          x2(1:nel2)=x(p1:p2)
 		        endif
 		    	if (n == 0) then 
 			    !order 0 is just the mean			    
@@ -107,7 +107,7 @@ do j=1,nsynth
 			    !evaluate it
 			    y(p1:p2)=coef(0)
 			    do i=1,n
-				y(p1:p2)=y(p1:p2)+coef(i)*xaxis(1:nel)**i
+				y(p1:p2)=y(p1:p2)+coef(i)*xaxis2(1:nel2)**i
 			    enddo
 	  	  	endif
 		  case (2)
