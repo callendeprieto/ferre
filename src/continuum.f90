@@ -19,7 +19,7 @@ integer, intent(in)	:: n		    	!order (cont=1)
 					    	!number of pieces per wavelength 
 					    	!        segment (cont=2) 
 					    	!boxcar width is n+1 (cont=3) 
-real(dp),intent(in)     :: rejectcont           !error threshold for data rejection when cont=1					    	
+real(dp),intent(in)     :: rejectcont           !rel. error threshold for data rejection when cont=1					    	
 integer, intent(in)	:: nx		    	!size for x and sx
 real(dp),intent(in) 	:: x(nx),wx(nx),sx(nx)  !data, wavelengths and errors
 real(dp),intent(out)    :: y(nx)            	!continuum
@@ -35,7 +35,7 @@ real(dp)                :: xaxis(nx)        !findgen(nx)
 real(dp)		:: w(nx)	    !weights
 real(dp),dimension(0:n) :: coef             !coefs. for polynomial fit
 real(dp)     		:: xaxis2(nx), x2(nx)   !temporary arrays for cleaning up 
-					    !data  with error > rejectcont
+					    !data  with rel. error > rejectcont
 
 
 if (cont <= 0) then
@@ -78,7 +78,7 @@ do j=1,nsynth
 		        x2(1:nx)=1.
 		        xaxis2(1:nx)=xaxis(1:nx)
 		        do i=1,nel
-			    if (sx(p1+i-1) < rejectcont) then
+			    if (abs(sx(p1+i-1)/x(p1+i-1)) < rejectcont) then
 			      nel2=nel2+1
 			      xaxis2(nel2)=xaxis(p1+i-1)
 			      x2(nel2)=x(p1+i-1)

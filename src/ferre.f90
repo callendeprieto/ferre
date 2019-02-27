@@ -80,6 +80,7 @@ write(*,*)'-----------------------------------------------------------------'
 
 
 !zero ttie0 and ttie
+indtie(1:maxndim)=0
 ttie0(1:maxndim)=0._dp
 ttie(1:maxndim,1:maxndim)=0._dp
 
