@@ -87,7 +87,7 @@ integer         	:: nlambda  = 0   !# of frequencies in the input spectra
 integer         	:: nlambda1 = 0   !actual # of frequencies used in chi2 eval
 integer(longenough)	:: nobj	= 10**lmaxnobj	!number of objects
 						!nobj<= 0 program counts them
-character(len=flen) 	:: synthfile(maxsynth)  !grid file(s)
+character(len=flen) 	:: synthfile(maxsynth),synthfile0  !grid file(s)
 character(len=flen) 	:: fixfile(maxsynth)	!file(s) for flux ratio corrections
 character(len=flen)     :: filterfile=''!file with input reference weights
 character(len=flen) 	:: pfile=''		!file with input pars

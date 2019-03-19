@@ -63,11 +63,51 @@ character(len=80)          :: iqh 		 	!singe-line header holder
 character(len=48)          :: iqmargin		!margin preceding flux data
 character(len=2000000)     :: dummyline     !string to hold the first line of wfile
 integer		               :: status			!object status
+character(len=128)          :: inputnames(100), inputfile
 !=0 ok
 !<0 issue with a particular object, skip object and go on
 !-1: frd,  -2: ipf,   -3: err,   -10: j< only_object(1)
 !>0 end of file or error, quit
 !1: eof frd,2: eof ipf,3: eof err, 10: j> only_object(2)
+
+character(len=128)           :: arg
+integer		            :: ifile,nfiles
+
+! Parse command line arguments
+!  no arguments: use input.nml for single input file
+!  one argument: use command line argument for single input file
+!  two arguments with -l filename: use filename to provide line of input files
+!  otherwise, error
+if (command_argument_count() .eq. 0) then
+  nfiles= 1
+  inputnames(1) = 'input.nml  '
+else if (command_argument_count() .eq. 1) then
+  call get_command_argument(1,arg)
+  nfiles= 1
+  inputnames(1) = arg
+else if (command_argument_count() .eq. 2) then
+  call get_command_argument(1,arg)
+  if ( arg .ne. '-l' ) then
+    write(*,*) 'Must either provide:'
+    write(*,*) '   no argument to use input.nml'
+    write(*,*) '   one argument with input file name'
+    write(*,*) '   two arguments with -l listname'
+  endif
+  call get_command_argument(2,arg)
+  open(1,file=arg)
+  nfiles =0
+  DO
+    READ(1, '(a128)', IOSTAT=istat) inputnames(nfiles+1)
+    IF (istat < 0) EXIT
+      nfiles = nfiles + 1
+  END DO
+else 
+  stop 'unrecognized command line arguments'
+endif
+
+synthfile0=''
+do ifile = 1, nfiles
+    write(*,*) ifile, inputnames(ifile)
 
 write(*,*)'-----------------------------------------------------------------'
 write(*,'(20x,a10,10x,a12)')' f e r r e',ver
@@ -84,8 +124,8 @@ indtie(1:maxndim)=0
 ttie0(1:maxndim)=0._dp
 ttie(1:maxndim,1:maxndim)=0._dp
 
-
-call load_control				!read control file
+write(*,*) trim(inputnames(ifile)),len(trim(inputnames(ifile)))
+call load_control(trim(inputnames(ifile)))				!read control file
 
 !set nthreads: OMP_NUM_THREADS is used unless specified in control file
 nthreads_env=1
@@ -95,12 +135,15 @@ nthreads_env=1
 if (nthreads == 0) nthreads=nthreads_env
 
 				
-
+write(*, '(a,a)') 'synthfile: ', trim(synthfile(1)), trim(synthfile0)
+if (trim(synthfile(1)) .ne. trim(synthfile0)) then
 call start_timer
 npca(:)=0					!reset all elements of npca to 0
 call read_f					!load synth grid (find out ndim,npix)
 call ellapsed_time(etime)
 write(*,*)'Done reading!'
+synthfile0 = synthfile(1)
+endif
 
 !check for consistency between inter and n_p
 !inter<min(n_p)
@@ -653,7 +696,7 @@ do j=1,nobj
  	      endif	   	
  	   endif
 	endif	! 2nd nov if
-	  
+
 	!$omp end critical
 
         !write(*,*) 'status,tid,pf=',status,tid,pf
@@ -749,7 +792,7 @@ do j=1,nobj
 	    	
 	
 			!set e_obs to 1 when w=0 to ensure those data are not considered in chi2	
-			where (w == 0.0_dp) e_obs=1._dp
+!			where (w == 0.0_dp) e_obs=1._dp
 			
 
 			chiscale=sum(w/e_obs**2)/real(nlambda1)
@@ -1075,6 +1118,43 @@ if (f_access == 1) close(10)
 
 !sort output files when nthreads>1
 if (nthreads > 1) call fsort()
+
+if ( allocated( pf) ) deallocate(pf)
+if ( allocated( pf0) ) deallocate(pf0)
+if ( allocated( spf) ) deallocate(spf)
+if ( allocated( pt) ) deallocate(pt)
+if ( allocated( obs) ) deallocate(obs)
+if ( allocated( e_obs) ) deallocate(e_obs)
+if ( allocated( w) ) deallocate(w)
+if ( allocated( fit) ) deallocate(fit)
+if ( allocated( sfit) ) deallocate(sfit)
+if ( allocated( cov) ) deallocate(cov)
+if ( allocated( ocov) ) deallocate(ocov)
+if ( allocated( bestpf) ) deallocate(bestpf)
+if ( allocated( bestspf) ) deallocate(bestspf)
+if ( allocated( bestcov) ) deallocate(bestcov)
+if ( allocated( opf) ) deallocate(opf)
+if ( allocated( ospf) ) deallocate(ospf)
+if ( allocated( lambda_obs) ) deallocate(lambda_obs)
+if ( allocated( obs_in) ) deallocate(obs_in)
+if ( allocated( e_obs_in) ) deallocate(e_obs_in)
+if ( allocated( obspca) ) deallocate(obspca)
+if ( allocated( e_obspca) ) deallocate(e_obspca)
+if ( allocated( lsfcof1) ) deallocate(lsfcof1)
+if ( allocated( lsfarr1) ) deallocate(lsfarr1)
+if ( allocated( lambda_syn) ) deallocate(lambda_syn)
+if ( allocated( lsfcof) ) deallocate(lsfcof)
+if ( allocated( lsfarr) ) deallocate(lsfarr)
+if (  allocated( probe) ) deallocate(probe)
+if ( allocated( ee) ) deallocate(ee)
+if ( allocated( aa) ) deallocate(aa)
+if ( allocated( uu) ) deallocate(uu)
+if ( allocated( imap) ) deallocate(imap)
+if (  allocated( wref) ) deallocate(wref)
+if ( allocated( waveline) ) deallocate(waveline)
+
+
+end do
 
 call quit(status)
 
