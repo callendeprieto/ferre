@@ -80,18 +80,20 @@ do j=1,nsynth
 		        do i=1,nel
 			    if (abs(sx(p1+i-1)/x(p1+i-1)) < rejectcont) then
 			      nel2=nel2+1
-			      xaxis2(nel2)=xaxis(p1+i-1)
+			      !xaxis2(nel2)=xaxis(p1+i-1)
+			      xaxis2(nel2)=xaxis(i)
 			      x2(nel2)=x(p1+i-1)
 			    endif
 		        enddo
+		        !write(*,*) 'rejectcont=',rejectcont, nel, n, nel2
 		        if (nel2 <= n) then
 		          !give up 
 		          write(*,*)'continuum: WARNING'
-		          write(*,*) 'Too few points pass the rejectcont=',rejectcont,' filter'
-		          write(*,*) 'It is not applied!'
+		          write(*,*) 'Too few points pass the rejectcont=',rejectcont,' filter', nel, n, nel2
+		          write(*,*) 'It is being ignored!'
 		          nel2=nel
-		          xaxis2(1:nel2)=xaxis(p1:p2)
-		          x2(1:nel2)=x(p1:p2)
+		          xaxis2(1:nel)=xaxis(1:nel)
+		          x2(1:nel)=x(p1:p2)
 		        endif
 		    	if (n == 0) then 
 			    !order 0 is just the mean			    
