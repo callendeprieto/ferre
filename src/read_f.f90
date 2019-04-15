@@ -344,10 +344,13 @@ enddo
 if (npca(1) > 0) then !npca files contain means, v and w
 
 	nvar=npix/nelnpca
+	if (allocated(meanspca)) deallocate(meanspca)
 	allocate(meanspca(totalnpca),stat=istat)
         call checkstat(istat,'meanspca')
+        if (allocated(vpca)) deallocate(vpca)
 	allocate(vpca(totalnpca),stat=istat)
         call checkstat(istat,'vpca')
+        if (allocated(wpca)) deallocate(wpca)
 	allocate(wpca(totalnpca,nvar),stat=istat)
         call checkstat(istat,'wpca')
 	
@@ -444,7 +447,7 @@ if (f_access == 1) then
     
 endif
 
-
+if (allocated(f)) deallocate(f)
 allocate (f(npix,ntot),stat=istat)	!allocate f
 call checkstat(istat,'f')
 
@@ -531,6 +534,7 @@ endif
 
 
 if (abs(resolution-0._dp) < 1e-6_dp) then 	!we deal with photometry
+	if (allocated(photpixels)) deallocate(photpixels)
 	allocate (photpixels(npix1),stat=istat)
 	call checkstat(istat,'photpixels')
 	do j=1,npix1
@@ -778,10 +782,13 @@ do j=2,maxsynth
 			endif
 
 			nvar=npix/nelnpca
+			if (allocated(meanspca)) deallocate(meanspca)
 			allocate(meanspca(totalnpca),stat=istat)
                         call checkstat(istat,'meanspca')
+                        if (allocated(vpca)) deallocate(vpca)
 			allocate(vpca(totalnpca),stat=istat)
                         call checkstat(istat,'vpca')
+                        if (allocated(wpca)) deallocate(wpca)
 			allocate(wpca(totalnpca,nvar),stat=istat)
        			call checkstat(istat,'wpca')   
 	
@@ -798,6 +805,7 @@ do j=2,maxsynth
 			if (pcaproject == 1) then
 
 				!build auxiliary array ff
+				if (allocated(ff)) deallocate(ff)
 				allocate(ff(nvar,totalnpca),stat=istat)
  				call checkstat(istat,'ff')
 	
@@ -816,7 +824,6 @@ do j=2,maxsynth
 			endif
 			
 		endif
-		
 		
 		allocate(f2(npix1,ntot),stat=istat)!allocate f2
                 call checkstat(istat,'f2')

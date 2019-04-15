@@ -29,6 +29,7 @@ integer     ::  pindi ! product(abs(indini(1:nov)))
 integer	    ::  istat !allocate status var
 
 pindi=product(abs(indini(1:nov)))
+if (allocated(uu)) deallocate(uu)
 allocate (uu(nov,pindi),stat=istat)
 call checkstat(istat,'uu')
 

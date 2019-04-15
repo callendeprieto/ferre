@@ -39,6 +39,7 @@ integer					::	c(ndim)	!counters
 integer					::	nr(ndim)!number of repetitions
 
 
+if (allocated(aa)) deallocate(aa)
 allocate(aa(ndim,ntot),stat=istat)
 call checkstat(istat,'aa')
 

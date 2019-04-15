@@ -49,10 +49,12 @@ select case (inter)
 		base=2
 end select
 
+if (allocated(ee)) deallocate(ee)
 allocate (ee(ndim,base**ndim),stat=istat)
 call checkstat(istat,'ee')
 allocate (eeindi(ndim,base**ndim),stat=istat)
 call checkstat(istat,'eeindi')
+if (allocated(imap)) deallocate(imap)
 allocate (imap(base**ndim),stat=istat)
 call checkstat(istat,'imap')
 

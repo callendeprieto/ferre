@@ -10,7 +10,8 @@ save
 !integer, parameter 	:: dp = selected_real_kind(14, 60)	!precision
 integer, parameter	:: dp = selected_real_kind(6)
 integer, parameter	:: maxndim=20			!limit to #dim
-integer, parameter	:: maxsynth=1000 		!limit to #synth
+integer, parameter	:: maxsynth=10   		!limit to #synth
+integer, parameter      :: maxinputnml=100              !limit to #input nml files
 integer, parameter  	:: maxnpca=1000			!limit to #npca sections
 integer, parameter 	:: lmaxnobj=9			!limit to #objs
 integer, parameter 	:: long = selected_int_kind(9)	!long integers
@@ -19,7 +20,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.8.5'  !version
+character(len=12)    	:: ver = 'v4.8.6'  !version
 
 
 !params to read or built from synthfile 
@@ -87,7 +88,8 @@ integer         	:: nlambda  = 0   !# of frequencies in the input spectra
 integer         	:: nlambda1 = 0   !actual # of frequencies used in chi2 eval
 integer(longenough)	:: nobj	= 10**lmaxnobj	!number of objects
 						!nobj<= 0 program counts them
-character(len=flen) 	:: synthfile(maxsynth),synthfile0  !grid file(s)
+character(len=flen) 	:: synthfile(maxsynth)  !grid file(s)
+character(len=flen) 	:: synthfile0(maxsynth) !tracking grid files from previous run
 character(len=flen) 	:: fixfile(maxsynth)	!file(s) for flux ratio corrections
 character(len=flen)     :: filterfile=''!file with input reference weights
 character(len=flen) 	:: pfile=''		!file with input pars
