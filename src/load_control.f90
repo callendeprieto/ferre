@@ -1,7 +1,7 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine	load_control
+subroutine	load_control(filename)
 
 !reading control namelist
 !this routine is to be run serial -- no openmp critical protection provided
@@ -11,6 +11,7 @@ implicit none
 
 !locals
 integer :: i
+character(*) :: filename
 		
 namelist / lista / ndim,nov,indv
 namelist / lista / ntie,indtie,typetie,ttie0,ttie
@@ -30,7 +31,7 @@ namelist / lista / chain_num, gen_num, burnin_limit
 
 indini(1:maxndim)=-10
 indi(1:maxndim)=-1
-open(1,file='input.nml',delim='apostrophe',recl=siobuffer)
+open(1,file=filename,delim='apostrophe',recl=siobuffer)
 read(1,nml=lista)
 close(1)
 
