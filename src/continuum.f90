@@ -109,7 +109,7 @@ do j=1,nsynth
 			    !evaluate it
 			    y(p1:p2)=coef(0)
 			    do i=1,n
-				y(p1:p2)=y(p1:p2)+coef(i)*xaxis(1:nel)**i
+				y(p1:p2)=y(p1:p2)+coef(i)*xaxis(p1:p1+nel)**i
 			    enddo
 	  	  	endif
 		  case (2)
