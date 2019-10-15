@@ -801,6 +801,16 @@ do j=1,nobj
 			status=-1		
 	  	endif	
 
+	  	
+	    !continuum normalization
+	    if (cont>0 .and. obscont /= 0) then 
+	      call continuum(obs,lambda_obs,e_obs,fit,nlambda1,cont,ncont,rejectcont)
+              where (fit /= 0._dp)
+	          obs=obs/fit
+	          e_obs=e_obs/fit
+              endwhere              
+	    endif	  	
+
 
 	    if (snr == -1._dp) then !use flux errors
 		
@@ -868,19 +878,8 @@ do j=1,nobj
 		
 	    endif
 
-	
-	    !continuum normalization
-	    if (cont>0 .and. obscont /= 0) then 
-	      call continuum(obs,lambda_obs,e_obs,fit,nlambda1,cont,ncont,rejectcont)
-              where (fit /= 0._dp)
-	          obs=obs/fit
-	          e_obs=e_obs/fit
-              endwhere
-	    endif
-
 
 	  endif  !3rd nov if
-	
 	
 	  !from physical to normalized ([0-1]) units
 	  call normal(pf)
@@ -926,6 +925,7 @@ do j=1,nobj
 	  call getmin(algor,k,0,fname,chiscale, & 
 		      w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
 		      spf,lchi,cov)  
+		      
 
 	  !keep track of results when using nrunsigma
 	  if (errbar == -2 .and. nruns>1) then 
