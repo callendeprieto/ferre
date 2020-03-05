@@ -24,7 +24,7 @@ character(len=flen)	:: 	chifile		!output file with chi**2 surf
 
 
 stlen=len_trim(fname)
-chifile(1:stlen)=fname
+chifile(1:stlen)=fname(1:stlen)
 chifile(stlen+1:stlen+4)='.chi'
 write(*,*)fname
 write(*,*)chifile
