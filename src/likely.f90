@@ -36,12 +36,12 @@ real(dp)		::	ph(nov)			!local vect of phys. par
 real(dp)		::	den(nov)		!sum exp(-chi/min_chi*10)
 real(dp)		::	ulimit			!temp variable
 integer			::	stlen			!tmp counter
-character(len=34)	:: 	chifile			!output file 
+character(len=flen)	:: 	chifile			!output file 
 
 
 if (wr > 0) then 
  	stlen=len_trim(fname)
-	chifile(1:stlen)=fname
+	chifile(1:stlen)=fname(1:stlen)
 	chifile(stlen+1:stlen+4)='.chi'
 	write(*,*)fname
 	write(*,*)chifile
