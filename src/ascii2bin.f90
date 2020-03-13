@@ -58,8 +58,9 @@ namelist / synth / speclib_vers
 
 write(*,'(A)')'name of the f_ file to transform'
 read(*,'(A)') synthfile(1)
-write(*,'(A)')'fmt/unf?'
-read(*,'(A)') style
+!write(*,'(A)')'fmt/unf?'
+!read(*,'(A)') style
+style='unf'
 
 j=len_trim(synthfile(1))
 synthfile_binary=synthfile(1)
