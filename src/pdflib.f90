@@ -74,7 +74,9 @@ function i4_binomial_pdf ( n, p, k )
   i4_binomial_pdf = value
 
   return
-end
+end function i4_binomial_pdf
+
+
 function i4_binomial_sample ( n, pp )
 
 !*****************************************************************************80
@@ -368,7 +370,9 @@ function i4_binomial_sample ( n, pp )
   end do
 
   return
-end
+end function i4_binomial_sample
+
+
 function i4vec_multinomial_pdf ( n, p, m, x )
 
 !*****************************************************************************80
@@ -439,7 +443,9 @@ function i4vec_multinomial_pdf ( n, p, m, x )
   i4vec_multinomial_pdf = pdf
 
   return
-end
+end function i4vec_multinomial_pdf
+
+
 subroutine i4vec_multinomial_sample ( n, p, ncat, ix )
 
 !*****************************************************************************80
@@ -551,7 +557,9 @@ subroutine i4vec_multinomial_sample ( n, p, ncat, ix )
   ix(ncat) = ntot
 
   return
-end
+end subroutine i4vec_multinomial_sample
+
+
 function r8_beta_pdf ( alpha, beta, rval )
 
 !*****************************************************************************80
@@ -618,7 +626,9 @@ function r8_beta_pdf ( alpha, beta, rval )
   end if
  
   return
-end
+end function r8_beta_pdf
+
+
 function r8_beta_sample ( aa, bb )
 
 !*****************************************************************************80
@@ -808,7 +818,9 @@ function r8_beta_sample ( aa, bb )
   end if
 
   return
-end
+end function r8_beta_sample
+
+
 function r8_chi_pdf ( df, rval )
 
 !*****************************************************************************80
@@ -869,7 +881,9 @@ function r8_chi_pdf ( df, rval )
   end if
 
   return
-end
+end function r8_chi_pdf
+
+
 function r8_chi_sample ( df )
 
 !*****************************************************************************80
@@ -926,7 +940,9 @@ function r8_chi_sample ( df )
   r8_chi_sample = 2.0D+00 * r8_gamma_sample ( arg1, arg2 )
 
   return
-end
+end function r8_chi_sample
+
+
 function r8_choose ( n, k )
 
 !*****************************************************************************80
@@ -1003,7 +1019,9 @@ function r8_choose ( n, k )
   r8_choose = value
 
   return
-end
+end function r8_choose
+
+
 function r8_exponential_pdf ( beta, rval )
 
 !*****************************************************************************80
@@ -1052,7 +1070,9 @@ function r8_exponential_pdf ( beta, rval )
   end if
 
   return
-end
+end function r8_exponential_pdf
+
+
 function r8_exponential_01_pdf ( rval )
 
 !*****************************************************************************80
@@ -1089,7 +1109,9 @@ function r8_exponential_01_pdf ( rval )
   end if
 
   return
-end
+end function r8_exponential_01_pdf
+
+
 function r8_exponential_01_sample ( )
 
 !*****************************************************************************80
@@ -1123,7 +1145,9 @@ function r8_exponential_01_sample ( )
   r8_exponential_01_sample = - log ( r )
 
   return
-end
+end function r8_exponential_01_sample
+
+
 function r8_gamma_log ( x )
 
 !*****************************************************************************80
@@ -1373,7 +1397,9 @@ function r8_gamma_log ( x )
   r8_gamma_log = res
 
   return
-end
+end function r8_gamma_log
+
+
 function r8_gamma_pdf ( beta, alpha, rval )
 
 !*****************************************************************************80
@@ -1442,7 +1468,9 @@ function r8_gamma_pdf ( beta, alpha, rval )
   end if
 
   return   
-end
+end function r8_gamma_pdf
+
+
 function r8_gamma_sample ( a, r )
 
 !*****************************************************************************80
@@ -1501,7 +1529,9 @@ function r8_gamma_sample ( a, r )
   r8_gamma_sample = r8_gamma_01_sample ( r ) / a
 
   return
-end
+end function r8_gamma_sample
+
+
 function r8_gamma_01_pdf ( alpha, rval )
 
 !*****************************************************************************80
@@ -1557,7 +1587,9 @@ function r8_gamma_01_pdf ( alpha, rval )
   end if
 
   return   
-end
+end function r8_gamma_01_pdf
+
+
 function r8_gamma_01_sample ( a )
 
 !*****************************************************************************80
@@ -1809,7 +1841,9 @@ function r8_gamma_01_sample ( a )
   end if
 
   return
-end
+end function r8_gamma_01_sample
+
+
 function r8_invchi_pdf ( df, rval )
 
 !*****************************************************************************80
@@ -1869,7 +1903,9 @@ function r8_invchi_pdf ( df, rval )
   end if
 
   return
-end
+end function r8_invchi_pdf
+
+
 function r8_invchi_sample ( df )
 
 !*****************************************************************************80
@@ -1916,7 +1952,9 @@ function r8_invchi_sample ( df )
   r8_invchi_sample = value
 
   return
-end
+end function r8_invchi_sample
+
+
 function r8_invgam_pdf ( beta, alpha, rval )
 
 !*****************************************************************************80
@@ -1985,7 +2023,9 @@ function r8_invgam_pdf ( beta, alpha, rval )
   end if
 
   return
-end
+end function r8_invgam_pdf
+
+
 function r8_invgam_sample ( beta, alpha )
 
 !*****************************************************************************80
@@ -2032,7 +2072,9 @@ function r8_invgam_sample ( beta, alpha )
   r8_invgam_sample = value
 
   return
-end
+end function r8_invgam_sample
+
+
 function r8_normal_pdf ( av, sd, rval )
 
 !*****************************************************************************80
@@ -2084,7 +2126,9 @@ function r8_normal_pdf ( av, sd, rval )
   r8_normal_pdf = exp ( - rtemp ) / sd / sqrt ( 2.0D+00 * pi )
 
   return
-end
+end function r8_normal_pdf
+
+
 function r8_normal_sample ( av, sd )
 
 !*****************************************************************************80
@@ -2136,7 +2180,9 @@ function r8_normal_sample ( av, sd )
   r8_normal_sample = sd * r8_normal_01_sample ( ) + av
 
   return
-end
+end function r8_normal_sample
+
+
 function r8_normal_01_pdf ( rval )
 
 !*****************************************************************************80
@@ -2170,7 +2216,9 @@ function r8_normal_01_pdf ( rval )
   r8_normal_01_pdf = exp ( - 0.5D+00 * rval ** 2 ) / sqrt ( 2.0D+00 * pi )
 
   return
-end
+end function r8_normal_01_pdf
+
+
 function r8_normal_01_sample ( )
 
 !*****************************************************************************80
@@ -2227,7 +2275,9 @@ function r8_normal_01_sample ( )
   r8_normal_01_sample = x
 
   return
-end
+end function r8_normal_01_sample
+
+
 function r8_scinvchi_pdf ( df, s, rval )
 
 !*****************************************************************************80
@@ -2300,7 +2350,9 @@ function r8_scinvchi_pdf ( df, s, rval )
   end if
 
   return
-end
+end function r8_scinvchi_pdf
+
+
 function r8_scinvchi_sample ( df, s )
 
 !*****************************************************************************80
@@ -2351,7 +2403,9 @@ function r8_scinvchi_sample ( df, s )
   r8_scinvchi_sample = value
 
   return
-end
+end function r8_scinvchi_sample
+
+
 function r8_uniform_pdf ( lower, upper, rval )
 
 !*****************************************************************************80
@@ -2404,7 +2458,9 @@ function r8_uniform_pdf ( lower, upper, rval )
   end if
 
   return
-end
+end function r8_uniform_pdf
+
+
 function r8_uniform_sample ( low, high )
 
 !*****************************************************************************80
@@ -2446,7 +2502,9 @@ function r8_uniform_sample ( low, high )
   r8_uniform_sample = low + ( high - low ) * r8_uniform_01_sample ( )
 
   return
-end
+end function r8_uniform_sample
+
+
 function r8_uniform_01_pdf ( rval )
 
 !*****************************************************************************80
@@ -2485,7 +2543,9 @@ function r8_uniform_01_pdf ( rval )
   end if
 
   return
-end
+end function r8_uniform_01_pdf
+
+
 function r8_uniform_01_sample ( )
 
 !*****************************************************************************80
@@ -2538,7 +2598,9 @@ function r8_uniform_01_sample ( )
   r8_uniform_01_sample = value
 
   return
-end
+end function r8_uniform_01_sample
+
+
 subroutine r8ge_print ( m, n, a, title )
 
 !*****************************************************************************80
@@ -2588,10 +2650,12 @@ subroutine r8ge_print ( m, n, a, title )
   real ( kind = 8 ) a(m,n)
   character ( len = * ) title
 
-  call r8ge_print_some ( m, n, a, 1, 1, m, n, title )
+  call r8ge_print_some ( m, n, a, int(1,kind=4), int(1,kind=4), m, n, title )
 
   return
-end
+end subroutine r8ge_print
+
+
 subroutine r8ge_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
 
 !*****************************************************************************80
@@ -2706,7 +2770,9 @@ subroutine r8ge_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
   end do
 
   return
-end
+end subroutine r8ge_print_some
+
+
 subroutine r8ge_to_r8po ( n, a, b )
 
 !*****************************************************************************80
@@ -2778,7 +2844,9 @@ subroutine r8ge_to_r8po ( n, a, b )
   end do
 
   return
-end
+end subroutine r8ge_to_r8po
+
+
 function r8mat_norm_fro_affine ( m, n, a1, a2 )
 
 !*****************************************************************************80
@@ -2835,7 +2903,9 @@ function r8mat_norm_fro_affine ( m, n, a1, a2 )
   r8mat_norm_fro_affine = sqrt ( sum ( ( a1(1:m,1:n) - a2(1:m,1:n) )**2 ) )
 
   return
-end
+end function r8mat_norm_fro_affine
+
+
 subroutine r8po_det ( n, a_lu, det )
 
 !*****************************************************************************80
@@ -2890,7 +2960,9 @@ subroutine r8po_det ( n, a_lu, det )
   end do
 
   return
-end
+end subroutine r8po_det
+
+
 subroutine r8po_fa ( n, a, r )
 
 !*****************************************************************************80
@@ -2992,7 +3064,9 @@ subroutine r8po_fa ( n, a, r )
   end do
 
   return
-end
+end subroutine r8po_fa
+
+
 subroutine r8po_inverse ( n, r, b )
 
 !*****************************************************************************80
@@ -3081,7 +3155,9 @@ subroutine r8po_inverse ( n, r, b )
   end do
 
   return
-end
+end subroutine r8po_inverse
+
+
 subroutine r8po_mv ( n, a, x, b )
 
 !*****************************************************************************80
@@ -3144,7 +3220,9 @@ subroutine r8po_mv ( n, a, x, b )
   end do
 
   return
-end
+end subroutine r8po_mv
+
+
 subroutine r8po_print ( n, a, title )
 
 !*****************************************************************************80
@@ -3191,10 +3269,12 @@ subroutine r8po_print ( n, a, title )
   real ( kind = 8 ) a(n,n)
   character ( len = * ) title
 
-  call r8po_print_some ( n, a, 1, 1, n, n, title )
+  call r8po_print_some ( n, a, int(1,kind=4), int(1,kind=4), n, n, title )
 
   return
-end
+end subroutine r8po_print
+
+
 subroutine r8po_print_some ( n, a, ilo, jlo, ihi, jhi, title )
 
 !*****************************************************************************80
@@ -3313,7 +3393,9 @@ subroutine r8po_print_some ( n, a, ilo, jlo, ihi, jhi, title )
   end do
 
   return
-end
+end subroutine r8po_print_some
+
+
 subroutine r8ut_print ( m, n, a, title )
 
 !*****************************************************************************80
@@ -3357,10 +3439,12 @@ subroutine r8ut_print ( m, n, a, title )
   real ( kind = 8 ) a(m,n)
   character ( len = * ) title
 
-  call r8ut_print_some ( m, n, a, 1, 1, m, n, title )
+  call r8ut_print_some ( m, n, a, int(1,kind=4), int(1,kind=4), m, n, title )
 
   return
-end
+end subroutine r8ut_print
+
+
 subroutine r8ut_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
 
 !*****************************************************************************80
@@ -3474,7 +3558,9 @@ subroutine r8ut_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
   end do
 
   return
-end
+end subroutine r8ut_print_some
+
+
 subroutine r8ut_sl ( n, a, b, x )
 
 !*****************************************************************************80
@@ -3527,7 +3613,9 @@ subroutine r8ut_sl ( n, a, b, x )
   end do
 
   return
-end
+end subroutine r8ut_sl
+
+
 subroutine r8ut_zeros ( m, n, a )
 
 !*****************************************************************************80
@@ -3568,7 +3656,9 @@ subroutine r8ut_zeros ( m, n, a )
   a(1:m,1:n) = 0.0D+00
 
   return
-end
+end subroutine r8ut_zeros
+
+
 function r8vec_multinormal_pdf ( n, mu, r, c_det, x )
 
 !*****************************************************************************80
@@ -3658,7 +3748,9 @@ function r8vec_multinormal_pdf ( n, mu, r, c_det, x )
   r8vec_multinormal_pdf = pdf
 
   return
-end
+end function r8vec_multinormal_pdf
+
+
 subroutine r8vec_multinormal_sample ( n, mu, r, x )
 
 !*****************************************************************************80
@@ -3731,7 +3823,9 @@ subroutine r8vec_multinormal_sample ( n, mu, r, x )
   end do
 
   return
-end
+end subroutine r8vec_multinormal_sample
+
+
 subroutine r8vec_print ( n, a, title )
 
 !*****************************************************************************80
@@ -3779,7 +3873,7 @@ subroutine r8vec_print ( n, a, title )
   end do
 
   return
-end
+end subroutine r8vec_print
 
 
 

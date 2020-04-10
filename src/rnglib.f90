@@ -109,7 +109,8 @@ subroutine advance_state ( k )
   call cg_set ( g, cg1, cg2 )
 
   return
-end
+end subroutine advance_state
+
 function antithetic_get ( )
 
 !*****************************************************************************80
@@ -144,7 +145,8 @@ function antithetic_get ( )
   antithetic_get = value
 
   return
-end
+end function antithetic_get
+
 subroutine antithetic_memory ( i, value )
 
 !*****************************************************************************80
@@ -198,7 +200,9 @@ subroutine antithetic_memory ( i, value )
   end if
 
   return
-end
+end subroutine antithetic_memory
+
+
 subroutine antithetic_set ( value )
 
 !*****************************************************************************80
@@ -230,7 +234,9 @@ subroutine antithetic_set ( value )
   call antithetic_memory ( i, value )
 
   return
-end
+end subroutine antithetic_set 
+
+
 subroutine cg_get ( g, cg1, cg2 )
 
 !*****************************************************************************80
@@ -267,7 +273,9 @@ subroutine cg_get ( g, cg1, cg2 )
   call cg_memory ( i, g, cg1, cg2 )
 
   return
-end
+end subroutine cg_get 
+
+
 subroutine cg_memory ( i, g, cg1, cg2 )
 
 !*****************************************************************************80
@@ -337,7 +345,9 @@ subroutine cg_memory ( i, g, cg1, cg2 )
   end if
 
   return
-end
+end subroutine cg_memory
+
+
 subroutine cg_set ( g, cg1, cg2 )
 
 !*****************************************************************************80
@@ -374,7 +384,9 @@ subroutine cg_set ( g, cg1, cg2 )
   call cg_memory ( i, g, cg1, cg2 )
 
   return
-end
+end subroutine cg_set 
+
+
 function cgn_get ( )
 
 !*****************************************************************************80
@@ -410,7 +422,9 @@ function cgn_get ( )
   cgn_get = g
 
   return
-end
+end function cgn_get
+
+
 subroutine cgn_memory ( i, g )
 
 !*****************************************************************************80
@@ -474,7 +488,9 @@ subroutine cgn_memory ( i, g )
   end if
 
   return
-end
+end subroutine cgn_memory
+
+
 subroutine cgn_set ( g )
 
 !*****************************************************************************80
@@ -507,7 +523,9 @@ subroutine cgn_set ( g )
   call cgn_memory ( i, g )
 
   return
-end
+end subroutine cgn_set
+
+
 subroutine get_state ( cg1, cg2 )
 
 !*****************************************************************************80
@@ -565,7 +583,9 @@ subroutine get_state ( cg1, cg2 )
   call cg_get ( g, cg1, cg2 )
 
   return
-end
+end subroutine get_state
+
+
 function i4_uni ( )
 
 !*****************************************************************************80
@@ -677,7 +697,10 @@ function i4_uni ( )
   i4_uni = z
 
   return
-end
+end function i4_uni
+
+
+
 subroutine ig_get ( g, ig1, ig2 )
 
 !*****************************************************************************80
@@ -714,7 +737,9 @@ subroutine ig_get ( g, ig1, ig2 )
   call ig_memory ( i, g, ig1, ig2 )
 
   return
-end
+end subroutine ig_get
+
+
 subroutine ig_memory ( i, g, ig1, ig2 )
 
 !*****************************************************************************80
@@ -784,7 +809,9 @@ subroutine ig_memory ( i, g, ig1, ig2 )
   end if
 
   return
-end
+end subroutine ig_memory
+
+
 subroutine ig_set ( g, ig1, ig2 )
 
 !*****************************************************************************80
@@ -821,7 +848,9 @@ subroutine ig_set ( g, ig1, ig2 )
   call ig_memory ( i, g, ig1, ig2 )
 
   return
-end
+end subroutine ig_set
+
+
 subroutine init_generator ( t )
 
 !*****************************************************************************80
@@ -926,7 +955,9 @@ subroutine init_generator ( t )
   call cg_set ( g, cg1, cg2 )
 
   return
-end
+end subroutine init_generator
+
+
 subroutine initialize ( )
 
 !*****************************************************************************80
@@ -993,7 +1024,9 @@ subroutine initialize ( )
   write ( *, '(a)' ) '  The RNGLIB package has been initialized.'
 
   return
-end
+end subroutine initialize
+
+
 function initialized_get ( )
 
 !*****************************************************************************80
@@ -1029,7 +1062,9 @@ function initialized_get ( )
   initialized_get = initialized
 
   return
-end
+end function initialized_get
+
+
 subroutine initialized_memory ( i, initialized )
 
 !*****************************************************************************80
@@ -1078,7 +1113,9 @@ subroutine initialized_memory ( i, initialized )
   end if
 
   return
-end
+end subroutine initialized_memory
+
+
 subroutine initialized_set ( )
 
 !*****************************************************************************80
@@ -1111,7 +1148,9 @@ subroutine initialized_set ( )
   call initialized_memory ( i, initialized )
 
   return
-end
+end subroutine initialized_set
+
+
 subroutine lg_get ( g, lg1, lg2 )
 
 !*****************************************************************************80
@@ -1148,7 +1187,9 @@ subroutine lg_get ( g, lg1, lg2 )
   call lg_memory ( i, g, lg1, lg2 )
 
   return
-end
+end subroutine lg_get 
+
+
 subroutine lg_memory ( i, g, lg1, lg2 )
 
 !*****************************************************************************80
@@ -1218,7 +1259,9 @@ subroutine lg_memory ( i, g, lg1, lg2 )
   end if
 
   return
-end
+end subroutine lg_memory
+
+
 subroutine lg_set ( g, lg1, lg2 )
 
 !*****************************************************************************80
@@ -1255,7 +1298,9 @@ subroutine lg_set ( g, lg1, lg2 )
   call lg_memory ( i, g, lg1, lg2 )
 
   return
-end
+end subroutine lg_set
+
+
 function multmod ( a, s, m )
 
 !*****************************************************************************80
@@ -1414,7 +1459,9 @@ function multmod ( a, s, m )
   multmod = p
 
   return
-end
+end function multmod
+
+
 function r4_uni_01 ( )
 
 !*****************************************************************************80
@@ -1476,7 +1523,9 @@ function r4_uni_01 ( )
   r4_uni_01 = real ( i, kind = 4 ) * 4.656613057E-10
 
   return
-end
+end function r4_uni_01
+
+
 function r8_uni_01 ( )
 
 !*****************************************************************************80
@@ -1538,7 +1587,9 @@ function r8_uni_01 ( )
   r8_uni_01 = real ( i, kind = 8 ) * 4.656613057D-10
 
   return
-end
+end function r8_uni_01 
+
+
 subroutine set_initial_seed ( ig1, ig2 )
 
 !*****************************************************************************80
@@ -1640,7 +1691,8 @@ subroutine set_initial_seed ( ig1, ig2 )
   call cgn_set ( g )
 
   return
-end
+end subroutine set_initial_seed
+
 subroutine set_seed ( cg1, cg2 )
 
 !*****************************************************************************80
@@ -1722,7 +1774,9 @@ subroutine set_seed ( cg1, cg2 )
   call init_generator ( t )
 
   return
-end
+end subroutine set_seed
+
+
 subroutine timestamp ( )
 
 !*****************************************************************************80
@@ -1800,7 +1854,7 @@ subroutine timestamp ( )
     d, trim ( month(m) ), y, h, ':', n, ':', s, '.', mm, trim ( ampm )
 
   return
-end
+end subroutine timestamp
 
 end module rnglib
 

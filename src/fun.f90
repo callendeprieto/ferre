@@ -130,7 +130,7 @@ sampler = - 0.5D+00 * func * 50. * chiscale
 
     
 return
-end
+end function sampler
 
 
 END MODULE fun

@@ -136,10 +136,10 @@ m(1:nov)= 0.0D+00
 mcov(1:nov,1:nov) = 0.0D+00
 
 !set jump rate table
-call jumprate_table_init ( jumprate_table, pair_num, nov )
+call jumprate_table_init ( jumprate_table, pair_num, int(nov,kind=4) )
 
 !initialize the Gelman-Rubin data
-call gr_init ( gr, gr_conv, gr_count, gr_num, nov )
+call gr_init ( gr, gr_conv, gr_count, gr_num, int(nov,kind=4) )
 
   write ( *, '(a)' ) ' '
   write ( *, '(a)' ) 'GR_PRINT'
@@ -151,24 +151,24 @@ call gr_init ( gr, gr_conv, gr_count, gr_num, nov )
 !  Set the first generation of the chains from restart data, or by sampling.
 !
 if ( 0 < len_trim ( restart_read_filename ) ) then
-    call restart_read ( chain_num, fit, gen_num, nov, &
+    call restart_read ( chain_num, fit, gen_num, int(nov,kind=4), &
       restart_read_filename, z )
 else
     call chain_init ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
-                      chain_num, fit, gen_num, nov, limits, z )
+                      chain_num, fit, gen_num, int(nov,kind=4), limits, z )
 endif
 
-call chain_init_print ( chain_num, fit, gen_num, nov, &
+call chain_init_print ( chain_num, fit, gen_num, int(nov,kind=4), &
     restart_read_filename, z )
 
 !run DREAM
 call dream_algm ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
     chain_num, cr_num, fit, gen_num, gr, gr_conv, &
     gr_count, gr_num, gr_threshold, jumprate_table, jumpstep, limits, &
-    pair_num, nov, printstep, z , burnin_num)
+    pair_num, int(nov,kind=4), printstep, z , burnin_num)
 
 !compute mean and covariance
-call zstats(nov, chain_num, gen_num, burnin_num, z, m, mcov)
+call zstats(int(nov,kind=4), chain_num, gen_num, burnin_num, z, m, mcov)
 write(*,*)'GR_CONV=',gr_conv
 write(*,*)'M=',m
 write(*,*)'MCOV=',mcov
@@ -181,20 +181,20 @@ cov(1:nov,1:nov)=mcov(1:nov,1:nov)
 !  Save Gelman-Rubin statistics to a file.
 !
 if ( 0 < len_trim ( gr_filename ) ) then
-    call gr_write ( gr, gr_filename, gr_num, nov, printstep )
+    call gr_write ( gr, gr_filename, gr_num, int(nov,kind=4), printstep )
 endif
 !
 !  Save parameter values for all chains at last generation.
 !
 if ( 0 < len_trim ( restart_write_filename ) ) then
-    call restart_write ( chain_num, fit, gen_num, nov, &
+    call restart_write ( chain_num, fit, gen_num, int(nov,kind=4), &
       restart_write_filename, z )
 end if
 !
 !  Write each chain to a separate file.
 !
 if ( 0 < len_trim ( chain_filename ) ) then
-    call chain_write ( chain_filename, chain_num, fit, gen_num, nov, z )
+    call chain_write ( chain_filename, chain_num, fit, gen_num, int(nov,kind=4), z )
 end if
 
 !
@@ -256,7 +256,9 @@ function prior_density ( par_num, zp )
   end do
 
   return
-end
+end function prior_density
+
+
 subroutine prior_sample ( par_num, limits, zp )
 
 !*****************************************************************************80
@@ -298,7 +300,7 @@ subroutine prior_sample ( par_num, limits, zp )
   end do
 
   return
-end
+end subroutine prior_sample
 
 
 subroutine zstats(par_num, chain_num, gen_num, burnin_num, z, m, cov)
@@ -416,7 +418,9 @@ real ( kind = 8 )  :: zp(1:par_num)
   !deallocate ( zp )
 
   return
-end
+end subroutine chain_init
+
+
 subroutine chain_init_print ( chain_num, fit, gen_num, par_num, &
   restart_read_filename, z )
 
@@ -486,7 +490,7 @@ subroutine chain_init_print ( chain_num, fit, gen_num, par_num, &
   end do
 
   return
-end
+end subroutine chain_init_print
 
 subroutine chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
 
@@ -636,7 +640,9 @@ subroutine chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
   deallocate ( avg )
 
   return
-end
+end subroutine chain_outliers
+
+
 subroutine chain_write ( chain_filename, chain_num, fit, gen_num, par_num, z )
 
 !*****************************************************************************80
@@ -734,7 +740,9 @@ subroutine chain_write ( chain_filename, chain_num, fit, gen_num, par_num, z )
   end do
 
   return
-end
+end subroutine chain_write
+
+
 subroutine cr_dis_update ( chain_index, chain_num, cr_dis, cr_index, cr_num, &
   cr_ups, gen_index, gen_num, par_num, z ) 
 
@@ -820,7 +828,9 @@ subroutine cr_dis_update ( chain_index, chain_num, cr_dis, cr_index, cr_num, &
   end do 
 
   return
-end
+end subroutine cr_dis_update
+
+
 subroutine cr_index_choose ( cr_index, cr_num, cr_prob )
 
 !*****************************************************************************80
@@ -889,7 +899,9 @@ subroutine cr_index_choose ( cr_index, cr_num, cr_prob )
   end if
 
   return
-end
+end subroutine cr_index_choose
+
+
 subroutine cr_init ( cr, cr_dis, cr_num, cr_prob, cr_ups )
 
 !*****************************************************************************80
@@ -942,7 +954,9 @@ subroutine cr_init ( cr, cr_dis, cr_num, cr_prob, cr_ups )
   cr_ups(1:cr_num) = 1
 
   return
-end
+end subroutine cr_init
+
+
 subroutine cr_prob_update ( cr_dis, cr_num, cr_prob, cr_ups )
 
 !*****************************************************************************80
@@ -993,7 +1007,9 @@ subroutine cr_prob_update ( cr_dis, cr_num, cr_prob, cr_ups )
   cr_prob(1:cr_num) = cr_prob(1:cr_num) / cr_prob_sum
 
   return
-end 
+end subroutine cr_prob_update
+
+
 subroutine diff_compute ( chain_num, gen_index, gen_num, jump_dim, jump_num, &
   pair_num, par_num, r, z, diff ) 
 
@@ -1086,7 +1102,9 @@ subroutine diff_compute ( chain_num, gen_index, gen_num, jump_dim, jump_num, &
   end do
 
   return
-end
+end subroutine diff_compute
+
+
 subroutine dream_algm ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
   chain_num, cr_num, fit, gen_num, gr, gr_conv, &
   gr_count, gr_num, gr_threshold, jumprate_table, jumpstep, limits, &
@@ -1335,7 +1353,7 @@ real ( kind = 8 ) zp_ratio
 !
     if ( .not. gr_conv ) then
       if ( 1 < cr_num ) then
-        if ( mod ( gen_index, 10 ) == 0 ) then
+        if ( mod ( gen_index, int(10,kind=4) ) == 0 ) then
           call cr_prob_update ( cr_dis, cr_num, cr_prob, cr_ups )
         end if
       end if
@@ -1353,7 +1371,7 @@ real ( kind = 8 ) zp_ratio
 !  Check for outlier chains.
 !
     if ( .not. gr_conv ) then
-      if ( mod ( gen_index, 10 ) == 0 ) then
+      if ( mod ( gen_index, int(10,kind=4) ) == 0 ) then
         call chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
       end if
     end if
@@ -1439,7 +1457,7 @@ real ( kind = 8 ) zp_ratio
 !
     if ( .not. gr_conv ) then
       if ( 1 < cr_num ) then
-        if ( mod ( gen_index, 10 ) == 0 ) then
+        if ( mod ( gen_index, int(10,kind=4) ) == 0 ) then
           call cr_prob_update ( cr_dis, cr_num, cr_prob, cr_ups )
         end if
       end if
@@ -1457,7 +1475,7 @@ real ( kind = 8 ) zp_ratio
 !  Check for outlier chains.
 !
     if ( .not. gr_conv ) then
-      if ( mod ( gen_index, 10 ) == 0 ) then
+      if ( mod ( gen_index, int(10,kind=4) ) == 0 ) then
         call chain_outliers ( chain_num, gen_index, gen_num, par_num, fit, z )
       end if
     end if
@@ -1471,7 +1489,9 @@ real ( kind = 8 ) zp_ratio
   write ( *, '(a,g14.6)' ) '  The acceptance rate is ', zp_accept_rate
 
   return
-end
+end subroutine dream_algm
+
+
 subroutine filename_inc ( filename )
 
 !*****************************************************************************80
@@ -1574,7 +1594,9 @@ subroutine filename_inc ( filename )
   end if
 
   return
-end
+end subroutine filename_inc 
+
+
 subroutine get_unit ( iunit )
 
 !*****************************************************************************80
@@ -1638,7 +1660,9 @@ subroutine get_unit ( iunit )
   end do
 
   return
-end
+end subroutine get_unit
+
+
 subroutine gr_compute ( chain_num, gen_index, gen_num, gr, gr_conv, gr_count, &
   gr_num, gr_threshold, par_num, z )
 
@@ -1774,7 +1798,9 @@ subroutine gr_compute ( chain_num, gen_index, gen_num, gr, gr_conv, gr_count, &
   end if
 
   return
-end
+end subroutine gr_compute
+
+
 subroutine gr_init ( gr, gr_conv, gr_count, gr_num, par_num )
 
 !*****************************************************************************80
@@ -1823,7 +1849,10 @@ subroutine gr_init ( gr, gr_conv, gr_count, gr_num, par_num )
   gr_count = 0
 
   return
-end
+end subroutine gr_init
+
+
+
 subroutine gr_write ( gr, gr_filename, gr_num, par_num, printstep )
 
 !*****************************************************************************80
@@ -1900,7 +1929,9 @@ subroutine gr_write ( gr, gr_filename, gr_num, par_num, printstep )
   write ( *, '(a)' ) '  Created the file "' // trim ( gr_filename ) // '".'
 
   return
-end
+end subroutine gr_write
+
+
 subroutine i4mat_print ( m, n, a, title )
 
 !*****************************************************************************80
@@ -1953,7 +1984,9 @@ subroutine i4mat_print ( m, n, a, title )
   call i4mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
 
   return
-end
+end subroutine i4mat_print
+
+
 subroutine i4mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
 
 !*****************************************************************************80
@@ -2058,7 +2091,9 @@ subroutine i4mat_print_some ( m, n, a, ilo, jlo, ihi, jhi, title )
   end do
 
   return
-end
+end subroutine i4mat_print_some
+
+
 subroutine i4vec_transpose_print ( n, a, title )
 
 !*****************************************************************************80
@@ -2118,7 +2153,9 @@ subroutine i4vec_transpose_print ( n, a, title )
   end do
 
   return
-end
+end subroutine i4vec_transpose_print
+
+
 subroutine input_print ( chain_filename, chain_num, cr_num, gr_filename, &
   gr_threshold, jumpstep, limits, gen_num, pair_num, par_num, printstep, &
   restart_read_filename, restart_write_filename )
@@ -2270,7 +2307,9 @@ subroutine input_print ( chain_filename, chain_num, cr_num, gr_filename, &
   end if
 
   return
-end
+end subroutine input_print
+
+
 subroutine jumprate_choose ( cr, cr_index, cr_num, gen_index, jump_dim, &
   jump_num, jumprate, jumprate_table, jumpstep, par_num )
 
@@ -2378,12 +2417,14 @@ subroutine jumprate_choose ( cr, cr_index, cr_num, gen_index, jump_dim, &
 !
 !  Determine if a long jump is forced.
 !
-  if ( mod ( gen_index - 1, jumpstep ) == 0 ) then
+  if ( mod ( gen_index - int(1,kind=4), jumpstep ) == 0 ) then
     jumprate = 0.98D+00
   end if
 
   return
-end
+end subroutine jumprate_choose
+
+
 subroutine jumprate_table_init ( jumprate_table, pair_num, par_num )
 
 !*****************************************************************************80
@@ -2430,7 +2471,9 @@ subroutine jumprate_table_init ( jumprate_table, pair_num, par_num )
   end do
 
   return
-end
+end subroutine jumprate_table_init
+
+
 subroutine jumprate_table_print ( jumprate_table, pair_num, par_num )
 
 !*****************************************************************************80
@@ -2478,7 +2521,9 @@ subroutine jumprate_table_print ( jumprate_table, pair_num, par_num )
   end do
 
   return
-end
+end subroutine jumprate_table_print
+
+
 function r8_round_i4 ( x )
 
 !*****************************************************************************80
@@ -2537,7 +2582,9 @@ function r8_round_i4 ( x )
   r8_round_i4 = value
 
   return
-end
+end function r8_round_i4
+
+
 subroutine r8vec_copy ( n, a1, a2 )
 
 !*****************************************************************************80
@@ -2578,7 +2625,9 @@ subroutine r8vec_copy ( n, a1, a2 )
   a2(1:n) = a1(1:n)
 
   return
-end
+end subroutine r8vec_copy
+
+
 subroutine r8vec_heap_d ( n, a )
 
 !*****************************************************************************80
@@ -2695,7 +2744,9 @@ subroutine r8vec_heap_d ( n, a )
   end do
 
   return
-end
+end subroutine r8vec_heap_d
+
+
 subroutine r8vec_sort_heap_a ( n, a )
 
 !*****************************************************************************80
@@ -2776,7 +2827,9 @@ subroutine r8vec_sort_heap_a ( n, a )
   end do
 
   return
-end
+end subroutine r8vec_sort_heap_a
+
+
 subroutine r8vec_transpose_print ( n, a, title )
 
 !*****************************************************************************80
@@ -2836,7 +2889,9 @@ subroutine r8vec_transpose_print ( n, a, title )
   end do
 
   return
-end
+end subroutine r8vec_transpose_print
+
+
 subroutine restart_read ( chain_num, fit, gen_num, par_num, &
   restart_read_filename, z )
 
@@ -2916,7 +2971,9 @@ subroutine restart_read ( chain_num, fit, gen_num, par_num, &
   close ( restart_unit )
 
   return
-end
+end subroutine restart_read
+
+
 subroutine restart_write ( chain_num, fit, gen_num, par_num, &
   restart_write_filename, z )
 
@@ -3002,7 +3059,9 @@ subroutine restart_write ( chain_num, fit, gen_num, par_num, &
     // trim ( restart_write_filename ) // '".'
 
   return
-end
+end subroutine restart_write
+
+
 subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
   gen_index, gen_num, jumprate_table, jumpstep, limits, pair_num, par_num, &
   z, zp )
@@ -3198,7 +3257,9 @@ subroutine sample_candidate ( chain_index, chain_num, cr, cr_index, cr_num, &
   deallocate ( r )
 
   return
-end
+end subroutine sample_candidate
+
+
 subroutine sample_limits ( limits, par_num, zp )
 
 !*****************************************************************************80
@@ -3267,7 +3328,9 @@ subroutine sample_limits ( limits, par_num, zp )
   end do
 
   return
-end
+end subroutine sample_limits
+
+
 subroutine std_compute ( chain_num, gen_index, gen_num, par_num, z, std )
 
 !*****************************************************************************80
@@ -3347,7 +3410,7 @@ subroutine std_compute ( chain_num, gen_index, gen_num, par_num, z, std )
   end do
 
   return
-end
+end subroutine std_compute
 
 
 end module mcmc

@@ -964,7 +964,7 @@ write(*,*)'synthfile summary'
 write(*,*)'*******************************************************************'
 write(*,*)'   #      R     start-pix  end-pix    start-lambda      end-lambda'
 do i=1,nsynth
-	write(*,'(i5,x,f9.1,i8,x,i8,x,f16.3,x,f16.3)')i,hs(i)%res, & 
+	write(*,'(i5,1x,f9.1,i8,1x,i8,1x,f16.3,1x,f16.3)')i,hs(i)%res, & 
           hs(i)%pixbegin,hs(i)%pixend, &
 	  !hs(i)%lambda0,hs(i)%lambda1,hs(i)%lws,  &
 	  hs(i)%lambdamin,hs(i)%lambdamax

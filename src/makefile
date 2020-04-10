@@ -12,10 +12,10 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -O0 -g 
 
 #F90 = g95
-#OPT= -O2 --openmp
+#OPT= -O2 -openmp
 
 #F90 = sunf95
-#OPT = -O3 -xopenmp
+#OPT = -O3 -xopenmp 
 #OPT = -g -O0
 
 #F90 = /usr/remote/bin/f95

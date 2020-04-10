@@ -222,7 +222,9 @@ function genbet ( aa, bb )
   end if
 
   return
-end
+end function genbet 
+
+
 function genchi ( df )
 
 !*****************************************************************************80
@@ -278,7 +280,9 @@ function genchi ( df )
   genchi = 2.0E+00 * gengam ( arg1, arg2 )
 
   return
-end
+end function genchi
+
+
 function genexp ( av )
 
 !*****************************************************************************80
@@ -329,7 +333,9 @@ function genexp ( av )
   genexp = sexpo ( ) * av
 
   return
-end
+end function genexp
+
+
 function genf ( dfn, dfd )
 
 !*****************************************************************************80
@@ -395,7 +401,9 @@ function genf ( dfn, dfd )
   genf = xnum / xden
 
   return
-end
+end function genf
+
+
 function gengam ( a, r )
 
 !*****************************************************************************80
@@ -451,7 +459,9 @@ function gengam ( a, r )
   gengam = sgamma ( r ) / a
 
   return
-end
+end function gengam
+
+
 subroutine genmn ( parm, x, work )
 
 !*****************************************************************************80
@@ -529,7 +539,9 @@ subroutine genmn ( parm, x, work )
   end do
 
   return
-end
+end subroutine genmn
+
+
 subroutine genmul ( n, p, ncat, ix )
 
 !*****************************************************************************80
@@ -654,7 +666,9 @@ subroutine genmul ( n, p, ncat, ix )
   ix(ncat) = ntot
 
   return
-end
+end subroutine genmul
+
+
 function gennch ( df, xnonc )
 
 !*****************************************************************************80
@@ -739,7 +753,9 @@ function gennch ( df, xnonc )
   gennch = t1 + t2 * t2
 
   return
-end
+end function gennch
+
+
 function gennf ( dfn, dfd, xnonc )
 
 !*****************************************************************************80
@@ -820,7 +836,9 @@ function gennf ( dfn, dfd, xnonc )
   gennf = xnum / xden
 
   return
-end
+end function gennf
+
+
 function gennor ( av, sd )
 
 !*****************************************************************************80
@@ -871,7 +889,9 @@ function gennor ( av, sd )
   gennor = sd * snorm ( ) + av
 
   return
-end
+end function gennor
+
+
 subroutine genprm ( iarray, n )
 
 !*****************************************************************************80
@@ -920,7 +940,9 @@ subroutine genprm ( iarray, n )
   end do
 
   return
-end
+end subroutine genprm
+
+
 function genunf ( low, high )
 
 !*****************************************************************************80
@@ -961,7 +983,9 @@ function genunf ( low, high )
   genunf = low + ( high - low ) * r4_uni_01 ( )
 
   return
-end
+end function genunf 
+
+
 function ignbin ( n, pp )
 
 !*****************************************************************************80
@@ -1255,7 +1279,9 @@ function ignbin ( n, pp )
   end do
 
   return
-end
+end function ignbin
+
+
 function ignnbn ( n, p )
 
 !*****************************************************************************80
@@ -1342,7 +1368,9 @@ function ignnbn ( n, p )
   ignnbn = ignpoi ( y )
 
   return
-end
+end function ignnbn
+
+
 function ignpoi ( mu )
 
 !*****************************************************************************80
@@ -1643,7 +1671,9 @@ function ignpoi ( mu )
 
   end if
 
-end
+end function ignpoi
+
+
 function ignuin ( low, high )
 
 !*****************************************************************************80
@@ -1732,7 +1762,9 @@ function ignuin ( low, high )
   ignuin = low + mod ( ign, ranp1 )
 
   return
-end
+end function ignuin
+
+
 function lennob ( s )
 
 !*****************************************************************************80
@@ -1783,7 +1815,9 @@ function lennob ( s )
   lennob = 0
 
   return
-end
+end function lennob
+
+
 subroutine phrtsd ( phrase, seed1, seed2 )
 
 !*****************************************************************************80
@@ -1856,7 +1890,7 @@ subroutine phrtsd ( phrase, seed1, seed2 )
 !
 !  If the character does not occur, ICHR is returned as 0.
 !
-    ichr = mod ( ichr, 64 )
+    ichr = mod ( ichr, int(64, kind=4) )
 
     if ( ichr == 0 ) then
       ichr = 63
@@ -1877,7 +1911,9 @@ subroutine phrtsd ( phrase, seed1, seed2 )
   end do
 
   return
-end
+end subroutine phrtsd
+
+
 subroutine prcomp ( maxobs, p, mean, xcovar, answer )
 
 !*****************************************************************************80
@@ -1953,7 +1989,9 @@ subroutine prcomp ( maxobs, p, mean, xcovar, answer )
   end do
 
   return
-end
+end subroutine prcomp
+
+
 function r4_exp ( x )
 
 !*****************************************************************************80
@@ -2010,7 +2048,9 @@ function r4_exp ( x )
   r4_exp = value
 
   return
-end
+end function r4_exp
+
+
 function r4_exponential_sample ( lambda )
 
 !*****************************************************************************80
@@ -2052,7 +2092,9 @@ function r4_exponential_sample ( lambda )
   r4_exponential_sample = - log ( r ) * lambda
 
   return
-end
+end function r4_exponential_sample
+
+
 function r4vec_covar ( n, x, y )
 
 !*****************************************************************************80
@@ -2102,7 +2144,9 @@ function r4vec_covar ( n, x, y )
   r4vec_covar = value / real ( n - 1, kind = 4 )
 
   return
-end
+end function r4vec_covar
+
+
 function r8_exponential_sample ( lambda )
 
 !*****************************************************************************80
@@ -2144,7 +2188,9 @@ function r8_exponential_sample ( lambda )
   r8_exponential_sample = - log ( r ) * lambda
 
   return
-end
+end function r8_exponential_sample
+
+
 function r8vec_covar ( n, x, y )
 
 !*****************************************************************************80
@@ -2194,7 +2240,9 @@ function r8vec_covar ( n, x, y )
   r8vec_covar = value / real ( n - 1, kind = 8 )
 
   return
-end
+end function r8vec_covar
+
+
 function sdot ( n, sx, incx, sy, incy )
 
 !*****************************************************************************80
@@ -2292,7 +2340,7 @@ function sdot ( n, sx, incx, sy, incy )
 !
   else
 
-    m = mod ( n, 5 )
+    m = mod ( n, int(5, kind=4) )
 
     do i = 1, m
       stemp = stemp + sx(i) * sy(i)
@@ -2312,7 +2360,9 @@ function sdot ( n, sx, incx, sy, incy )
   sdot = stemp
 
   return
-end
+end function sdot
+
+
 subroutine setcov ( p, var, corr, covar )
 
 !*****************************************************************************80
@@ -2368,7 +2418,9 @@ subroutine setcov ( p, var, corr, covar )
   end do
 
   return
-end
+end subroutine setcov
+
+
 subroutine setgmn ( meanv, covm, p, parm )
 
 !*****************************************************************************80
@@ -2459,7 +2511,8 @@ subroutine setgmn ( meanv, covm, p, parm )
   end do
 
   return
-end
+end subroutine setgmn
+
 function sexpo ( )
 
 !*****************************************************************************80
@@ -2560,7 +2613,9 @@ function sexpo ( )
   sexpo = a + umin * q(1)
 
   return
-end
+end function sexpo
+
+
 function sgamma ( a )
 
 !*****************************************************************************80
@@ -2808,7 +2863,9 @@ function sgamma ( a )
   end if
 
   return
-end
+end function sgamma
+
+
 function snorm ( )
 
 !*****************************************************************************80
@@ -3027,7 +3084,9 @@ function snorm ( )
 
   end if
 
-end
+end function snorm
+
+
 subroutine spofa ( a, lda, n, info )
 
 !*****************************************************************************80
@@ -3084,7 +3143,7 @@ subroutine spofa ( a, lda, n, info )
     s = 0.0E+00
     jm1 = j - 1
     do k = 1, jm1
-      t = a(k,j) - sdot ( k-1, a(1,k), 1, a(1,j), 1 )
+      t = a(k,j) - sdot ( k- int(1,kind=4), a(1,k), int(1,kind=4) , a(1,j), int(1,kind=4) )
       t = t / a(k,k)
       a(k,j) = t
       s = s + t * t
@@ -3098,7 +3157,9 @@ subroutine spofa ( a, lda, n, info )
   end do
 
   return
-end
+end subroutine spofa 
+
+
 subroutine stats ( x, n, av, var, xmin, xmax )
 
 !*****************************************************************************80
@@ -3164,7 +3225,9 @@ subroutine stats ( x, n, av, var, xmin, xmax )
   var = total / real ( n - 1 )
 
   return
-end
+end subroutine stats
+
+
 subroutine trstat ( pdf, parin, av, var )
 
 !*****************************************************************************80
@@ -3368,7 +3431,7 @@ subroutine trstat ( pdf, parin, av, var )
   end if
 
   return
-end
+end subroutine trstat
 
 
 end module ranlib

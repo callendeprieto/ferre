@@ -5,6 +5,8 @@ subroutine fsort
 !finally copied over the original ones
 !
 
+use iso_fortran_env, only: iostat_end
+
 use share, only: dp,flen,pfile,opfile,offile,sffile, &
 		siobuffer,xliobuffer,nfilter,cont
 
@@ -34,7 +36,8 @@ open(9,file=offile2,recl=xliobuffer,action='write')	! model flux
 
 do 
 	read(1,*,iostat=stat) id
-	if (is_iostat_end(stat)) exit
+	!if (is_iostat_end(stat)) exit ! fortran2003
+	if (iostat_end == stat) exit
 	rewind(2)
 	rewind(3)
 	if((nfilter > 1 .or. cont > 0) .and. sffile.gt.' ') rewind(4)
@@ -76,7 +79,8 @@ open(9,file=offile,recl=xliobuffer,action='write')      ! model flux
 do 
 
   read(2,'(a)',iostat=stat) opline
-  if (is_iostat_end(stat)) exit
+  !if (is_iostat_end(stat)) exit !fortran2003
+  if (iostat_end == stat) exit
   write(7,'(a)') trim(opline)
 
   read(3,'(a)') ofline
