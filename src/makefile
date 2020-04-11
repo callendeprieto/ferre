@@ -18,6 +18,9 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -O3 -xopenmp 
 #OPT = -g -O0
 
+F90 = pgf90
+OPT = -O2 -mp
+
 #F90 = /usr/remote/bin/f95
 #OPT= -O2 
 
