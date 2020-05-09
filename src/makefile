@@ -18,8 +18,6 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -O3 -xopenmp 
 #OPT = -g -O0
 
-#F90 = pgf90
-#OPT = -O2 -mp
 
 #F90 = /usr/remote/bin/f95
 #OPT= -O2 
@@ -31,12 +29,11 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -O3 -openmp
 #OPT= -O0 -traceback
 
-#F90 = /opt/pgi/osx86-64/10.6/bin/pgfortran
-#F90 = pgf90
-#OPT = -fast -Mconcur=allcores  -Minfo=accel
-#OPT = -O2 -mp
-#OPT = -O0
-#OPT = -O0 -g -openmp
+#F90 = pgfortran
+#OPT = -fast -Mconcur=allcores  -Minfo=accel 
+#OPT = -O2 -mp 
+#OPT = -O0 -o 
+#OPT = -O0 -g -openmp 
 
 #F90 = xlf95_r
 #OPT = -O3 -qstrict -qtune=ppc970 -qarch=ppc970 -qcache=auto -qsmp=omp
@@ -79,7 +76,7 @@ ascii2bin: share.mod timer.mod checkstat.o quit.o ascii2bin.f90
 
 # 2nd and final step - compiling and linking
 a.out:  ${OBJS} ${SOURCE}
-	${F90}  ${OPT}  ${SOURCE_MODULES} ${SOURCE}
+	${F90}  -o a.out ${OPT}  ${SOURCE_MODULES} ${SOURCE}
 
 #1st step - compiling the modules to get .o and .mod files
 
