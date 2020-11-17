@@ -98,7 +98,7 @@ $>$cd  ferre/src \\
 $>$make  \\
 \noindent and you should end up with two executables, 
 one for FERRE ('a.out', copied to the bin folder as 'ferre.x') and 
-another one (ascii2bin) for  converting model grids from ASCII 
+another one (ascii2bin) for  converting model grids from text
 format to (direct-access) binaries.
 
 \section{Running the code}
@@ -294,7 +294,7 @@ Optional   & Parameters \\
 \hline 
 nobj      &    integer           & Number of samples (spectra) to analyze (all by default) \\
 nlambda   &    integer           & Number of data points (frequencies) per sample \\
-f\_format  &    integer           & Format of the model grid (0 for ASCII or 1 for binary)  \\
+f\_format  &    integer           & Format of the model grid (0 for text or 1 for binary)  \\
 f\_access  &    integer           & Mode of accessing the model grid data \\
           &                       & 0 for RAM or  1 for direct-access \\
 inter     &     integer           &  Interpolation algorithm (default 1) \\
@@ -585,9 +585,9 @@ read the models from a hard drive. For large grids, reading the data from
 disk can still be painful. This can be reduced significantly by storing the
 grid in binary form. 
 
-FERRE comes with a tool for transforming from ASCII to
+FERRE comes with a tool for transforming from text to
 binary any properly formatted grid: ascii2bin. 
-For example, to transform to binary the grid in the test directory type \\
+For example, to transform to binary format the grid in the test directory type \\
 ../src/ascii2bin \\
 and the code will ask for the input file ('f\_ki13\_1000.dat' in this case). 
 
