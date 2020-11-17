@@ -600,14 +600,14 @@ to your {\tt input.nml}. If you are pressed for space, at this point you can
 remove or compress the ascii (.dat) version of the model grid, replacing its name 
 on the {\tt input.nml} file by the smaller file containing only the header (.hdr).
 
-Sometimes the model grid may be too large to hold on memory. Or we may be
+Sometimes the model grid may be too large to keep in the RAM. Or we may be
 in the situation that the time to load it in memory exceeds the actual 
 optimization time, perhaps because we only have one or a few objects to fit. In that
 case we can avoid loading the grid in memory, accessing the models as they are
 needed directly from the hard drive. To do this, we just need to switch on another
 keyword in the {\tt input.nml} \\
 F\_ACCESS=1\\
-This requires that the model grid has been previously converted to binary format, 
+This requires that the model grid has been previously converted to binary format as desbed above, 
 so that the 'records' in it are perfectly structured (and therefore {\tt F\_FORMAT=1} 
 in your {\tt input.nml}).
 
