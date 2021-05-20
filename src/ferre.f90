@@ -313,7 +313,9 @@ else
 endif   !1st nov if
 
 open(2,file=pfile,status='old',recl=siobuffer,action='read')	! input pars
-if (nov > 0) open(3,file=opfile,recl=siobuffer,action='write')	! output pars
+if ((nov > 0) .or. ((nov == 0) .and. (nthreads /= 1))) then 
+   open(3,file=opfile,recl=siobuffer,action='write')	! output pars
+endif
 open(4,file=offile,recl=xliobuffer,action='write')		! model flux
 if (fformat == 1) then 
 	write(4,'(a)')iqheader(1:5)
@@ -1027,10 +1029,10 @@ do j=1,nobj
 			endif
 		endif
 
-                !getting and writing model fluxes
-                call flx(pf,lambda_obs,e_obs,mobs,lsfarr1,fit)
+        !getting and writing model fluxes
+        call flx(pf,lambda_obs,e_obs,mobs,lsfarr1,fit)
 
-                !$omp critical			
+        !$omp critical			
 		!writing smoothed/normalized observed fluxes
 		if((nfilter > 1 .or. cont > 0) .and. sffile.gt.' ') then
 			if (fformat == 0) then
@@ -1109,17 +1111,18 @@ do j=1,nobj
 		  call rmedian(obs,e_obs,nlambda1,medsnr)
 		  if (status == 0) write(*,*)'median snr =',medsnr
 		endif		
-
-	        if (nov > 0) then
-	            if (covprint .eq. 1) then 
+		
+	    if ((nov > 0) .or. ((nov == 0) .and. (nthreads /= 1))) then
+	      if (covprint .eq. 1) then 
 			write(3,'(1x,a150,100(1x,ES12.4))')fname,opf,ospf,cphot,   &
         		medsnr,lchi,ocov
-	            else 
+	      else 
 			write(3,'(1x,a150,100(1x,F9.3))')fname,opf,ospf,cphot,   &
         		medsnr,lchi
 	            endif
                 endif 
-                !$omp end critical
+                
+        !$omp end critical
 
 	endif !if on status > -10 and k>= nruns
 
