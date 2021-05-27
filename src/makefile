@@ -29,18 +29,16 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -O3 -openmp
 #OPT= -O0 -traceback
 
-#F90 = pgfortran
-#OPT = -fast -Mconcur=allcores  -Minfo=accel 
-#OPT = -O2 -mp 
-#OPT = -O0 -o 
-#OPT = -O0 -g -openmp 
-
 #F90 = xlf95_r
 #OPT = -O3 -qstrict -qtune=ppc970 -qarch=ppc970 -qcache=auto -qsmp=omp
 
 #raspbian
 #F90 = gfortran
 #OPT = -march=armv6 -mfpu=vfp -mfloat-abi=hard
+
+
+#F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/2021/compilers/bin/nvfortran
+#OPT = -fast -Mconcur=allcores -Minfo=accel -mp 
 
 
 OS1 = ${shell perl -e 'my $$osVersion = `uname `; chomp($$osVersion); print "$$osVersion"'}
