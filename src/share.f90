@@ -17,10 +17,10 @@ integer, parameter 	:: lmaxnobj=9			!limit to #objs
 integer, parameter 	:: long = selected_int_kind(9)	!long integers
 integer, parameter 	:: longenough = selected_int_kind(lmaxnobj)	!is 10**lmaxnobj
 integer, parameter      :: flen=300 ! chars in strings for paths/files
-real(dp), parameter :: lambdatol = 1.e-3_dp	!accepted wavelength error 
-real(dp), parameter :: pi=3.1415926535897932384626433832795_dp
+real(dp), parameter     :: lambdatol = 1.e-3_dp	!accepted wavelength error 
+real(dp), parameter     :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.8.9'  !version
+character(len=12)    	:: ver = 'v4.8.10'  !version
 
 
 !params to read or built from synthfile 
@@ -28,42 +28,42 @@ integer			:: npca(maxnpca)	!# of input pixels to npca sections
 integer			:: nelnpca = 0, totalnpca = 0 !# of pca sections,sum(npca)
 integer			:: nvar = 0 !# pca components per section 
 real(dp),allocatable 	:: meanspca(:),vpca(:),wpca(:,:), ff(:,:) !pca arrays 
-real(dp)        :: constant=0.0_dp	    ! a constant added to all data	
+real(dp)                :: constant=0.0_dp ! a constant added to all data	
 integer			:: n_p(maxndim)				!grid's size
-integer		    :: ntot	!ntot=Prod_1^ndim(n_p)=n_p(1)*n_p(2)...
+integer		        :: ntot !ntot=Prod_1^ndim(n_p)=n_p(1)*n_p(2)...
 integer,allocatable     :: ntimes(:) !ntimes(i)=Prod_(i+1)^ndim(n_p(i))
-integer			:: npix	= 0				!# of frequencies in library
+integer			:: npix	= 0	!# of frequencies in library
 real(dp)		:: llimits(maxndim),steps(maxndim)	!physical pars
 integer			:: nphotpix=0				!# of phot. pix
-integer,allocatable	    :: photpixels(:)	!photometry
+integer,allocatable	:: photpixels(:)	!photometry
 real(dp),allocatable    :: lambda_syn(:) 	!wavelength array for library
 real(dp)		:: scalef=1.0_dp	        !(<f>)
 integer 		:: scaled = 0				!scalef applied to read_f
 integer			:: transposed = 0           !f array is (npix,ntot) for transposed=0
 									 !        of (ntot,npix) for transpose=1
-character(len=flen) :: file_data19 ='' ! name of the atomic .19 linelist
-character(len=flen) :: file_data20 ='' ! name of the moleculer .20 linelist
+character(len=flen)     :: file_data19 ='' ! name of the atomic .19 linelist
+character(len=flen)     :: file_data20 ='' ! name of the moleculer .20 linelist
 integer        	   	:: siobuffer=2048       !bytes
 integer         	:: liobuffer=20000      !reset in read_f
 integer			:: xliobuffer=20000	!reset in ascii2bin
-integer			:: rango	  !dec. exponent range for dp = range(f) -- set in read_f
-real(dp)		:: minusculo  !smallest number >0 for dp = tiny(f)   -- set in read_f
+integer			:: rango !dec. exponent range for dp = range(f) -- set in read_f
+real(dp)		:: minusculo  !smallest number >0 for dp = tiny(f) -- set in read_f
 
 
 !params to keep track of whats in the different synth modules used
 !these are used to separate spectral ranges and photometry at smooth1/2
 type headsynth
-real(dp)        :: res			!max. resolution
-integer(long)   :: pixbegin,pixend	!boundaries
-real(dp)        :: lambda0              !wave(1)
-real(dp)	:: lambda1		!wave(2)
-integer         :: lws			!equidist in log10lambda
-real(dp)	:: lambdamin		!min(wavelength) AA
-real(dp)	:: lambdamax		!max(wavelegnth) AA
+real(dp)                :: res			!max. resolution
+integer(long)           :: pixbegin,pixend	!boundaries
+real(dp)                :: lambda0              !wave(1)
+real(dp)	        :: lambda1		!wave(2)
+integer                 :: lws			!equidist in log10lambda
+real(dp)	        :: lambdamin		!min(wavelength) AA
+real(dp)	        :: lambdamax		!max(wavelegnth) AA
 end type headsynth
 
-integer         :: nsynth		!# of modules
-type(headsynth)	:: hs(maxsynth)
+integer                 :: nsynth		!# of modules
+type(headsynth)	        :: hs(maxsynth)
 
 
 ! params to be read from control file 
@@ -121,7 +121,7 @@ real(dp)                :: rejectcont = huge(1.0_dp) ! threshold in relative err
 integer			:: mforce = 0       !force equal mean/median between obs and 
                                             !flux arrays in fun.f90 (1=force equal mean, 2=force median)
 integer			:: chiout = 0	!output chi**2 surfaces
-integer                 :: trkout = 0   !output tracking params 
+integer                 :: trkout = 0   !output tracking params and chi2
 					!(1=norm,2=phys,<0 to print flux res.)
 integer			:: nfilter = 0	!boxcar filtering nfilter+1 wide
 					!no filtering for nfilter<=1
@@ -178,26 +178,26 @@ integer			:: pcachi=0	    !1 eval chi2 in PCA space for PCA grids
 
 						
 integer			:: lsf = 0      !lsf for convolving the synth library
-						!      IF Gaussian lsf, only FWHM is read from lsffile
-						!      otherwise the whole profile is read
-						! 0 -> no lsf convolution
-						!the following options have 1 lsf for all objects
-						! 1 -> lsf is 1D (not changing with lambda), one for all
-						! 2 -> lsf is 2D (changing with lambda), one for all
-						! 3 -> lsf is 1D and Gaussian 
-						! 4 -> lsf is 2D (changing with lambda) and Gaussian
-						!the following options have lsf changing for each object
-						!11 -> lsf is 1D and particular for each object 
-						!12 -> lsf is 2D and particular for each object
-						!13 -> lsf is 1D Gaussian and particular for each object
-						!14 -> lsf is 2D Gaussian and particular for each object
+				!      IF Gaussian lsf, only FWHM is read from lsffile
+				!      otherwise the whole profile is read
+				! 0 -> no lsf convolution
+				!the following options have 1 lsf for all objects
+				!  1 -> lsf is 1D (not changing with lambda), one for all
+				!  2 -> lsf is 2D (changing with lambda), one for all
+				!  3 -> lsf is 1D and Gaussian 
+				!  4 -> lsf is 2D (changing with lambda) and Gaussian
+				!the following options have lsf changing for each object
+				! 11 -> lsf is 1D and particular for each object 
+				! 12 -> lsf is 2D and particular for each object
+				! 13 -> lsf is 1D Gaussian and particular for each object
+				! 14 -> lsf is 2D Gaussian and particular for each object
 integer			:: mlsf = 1		!# of wavelengths for the lsf (1 or npix)
 integer			:: nlsf = 1		!pixels for the lsf (at a given wavelength)
 integer			:: dlsf = 1     !number of coefficients for analytical lsf
-real(dp),allocatable:: lsfcof(:,:)  !holder for lsf coefficients (mlsf,dlsf)
-real(dp),allocatable:: lsfarr(:,:)  !holder for a generic lsf (mlsf,nlsf)
-									!note that this should be flipped in lambda
-									!so ready for convolution 
+real(dp),allocatable    :: lsfcof(:,:)  !holder for lsf coefficients (mlsf,dlsf)
+real(dp),allocatable    :: lsfarr(:,:)  !holder for a generic lsf (mlsf,nlsf)
+					!note that this should be flipped in lambda
+					!so it's ready for convolution 
 						
 
 !parameters for all optimization methods
@@ -207,7 +207,7 @@ real(dp)		:: stopcr=1.e-4_dp  	!convergence criterion(1.e-7_dp)
 integer, parameter	:: maxf=1000		!max # of objfun evaluations
 
 !specific Nelder-Mead parameters from control file	
-real(dp)        	:: simp=1.e-4_dp    !requested precision (1.e-6_dp)												
+real(dp)                :: simp=1.e-4_dp ! precision (1.e-6_dp)												
 
 !other parameters for minim (Nelder-Mead minimization)
 !shared between main and the caller routines (getmin) 
@@ -228,11 +228,11 @@ character ( len = 255 ),parameter :: restart_read_filename = ''
 character ( len = 255 ),parameter :: restart_write_filename = ''
 
 !now the MCMC parameters to be changed in the control file
-character (len=flen)              :: ext_chain_filename=''  !e.g.'.chain000.dat'
-character (len=flen)              :: ext_gr_filename = ''   ! e.g. '.gr'
-integer ( kind = 4 )              :: chain_num = 10
-integer ( kind = 4 )              :: gen_num = 500
-integer ( kind = 4)               :: burnin_limit  = -1 !reset in load_control
+character (len=flen)    :: ext_chain_filename=''  !e.g.'.chain000.dat'
+character (len=flen)    :: ext_gr_filename = ''   ! e.g. '.gr'
+integer ( kind = 4 )    :: chain_num = 10
+integer ( kind = 4 )    :: gen_num = 500
+integer ( kind = 4)     :: burnin_limit  = -1 !reset in load_control
 
 
 
@@ -243,12 +243,12 @@ real(dp), allocatable	:: f(:,:)		!synth grid
 integer,allocatable	:: ee(:,:)		!see getee
 integer,allocatable	:: aa(:,:)		!see getaa
 integer,allocatable	:: uu(:,:)		!see getuu
-integer,allocatable  :: imap(:)
+integer,allocatable     :: imap(:)
 
 
 !params to share between read_f and lin/qua/cub/cova/getsigma
-real(dp)	    :: badflux=-1000._dp	!invalid fluxes
-character(len=30)   :: fmtformat !format string for the fmt output
+real(dp)	        :: badflux=-1000._dp	!invalid fluxes
+character(len=30)       :: fmtformat !format string for the fmt output
 
 
 !other omp-shared variables

@@ -72,12 +72,13 @@ CONTAINS
 
 !-----------------------------------------------------------------------
 
-SUBROUTINE global(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr,  & 
+SUBROUTINE global(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr,  & 
                   amin, amax, nparm, m, n100, ng0, ipr, nsig, x0, nc, f0)
 IMPLICIT NONE
 
 
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)			! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
@@ -166,7 +167,7 @@ DO  i1 = 1, n
     DO  i = 1, nparm
       y(i) = two * r(j,i) - one
     END DO
-    CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, y, fc, nparm, m, mmin, mmax)
+    CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, y, fc, nparm, m, mmin, mmax)
     IF (fc < fm) THEN
       f(im) = fc
       DO  i = 1, nparm
@@ -328,7 +329,7 @@ DO  i1 = 1, ng
   IF (ic(i1) == 0) THEN
     y(1:nparm) = x(1:nparm,i1)
     ff = f(i1)
-    CALL local(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+    CALL local(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
                m, nparm, relcon, maxfn, y, ff, nfe1, r(:,1), mmin, mmax)
     IF (nc > 0) THEN
       DO  iv = 1, nc
@@ -525,10 +526,11 @@ END SUBROUTINE global
 
 
 
-SUBROUTINE globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, r, f, nparm, m, MIN, MAX)
+SUBROUTINE globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, r, f, nparm, m, MIN, MAX)
 IMPLICIT NONE
 
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)			! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
@@ -551,7 +553,7 @@ INTEGER  :: i
 DO  i = 1, nparm
   x(i) = MAX(i) * r(i) + MIN(i)
 END DO
-CALL objfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f)
+CALL objfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f)
 RETURN
 
 END SUBROUTINE globalfun
@@ -614,13 +616,14 @@ END SUBROUTINE globalfun
 
 !-----------------------------------------------------------------------
 
-SUBROUTINE local(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+SUBROUTINE local(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
                  m, n, eps, maxfn, x, f, nfev, wg, mmin, mmax)
 !                   SPECIFICATIONS FOR ARGUMENTS
 
 IMPLICIT NONE
 
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)			! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
@@ -674,7 +677,7 @@ wg(3) = zero
 
 !                   EVALUATE FUNCTION AT STARTING POINT
 g(1:n) = x(1:n)
-CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f, n, m, mmin, mmax)
+CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f, n, m, mmin, mmax)
 nfev = 1
 IF (iopt /= 1) THEN
 !                   SET OFF-DIAGONAL ELEMENTS OF H TO 0.0
@@ -704,9 +707,9 @@ IF (iopt /= 1) THEN
   DO  i = 2, np1
     hhh = hh * ABS(x(im1))
     g(im1) = x(im1) + hhh
-    CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f2, n, m, mmin, mmax)
+    CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f2, n, m, mmin, mmax)
     g(im1) = g(im1) + hhh
-    CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, ff, n, m, mmin, mmax)
+    CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, ff, n, m, mmin, mmax)
     h(nm1) = (ff-f2+f-f2) / (hhh*hhh)
     g(im1) = x(im1)
     im1 = i
@@ -720,13 +723,13 @@ IF (iopt /= 1) THEN
     DO  i = 2, n
       ghh = hh * ABS(x(i))
       g(i) = x(i) + ghh
-      CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f2, n, m, mmin, mmax)
+      CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f2, n, m, mmin, mmax)
       DO  j = 1, jj
         hhh = hh * ABS(x(j))
         g(j) = x(j) + hhh
-        CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, ff, n, m, mmin, mmax)
+        CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, ff, n, m, mmin, mmax)
         g(i) = x(i)
-        CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f1, n, m, mmin, mmax)
+        CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, g, f1, n, m, mmin, mmax)
 !        H(II) = (FF-F1-F2+F)*SQREPS
         h(ii) = (ff-f1-f2+f) / (hhh*ghh)
         ii = ii + 1
@@ -867,7 +870,7 @@ jnt = 0
 DO  i = 1, n
   wg(i) = x(i) + alpha * wg(is+i)
 END DO
-CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, wg, f1, n, m, mmin, mmax)
+CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, wg, f1, n, m, mmin, mmax)
 nfev = nfev + 1
 IF (f1 < f) THEN
   f2 = f
@@ -888,7 +891,7 @@ IF (f1 < f) THEN
   DO  i = 1, n
     wg(i) = x(i) + alpha * wg(is+i)
   END DO
-  CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, wg, f1, n, m, mmin, mmax)
+  CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, wg, f1, n, m, mmin, mmax)
   nfev = nfev + 1
   IF (f1 >= f) GO TO 290
   IF (f1+f2 >= f+f .AND. seven*f1+five*f2 > twelve*f) jnt = 2
@@ -903,7 +906,7 @@ alpha = half * alpha
 DO  i = 1, n
   wg(i) = x(i) + alpha * wg(is+i)
 END DO
-CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, wg, f2, n, m, mmin, mmax)
+CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, wg, f2, n, m, mmin, mmax)
 nfev = nfev + 1
 IF (f2 < f) THEN
   tot = tot + alpha
@@ -1009,7 +1012,7 @@ GO TO 440
     z = hh * ABS(x(i))
     zz = x(i)
     x(i) = zz + z
-    CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f1, n, m, mmin, mmax)
+    CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f1, n, m, mmin, mmax)
     wg(ig+i) = (f1-f) / z
     x(i) = zz
   END DO
@@ -1027,9 +1030,9 @@ DO  i = 1, n
   z = hh * ABS(x(i))
   zz = x(i)
   x(i) = zz + z
-  CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f1, n, m, mmin, mmax)
+  CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f1, n, m, mmin, mmax)
   x(i) = zz - z
-  CALL globalfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f2, n, m, mmin, mmax)
+  CALL globalfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, f2, n, m, mmin, mmax)
   wg(ig+i) = (f1-f2) / (z+z)
   x(i) = zz
 END DO

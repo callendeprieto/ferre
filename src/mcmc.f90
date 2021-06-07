@@ -37,7 +37,7 @@ public  input_print,jumprate_table_init,jumprate_table_print,gr_init, &
 
 contains
 
-subroutine mcmcde(fname, w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, cov , gr_conv)
+subroutine mcmcde(fname, w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, cov , gr_conv)
 
 implicit none
 
@@ -45,6 +45,7 @@ implicit none
 !local
 character (len=flen)    :: fname		!spectrum id
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)		! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim)            ! params read from pffile
 						! (in physical units)
@@ -154,7 +155,7 @@ if ( 0 < len_trim ( restart_read_filename ) ) then
     call restart_read ( chain_num, fit, gen_num, int(nov,kind=4), &
       restart_read_filename, z )
 else
-    call chain_init ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
+    call chain_init ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
                       chain_num, fit, gen_num, int(nov,kind=4), limits, z )
 endif
 
@@ -162,7 +163,7 @@ call chain_init_print ( chain_num, fit, gen_num, int(nov,kind=4), &
     restart_read_filename, z )
 
 !run DREAM
-call dream_algm ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
+call dream_algm ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
     chain_num, cr_num, fit, gen_num, gr, gr_conv, &
     gr_count, gr_num, gr_threshold, jumprate_table, jumpstep, limits, &
     pair_num, int(nov,kind=4), printstep, z , burnin_num)
@@ -341,7 +342,7 @@ cov(1:par_num,1:par_num)=cov(1:par_num,1:par_num)/(n-1)
 
 end subroutine zstats
 
-subroutine chain_init ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
+subroutine chain_init ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
                         chain_num, fit, gen_num, par_num, limits, z )
 
 !*****************************************************************************80
@@ -381,6 +382,7 @@ subroutine chain_init ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
 
 !input/output
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)		! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim)            ! params read from pffile
 						! (in physical units)
@@ -410,7 +412,7 @@ real ( kind = 8 )  :: zp(1:par_num)
 
     z(1:par_num,i,1) = zp(1:par_num)
 
-    fit(i,1) = sampler ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
+    fit(i,1) = sampler ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
                          par_num, zp(1:par_num) )
 
   end do
@@ -1105,7 +1107,7 @@ subroutine diff_compute ( chain_num, gen_index, gen_num, jump_dim, jump_num, &
 end subroutine diff_compute
 
 
-subroutine dream_algm ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+subroutine dream_algm ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
   chain_num, cr_num, fit, gen_num, gr, gr_conv, &
   gr_count, gr_num, gr_threshold, jumprate_table, jumpstep, limits, &
   pair_num, par_num, printstep, z , burnin_num)
@@ -1219,6 +1221,7 @@ subroutine dream_algm ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
 
 !i/o
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)		! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim)            ! params read from pffile
 						! (in physical units)
@@ -1306,7 +1309,7 @@ real ( kind = 8 ) zp_ratio
 !
 !  Compute the log likelihood function for ZP.
 !
-      zp_fit = sampler ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+      zp_fit = sampler ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
                          par_num, zp )
 
       zp_old(1:par_num) = z(1:par_num,chain_index,gen_index-1)
@@ -1408,7 +1411,7 @@ real ( kind = 8 ) zp_ratio
 !
 !  Compute the log likelihood function for ZP.
 !
-      zp_fit = sampler ( w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+      zp_fit = sampler ( w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
                          par_num, zp )
 
       zp_old(1:par_num) = z(1:par_num,chain_index,gen_index-1)

@@ -9,20 +9,21 @@ implicit none
 
 contains
 
-SUBROUTINE objfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, func)
+SUBROUTINE objfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, func)
 
  				
 implicit none
  
 !in/out
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)		! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim)            ! params read from pffile
 						! (in physical units)
 real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
 real(dp), intent(in)	:: lambda_obs(nlambda1)	! vavelengths for observations
 real(dp), intent(in)    :: e_obs(nlambda1)      ! uncertainties in observations 
-real(dp), intent(in)    :: mobs             ! mean or median of obs array
+real(dp), intent(in)    :: mobs                 ! mean or median of obs array
 real(dp), intent(in)    :: lsfarr(mlsf,nlsf)    ! lsfarray
 real (dp), intent(in)   :: p(nov)
 real (dp), intent(out)  :: func
@@ -70,35 +71,36 @@ endif
 call flx(pp,lambda_obs,e_obs,mobs,lsfarr,flux)
 func=0.0_dp
 func=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
-                                                                                
-func=func/50._dp
-
+                                                                               
 !write(*,*),'func=',func
 !write(*,*)'exiting objfun',pp
 pf=pp
 
 if (trkout /= 0) then
 	if (abs(trkout) == 1) then
-		write(11,*) pp
+		write(11,'(1x,100(1x,ES12.4))') pp, func*chiscale/(nlambda1-nov+1)
 	else 
         	pphys(1:ndim)=pp(1:ndim)
         	call physical(pphys)
-		write(11,*) pphys
+		write(11,'(1x,100(1x,ES12.4))') pphys, func*chiscale/(nlambda1-nov+1)
 	endif
 	if (trkout < 0) write(12,'(200000(es12.5,1x))') w*(obs-flux)
 endif
+
+func=func/50._dp
 
 END SUBROUTINE objfun
 
 !********************************************************************************
 
-function sampler (w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, par_num, zp )
+function sampler (w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, par_num, zp )
 
 
 implicit none
 
 !I/O
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)		! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim)            ! params read from pffile
 						! (in physical units)
@@ -116,13 +118,11 @@ real ( kind = 8 ) zp(par_num)
 integer                 :: i
 real (dp)               :: func
 real (dp)               :: p(nov)
-real (kind = 8)         :: chiscale
 
 p(1:nov)=zp(1:par_num)
 
-call objfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, func)
+call objfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, p, func)
 
-chiscale=sum(w/e_obs**2)/real(nlambda1)
 
 !sampler must be the likelihood = -0.5*chi2
 sampler = - 0.5D+00 * func * 50. * chiscale

@@ -1,4 +1,4 @@
-subroutine likely(wr,fname,w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pos)
+subroutine likely(wr,fname,w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pos)
 
 !
 !	Average estimates
@@ -17,6 +17,7 @@ implicit none
 integer, intent(in)	::	wr			!write chi**2 file?
 character(len=flen),intent(in):: 	fname			   !spectrum id
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)             ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -60,7 +61,7 @@ do j=1,nov
   p(j)=0.5_dp
   pos(j)=p(j)
 enddo
-call objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,min_chi)
+call objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,min_chi)
 
 !run over the grid and find the absolute minimum location
 do i=1,nt
@@ -69,7 +70,7 @@ do i=1,nt
    	ulimit=llimits(indv(j))+steps(indv(j))*(n_p(indv(j))-1)
    	ph(j)=p(j)*(ulimit-llimits(indv(j)))+llimits(indv(j)) !physical at nodes
    enddo
-   call objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
+   call objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
    if (wr > 0) write(5,'(1x,21(1x,f8.5))')ph,chi
    if (chi < min_chi) min_chi=chi
 enddo
@@ -86,7 +87,7 @@ do i=1,nt
    do j=1,nov
    	p(j)=(real(aa(j,i))-1._dp)/(real(n_p(indv(j)))-1._dp) !nodes 
    enddo
-   call objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
+   call objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,chi)
    chi=chi/min_chi
    do j=1,nov
    	pos(j)=pos(j)+p(j)*exp(-chi*10._dp)

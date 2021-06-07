@@ -99,20 +99,20 @@ call pinin(irun,opti,w,pf,opf,obs,lambda_obs,e_obs,mobs,lsfarr,p)
 select case (algorithm) 
 
     case (-1)
-		call likely(0,'',w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p)
+		call likely(0,'',w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p)
 	        !write(*,*)'back from likely'
         	!write(*,*)'p=',p
      
     case(0) 
-        	call minlocus(0,'',w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p)
+        	call minlocus(0,'',w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p)
        	 	!write(*,*)'back from minlocus'
        		!write(*,*)'p=',p
 	
     case (1) 
   	    	!write(*,*)'calling minim'
   	    	step(:)=scope
-        	call minim(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,step,nov,func,maxf, & 
-                   iprint,stopcr,nloop,iquad,simp,var,ier)
+        	call minim(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p, & 
+                   step,nov,func,maxf,iprint,stopcr,nloop,iquad,simp,var,ier)
     case (2)
 	  	zeros(1:nov)=0.0_dp
 	  	ones(1:nov)=1.0_dp
@@ -121,8 +121,8 @@ select case (algorithm)
 	  	nc=0
 	  	nsig=-log10(stopcr)
 	        !$omp critical 
-	  	call global(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,zeros,ones,nov,mglobal,n100,ng0, & 
-	  		        iprint,nsig,x0,nc,f0)
+	  	call global(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, zeros, & 
+                   ones,nov,mglobal,n100,ng0,iprint,nsig,x0,nc,f0)
 	  	!$omp end critical	  		        
 	  	if (nc > 1) then 
 	  		write(*,*)' getmin -- multiple minima found, retaining the best only'
@@ -130,10 +130,11 @@ select case (algorithm)
 	  	p=x0(1:nov,1)
 	  	func=f0(1)
 	case (3)
-	    rhobeg=scope*0.1_dp
-	    rhoend=stopcr
-	  call uobyqa(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,nov,p,rhobeg,rhoend,iprint,maxf)
-		call objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
+	        rhobeg=scope*0.1_dp
+	        rhoend=stopcr
+                call uobyqa(w,chiscale, pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,nov,p, & 
+                   rhobeg,rhoend,iprint,maxf)
+                call objfun(w,chiscale, pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
 	case (4)
 		maxit=nov/2
 		eta=0.25_dp
@@ -145,11 +146,11 @@ select case (algorithm)
 		!          iprint,maxit,maxf,eta,stepmx,accrcy,xtol)	
 		zeros(1:nov)=0.0_dp
 	  	ones(1:nov)=1.0_dp
-		call lmqnbc(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,ier,nov,p,func,g,zeros,ones,ipivot, & 
-		          iprint,maxit,maxf,eta,stepmx,accrcy,xtol)
+		call lmqnbc(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,ier,nov,p, & 
+                   func,g,zeros,ones,ipivot,iprint,maxit,maxf,eta,stepmx,accrcy,xtol)
 
        case (5)
-                call mcmcde(fname, w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, &
+                call mcmcde(fname,w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, &
                             p,cov,gr_conv)
 
 		!fill-in error array from cov matrix

@@ -21,9 +21,10 @@ CONTAINS
 
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uobyqa.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-SUBROUTINE uobyqa(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, n, x, rhobeg, rhoend, iprint, maxfun)
+SUBROUTINE uobyqa(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, n, x, rhobeg, rhoend, iprint, maxfun)
 
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)			! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
@@ -73,15 +74,17 @@ INTEGER  :: npt
 !     treated separately by the subroutine that performs the main calculation.
 
 npt = (n*n + 3*n + 2) / 2
-CALL uobyqb(w,pf,pf0, obs,lambda_obs,e_obs,mobs,lsfarr,n,x,rhobeg,rhoend,iprint,maxfun,npt)
+CALL uobyqb(w,chiscale,pf,pf0, obs,lambda_obs,e_obs,mobs,lsfarr,  & 
+            n,x,rhobeg,rhoend,iprint,maxfun,npt)
 RETURN
 END SUBROUTINE uobyqa
 
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uobyqb.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-SUBROUTINE uobyqb(w,pf,pf0, obs,lambda_obs,e_obs,mobs,lsfarr,n,x,rhobeg,rhoend,iprint,maxfun,npt)
+SUBROUTINE uobyqb(w,chiscale,pf,pf0, obs,lambda_obs,e_obs,mobs,lsfarr,n,x,rhobeg,rhoend,iprint,maxfun,npt)
 
 real(dp), intent(in)	:: w(nlambda1)		! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	:: pf(ndim)			! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)	:: obs(nlambda1)	! vector of observations
@@ -309,7 +312,7 @@ END DO
   GO TO 420
 END IF
 nf = nf + 1
-CALL objfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, fcall)
+CALL objfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, x, fcall)
 !f is type dp2 and fcall is type dp 
 f=fcall
 IF (iprint == 3) THEN

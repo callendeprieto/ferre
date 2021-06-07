@@ -11,8 +11,9 @@ PUBLIC :: minim
 CONTAINS
 
 !*****************************************************************************
-SUBROUTINE minim(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p, step, nop, func, maxfn, &
-			      iprint, stopcr, nloop, iquad, simp, var, ifault)
+SUBROUTINE minim(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p, & 
+                 step, nop, func, maxfn, &
+		 iprint, stopcr, nloop, iquad, simp, var, ifault)
 
 !     A PROGRAM FOR FUNCTION MINIMIZATION USING THE SIMPLEX METHOD.
 
@@ -91,6 +92,7 @@ INTEGER, INTENT(IN)        :: nop, maxfn, iprint, nloop, iquad
 INTEGER, INTENT(OUT)       :: ifault
 REAL (dp), INTENT(IN)      :: stopcr, simp
 real(dp), intent(in)	   :: w(nlambda1)			! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout)	   :: pf(ndim)			! vector of fixed parameters
 real(dp), intent(in)       :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)	   :: obs(nlambda1)		! vector of observations
@@ -142,7 +144,7 @@ iflag = 0
 !     IF NAP = 0 EVALUATE FUNCTION AT THE STARTING POINT AND RETURN
 
 IF (nap <= 0) THEN
-  CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
+  CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
   RETURN
 END IF
 
@@ -161,7 +163,7 @@ END DO
 np1 = nap + 1
 DO i = 1, np1
   p = g(i,:)
-  CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,h(i))
+  CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,h(i))
   neval = neval + 1
   IF (iprint > 0) THEN
     WRITE (lout,5100) neval, h(i), p
@@ -204,7 +206,7 @@ Main_loop: DO
 !     HSTAR = FUNCTION VALUE AT PSTAR.
 
   pstar = a * (pbar - g(imax,:)) + pbar
-  CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstar,hstar)
+  CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstar,hstar)
 
   neval = neval + 1
   IF (iprint > 0) THEN
@@ -216,7 +218,7 @@ Main_loop: DO
 	
   IF (hstar < hmin) THEN
     pstst = c * (pstar - pbar) + pbar
-    CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,hstst)
+    CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,hstst)
     neval = neval + 1
     IF (iprint > 0) THEN
       IF (MOD(neval,iprint) == 0) WRITE (lout,5100) neval, hstst, pstst
@@ -262,7 +264,7 @@ Main_loop: DO
 !     HSTST = FUNCTION VALUE AT PSTST.
 
   pstst = b * g(imax,:) + (one-b) * pbar
-  CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,hstst)
+  CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,hstst)
   neval = neval + 1
   IF (iprint > 0) THEN
     IF (MOD(neval,iprint) == 0) WRITE (lout,5100) neval, hstst, pstst
@@ -287,7 +289,7 @@ Main_loop: DO
         IF (step(j) /= zero) g(i,j) = (g(i,j) + g(imin,j)) * half
         p(j) = g(i,j)
       END DO
-      CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,h(i))
+      CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,h(i))
       neval = neval + 1
       IF (iprint > 0) THEN
         IF (MOD(neval,iprint) == 0) WRITE (lout,5100) neval, h(i), p
@@ -322,7 +324,7 @@ Main_loop: DO
       p(i) = SUM( g(1:np1,i) ) / np1
     END IF
   END DO
-  CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
+  CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
   neval = neval + 1
   IF (iprint > 0) THEN
     IF (MOD(neval,iprint) == 0) WRITE (lout,5100) neval, func, p
@@ -406,7 +408,7 @@ DO i = 1, np1
         IF (step(j) /= zero) g(i,j) = (g(i,j)-p(j)) + g(i,j)
         pstst(j) = g(i,j)
       END DO
-      CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,h(i))
+      CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,h(i))
       nmore = nmore + 1
       neval = neval + 1
 
@@ -434,7 +436,7 @@ END DO
 DO i = 1, nap
   i1 = i + 1
   pstar = (g(1,:) + g(i1,:)) * half
-  CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstar,aval(i))
+  CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstar,aval(i))
   nmore = nmore + 1
   neval = neval + 1
 END DO
@@ -450,7 +452,7 @@ DO i = 1, nap
   DO j = 1, i1
     j1 = j + 1
     pstst = (g(i2,:) + g(j1,:)) * half
-    CALL objfun(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,hstst)
+    CALL objfun(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,pstst,hstst)
     nmore = nmore + 1
     neval = neval + 1
     l = i * (i-1) / 2 + j

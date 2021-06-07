@@ -13,11 +13,12 @@ REAL (dp), ALLOCATABLE, SAVE  :: gv(:), r(:), zk(:), v(:), sk(:), yk(:),  &
 CONTAINS
 
 
-SUBROUTINE sfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n, x, f, g)
+SUBROUTINE sfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n, x, f, g)
 
 IMPLICIT NONE
 
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)             ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -35,12 +36,12 @@ INTEGER    :: i
 
 
 hinv = 1.0_dp / simp
-CALL objfun (w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,x,f)
+CALL objfun (w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,x,f)
 y = x(1:n)
 DO  i = 1,n
 	xh   = x(i)
 	y(i) = x(i) + simp
-	CALL objfun (w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,y,fh)
+	CALL objfun (w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,y,fh)
  	g(i) = (fh - f) * hinv
  	y(i) = xh
 END DO
@@ -61,12 +62,13 @@ END SUBROUTINE sfun
 !                FAIRFAX, VA 22030
 !******************************************************************
 
-SUBROUTINE lmqn (w,pf,pf0,obs,lambda_obs,e_obs, mobs,lsfarr, & 
+SUBROUTINE lmqn (w,chiscale,pf,pf0,obs,lambda_obs,e_obs, mobs,lsfarr, & 
 				ifail, n, x, f, g, msglvl, maxit, maxfun, eta, &
                  stepmx, accrcy, xtol)
                  
                  
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)                     ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -134,7 +136,8 @@ nm1 = n - 1
 CALL chkucp(maxfun,nwhy,n,alpha,epsmch, eta,peps,rteps,rtol,  &
             rtolsq,stepmx,ftest,xtol,xnorm,x,small,accrcy)
 IF (nwhy < 0) GO TO 120
-CALL setucr(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,small,nftotl,niter,n,f,fnew,fm,gtg,oldf,g,x)
+CALL setucr(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,   &
+            small,nftotl,niter,n,f,fnew,fm,gtg,oldf,g,x)
 IF (msglvl >= 1) WRITE(*,810) niter,nftotl,nlincg,fnew,gtg
 
 ! CHECK FOR SMALL GRADIENT AT THE STARTING POINT.
@@ -161,7 +164,7 @@ diagb = one
 ! COMPUTE THE NEW SEARCH DIRECTION
 
 modet = msglvl - 3
-CALL modlnp(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+CALL modlnp(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
 			modet,zsol,gv,r,v, diagb,emat,x,g,  &
             zk, n,niter,maxit,nfeval,nmodif, nlincg,upd1,yksk,  &
             gsk,yrsr,lreset,.false.,ipivot, accrcy,gtpnew,gnorm,xnorm)
@@ -191,7 +194,8 @@ alpha = step1(fnew,fm,oldgtp,spe)
 
 ! PERFORM THE LINEAR SEARCH
 
-CALL linder(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,n,small,epsmch,reltol,abstol,tnytol,  &
+CALL linder(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,  & 
+            n,small,epsmch,reltol,abstol,tnytol,  &
             eta,zero,spe,zsol,oldgtp,x,fnew,alpha,g,numf, nwhy)
 
 niter = niter + 1
@@ -207,7 +211,7 @@ nwhy = 3
 GO TO 100
 
 30 IF (nwhy <= 1) GO TO 40
-CALL sfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,x,fnew,g)
+CALL sfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,x,fnew,g)
 nftotl = nftotl + 1
 
 ! TERMINATE IF MORE THAN MAXFUN EVALUTATIONS HAVE BEEN MADE
@@ -259,7 +263,7 @@ IF (yrsr <= zero) lreset = .true.
 !      COMPUTE THE NEW SEARCH DIRECTION
 
 modet = msglvl - 3
-CALL modlnp(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+CALL modlnp(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
             modet,zsol,gv,r,v, diagb,emat,x,g, &
             zk, n,niter,maxit,nfeval,nmodif, nlincg,upd1,yksk, &
             gsk,yrsr,lreset,.false.,ipivot, accrcy,gtpnew,gnorm,xnorm)
@@ -307,11 +311,12 @@ RETURN
 END SUBROUTINE lmqn
 
 
-SUBROUTINE lmqnbc (w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, & 
+SUBROUTINE lmqnbc (w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, & 
 				   ifail, n, x, f, g, low, up, ipivot, msglvl, &
                    maxit, maxfun, eta, stepmx, accrcy, xtol)
 
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)                     ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -386,7 +391,8 @@ nlincg = 0
 CALL chkucp(maxfun,nwhy,n,alpha,epsmch,eta,peps,rteps,rtol,rtolsq, &
             stepmx,ftest,xtol,xnorm,x,small,accrcy)
 IF (nwhy < 0) GO TO 160
-CALL setucr(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,small,nftotl,niter,n,f,fnew,fm,gtg,oldf,g,x)
+CALL setucr(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,    &
+            small,nftotl,niter,n,f,fnew,fm,gtg,oldf,g,x)
 flast = fnew
 
 ! TEST THE LAGRANGE MULTIPLIERS TO SEE IF THEY ARE NON-NEGATIVE.
@@ -427,7 +433,7 @@ diagb = one
 ! COMPUTE THE NEW SEARCH DIRECTION
 
 modet = msglvl - 3
-CALL modlnp(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+CALL modlnp(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
             modet, zsol, gv, r, v, diagb, emat, x, g, &
             zk, n, niter, maxit, nfeval, nmodif, nlincg, upd1,  &
             yksk, gsk, yrsr, lreset, .true., ipivot, accrcy, gtpnew,  &
@@ -458,7 +464,8 @@ alpha = step1(fnew,fm,oldgtp,spe)
 
 ! PERFORM THE LINEAR SEARCH
 
-CALL linder(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,n,small,epsmch,reltol,abstol,tnytol,  &
+CALL linder(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,  & 
+            n,small,epsmch,reltol,abstol,tnytol,  &
             eta,zero,spe,zsol,oldgtp,x,fnew,alpha,g,numf,nwhy)
 newcon = .false.
 IF (ABS(alpha-spe) > 10*epsmch) GO TO 30
@@ -482,7 +489,7 @@ IF (nwhy == 0 .OR. nwhy == 2) GO TO 40
 nwhy = 3
 GO TO 140
 40 IF (nwhy <= 1) GO TO 50
-CALL sfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,x,fnew,g)
+CALL sfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,x,fnew,g)
 nftotl = nftotl + 1
 
 ! TERMINATE IF MORE THAN MAXFUN EVALUATIONS HAVE BEEN MADE
@@ -542,7 +549,7 @@ IF (yrsr <= zero) lreset = .true.
 90 IF (upd1 .AND. msglvl >= 3) WRITE(*,830)
 IF (newcon .AND. msglvl >= 3) WRITE(*,840)
 modet = msglvl - 3
-CALL modlnp(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+CALL modlnp(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
             modet,zsol,gv,r,v, diagb,emat,x,g,  &
             zk, n,niter,maxit,nfeval,nmodif, nlincg,upd1,yksk,  &
             gsk,yrsr,lreset,.true.,ipivot, accrcy,gtpnew,gnorm,xnorm)
@@ -806,13 +813,14 @@ END SUBROUTINE crash
 ! THE VECTORS SK AND YK, ALTHOUGH NOT IN THE CALL,
 ! ARE USED (VIA THEIR POSITION IN W) BY THE ROUTINE MSOLVE.
 
-SUBROUTINE modlnp(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
+SUBROUTINE modlnp(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, & 
                   modet, zsol, gv, r, v, diagb, emat, x, g, zk, n,  &
                   niter, maxit, nfeval, nmodif, nlincg, upd1, yksk, gsk,   &
                   yrsr, lreset, bounds, ipivot, accrcy, gtp, gnorm,  &
                   xnorm)
 
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)                     ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -917,7 +925,8 @@ DO  k = 1,maxit
   IF (k > 1) beta = rz/rzold
   v(1:n) = zk(1:n) + beta*v(1:n)
   IF (bounds) CALL ztime(n,v,ipivot)
-  CALL gtims(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,v,gv,n,x,g,first,delta,accrcy,xnorm)
+  CALL gtims(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,  & 
+             v,gv,n,x,g,first,delta,accrcy,xnorm)
   IF (bounds) CALL ztime(n,gv,ipivot)
   nfeval = nfeval + 1
   vgv = DOT_PRODUCT( v(1:n), gv(1:n) )
@@ -1180,10 +1189,11 @@ RETURN
 END SUBROUTINE chkucp
 
 
-SUBROUTINE setucr(w,pf,pf0,obs,lambda_obs,e_obs, mobs,lsfarr, & 
+SUBROUTINE setucr(w,chiscale,pf,pf0,obs,lambda_obs,e_obs, mobs,lsfarr, & 
 				small, nftotl, niter, n, f, fnew, fm, gtg, oldf, g, x)
 				
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)                     ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -1214,7 +1224,7 @@ fm = f
 
 ! COMPUTE THE INITIAL FUNCTION VALUE
 
-CALL sfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,x,fnew,g)
+CALL sfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,x,fnew,g)
 nftotl = 1
 
 ! SET CONSTANTS FOR LATER
@@ -1227,11 +1237,12 @@ END SUBROUTINE setucr
 
 
 
-SUBROUTINE gtims(w,pf,pf0,obs,lambda_obs,e_obs, mobs,lsfarr, & 
+SUBROUTINE gtims(w,chiscale,pf,pf0,obs,lambda_obs,e_obs, mobs,lsfarr, & 
                  v, gv, n, x, g, first, delta, accrcy, xnorm)
 
 
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)                     ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -1270,7 +1281,7 @@ first = .false.
 
 20 dinv = 1.d0/delta
 hg = x(1:n) + delta*v(1:n)
-CALL sfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,hg,f,gv)
+CALL sfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,hg,f,gv)
 DO  i = 1,n
   gv(i) = (gv(i) - g(i))*dinv
 END DO
@@ -1520,11 +1531,12 @@ END SUBROUTINE setpar
 
 !      LINE SEARCH ALGORITHMS OF GILL AND MURRAY
 
-SUBROUTINE linder(w,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, & 
+SUBROUTINE linder(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, & 
 				  n, small, epsmch, reltol, abstol, tnytol, eta,  &
                   sftbnd, xbnd, p, gtp, x, f, alpha, g, nftotl, iflag)
 
 real(dp), intent(in)    :: w(nlambda1)          ! weights
+real(dp), intent(in)    :: chiscale		!chi**2/sum(w_i(f_i-obs_i))^2)
 real(dp), intent(inout) :: pf(ndim)                     ! vector of fixed parameters
 real(dp), intent(in)    :: pf0(ndim) ! pars read from pfile (in physical units)
 real(dp), intent(in)    :: obs(nlambda1)        ! vector of observations
@@ -1604,7 +1616,7 @@ IF (lsprnt >= nprnt) CALL lsout(ientry,itest,xmin,fmin,gmin,  &
 IF (itest /= 1) GO TO 30
 ualpha = xmin + u
 wx = x(1:n) + ualpha*p(1:n)
-CALL sfun(w, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,wx,fu,wg)
+CALL sfun(w, chiscale, pf, pf0, obs, lambda_obs, e_obs, mobs, lsfarr, n,wx,fu,wg)
 numf = numf + 1
 gu = DOT_PRODUCT( wg, p(1:n) )
 
