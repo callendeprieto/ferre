@@ -17,7 +17,7 @@ namelist / lista / ndim,nov,indv
 namelist / lista / ntie,indtie,typetie,ttie0,ttie
 namelist / lista / indini,nobj,nlambda,synthfile,fixfile,filterfile
 namelist / lista / pfile,ffile,erfile,wfile
-namelist / lista / opfile,offile,sffile,lsffile
+namelist / lista / opfile,offile,sffile,lsffile,scratch
 namelist / lista / f_format,f_access,fformat
 namelist / lista / snr,only_object,ycutoff,wphot,balance
 namelist / lista / optimize,impact,mforce,chiout,trkout,nfilter,init

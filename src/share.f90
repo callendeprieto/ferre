@@ -20,7 +20,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter     :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter     :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.8.11'  !version
+character(len=12)    	:: ver = 'v4.8.12'  !version
 
 
 !params to read or built from synthfile 
@@ -100,6 +100,7 @@ character(len=flen) 	:: opfile=''	!file with output pars
 character(len=flen) 	:: offile=''	!file with output fluxes
 character(len=flen)	:: sffile=''	!smoothed/normalized output fluxes
 character(len=flen)	:: lsffile=''	!file with input lsf
+character(len=flen)    :: scratch=''   !scratch folder to place _sorted temporary files
 integer         	:: f_format = 0     !format for synth files
 						!0=ascii, 1=unformatted
 integer         	:: f_access = 0     !access style for synth files

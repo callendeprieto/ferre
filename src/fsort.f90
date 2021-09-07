@@ -8,32 +8,32 @@ subroutine fsort
 use iso_fortran_env, only: iostat_end
 
 use share, only: dp,flen,pfile,opfile,offile,sffile, &
-		siobuffer,xliobuffer,nfilter,cont
+		siobuffer,xliobuffer,nfilter,cont,scratch
 
 implicit none
 
 !locals
 character(len=flen)		:: opfile2,offile2,sffile2
-character(len=flen) 		:: id,id2,ext
+character(len=flen) 		:: id,id2,ext,tmp
 character(len=siobuffer)	:: opline 
 character(len=xliobuffer)	:: ofline,sfline
 integer				:: stat
 
-
+tmp='./'
+if (scratch.gt.' ') tmp=trim(scratch) // '/'
 ext='_sorted'
 open(1,file=pfile,status='old',recl=siobuffer,action='read')
 open(2,file=opfile,status='old',recl=siobuffer,action='read')
 open(3,file=offile,status='old',recl=xliobuffer,action='read')
-opfile2= trim(opfile) // ext
-offile2= trim(offile) // ext
+opfile2= trim(tmp) // trim(opfile) // ext
+offile2= trim(tmp) // trim(offile) // ext
 if((nfilter > 1 .or. cont > 0) .and. sffile.gt.' ') then
-	sffile2=sffile(1:len_trim(sffile)) // ext
+	sffile2= trim(tmp) // sffile(1:len_trim(sffile)) // ext
 	open(4,file=sffile,status='old',recl=xliobuffer,action='read')
 	open(5,file=sffile2,recl=xliobuffer,action='write')
 endif
 open(7,file=opfile2,recl=siobuffer,action='write')	! output pars
 open(9,file=offile2,recl=xliobuffer,action='write')	! model flux
-
 do 
 	read(1,*,iostat=stat) id
 	!if (is_iostat_end(stat)) exit ! fortran2003
