@@ -259,6 +259,11 @@ if (nov .ne. 0 .and. snr < 0.0_dp .and. erfile .eq. '') then
 	write(*,*) 'erfile or snr should be provided as input'
 	stop
 endif
+!inconsistent input files
+if (nov == 0 .and. sffile .gt. ' ') then
+	write(*,*) 'load_control: WARNING'
+	write(*,*) 'sffile is given but nov = 0, so no sffile will be produced' 
+endif
 if ((only_object(1) > 0 .or. only_object(2) < 10**lmaxnobj) .and. nthreads /= 1) then
 	write(*,*) 'load_control: ERROR'
 	write(*,*) 'only_object cannot be used in combination with openmp'

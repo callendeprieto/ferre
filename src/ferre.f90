@@ -324,7 +324,7 @@ if (fformat == 1) then
 	write(4,'(f12.1)') -2.
 endif
 if (snr == -1._dp .and. nov > 0) open(5,file=erfile,status='old',recl=liobuffer,action='read') ! err
-if(sffile.gt.' ') then
+if(sffile.gt.' '  .and. nov > 0) then
 	open(7,file=sffile,recl=xliobuffer,action='write')  ! smoothed obs flux
 	if (fformat == 1) then
 		write(7,'(a9,a3,3(f5.2,7x),2000000(f12.5,1x))',advance='NO') &
@@ -1034,7 +1034,7 @@ do j=1,nobj
 
         !$omp critical			
 		!writing smoothed/normalized observed fluxes
-		if(sffile.gt.' ') then
+		if(sffile.gt.' ' .and. nov > 0) then
 			if (fformat == 0) then
 			    write(7,'(2000000(es12.5,1x))') obs(1:nlambda1)*scalef
 			else if (fformat == 1) then
