@@ -20,7 +20,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter     :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter     :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v4.8.13'  !version
+character(len=12)    	:: ver = 'v4.9.0'  !version
 
 
 !params to read or built from synthfile 
@@ -145,6 +145,8 @@ integer			:: errbar = 0	!method for error determination
                                                 !NOTE:
                                                 !when algor=5 the MCMC error bars are adopted regardless of errbar
 integer			:: covprint = 0         !output the cov. matrix to opfile
+integer			:: covprop = 0         !propagate input covariance
+							!in the 'fixed' parameters
 integer			:: indi(maxndim)	!order for the interpolations	
 integer			:: winter = 0		!interpolate in wavelength
 										!0=no, 1=interp. obs, 2=interp. mdl

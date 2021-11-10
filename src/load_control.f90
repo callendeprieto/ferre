@@ -21,7 +21,7 @@ namelist / lista / opfile,offile,sffile,lsffile,scratch
 namelist / lista / f_format,f_access,fformat
 namelist / lista / snr,only_object,ycutoff,wphot,balance
 namelist / lista / optimize,impact,mforce,chiout,trkout,nfilter,init
-namelist / lista / nruns,errbar,covprint,indi,winter,twinter
+namelist / lista / nruns,errbar,covprint,covprop,indi,winter,twinter
 namelist / lista / inter,mono,algor,scope,stopcr,simp,nthreads
 namelist / lista / pcaproject,pcachi,lsf,nlsf
 namelist / lista / cont,ncont,obscont,rejectcont

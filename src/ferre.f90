@@ -434,7 +434,7 @@ write(*,*)'about to enter parallel region!'
 !$omp            f_format,f_access,fformat,snr,only_object,         	&
 !$omp            ycutoff,wphot,balance,optimize,impact,             	&
 !$omp            mforce,chiout,trkout,cont,ncont,obscont,rejectcont,	&
-!$omp            nfilter,init,nruns,errbar,covprint,indi,    	&
+!$omp            nfilter,init,nruns,errbar,covprint,covprop, indi,   &
 !$omp            inter,mono,algor,scope,stopcr,simp,                	&
 !$omp            nlambda1,winter,                                   	&
 !$omp            probe,                                             	&
@@ -488,11 +488,9 @@ call checkstat(istat,'cov')
 if (allocated(bestcov)) deallocate(bestcov)
 allocate (bestcov(nov,nov),stat=istat)
 call checkstat(istat,'bestcov')
-if (covprint == 1) then
-	if (allocated(ocov)) deallocate(ocov)
-	allocate (ocov(ndim,ndim),stat=istat)
-	call checkstat(istat,'ocov')
-endif
+if (allocated(ocov)) deallocate(ocov)
+allocate (ocov(ndim,ndim),stat=istat)
+call checkstat(istat,'ocov')
 
 !allocate w,obs,e_obs,fit, and obs_in/lambda_obs when needed
 select case (winter)
@@ -569,8 +567,17 @@ do j=1,nobj
 	pf(:)=-1.0_dp
 	pf0(:)=-1.0_dp
   	spf(:)=-1.0_dp
+        cphot=-1.0_dp
+        medsnr=-1.0_dp
+        lchi=-1.0_dp
+        ocov(:,:)=-1.0_dp
 	!read(2,'(1x,a30,40(1x,f8.5))',err=200,end=100) fname,pf,spf
-	read(2,*,iostat=ierr) fname,pf
+	if (covprop == 1) then 
+		read(2,*,iostat=ierr) fname,pf,spf,cphot,medsnr,lchi,ocov
+	else
+		read(2,*,iostat=ierr) fname,pf
+	endif
+
         if (trkout /= 0)  then 
 		stlen=len_trim(fname)
 		trkfile=''
@@ -884,7 +891,7 @@ do j=1,nobj
 	  endif  !3rd nov if
 	
 	  !from physical to normalized ([0-1]) units
-	  call normal(pf)
+	  call normal2(pf,ocov)
 
 	  !store parameter values from input file (may be required for optimized fits)
 	  opf=pf
@@ -926,7 +933,7 @@ do j=1,nobj
 
 	  call getmin(algor,k,0,fname,chiscale, & 
 		      w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
-		      spf,lchi,cov)  
+		      ocov,spf,lchi,cov)  
 		      
 
 	  !keep track of results when using nrunsigma
@@ -984,7 +991,7 @@ do j=1,nobj
 
 	  	call getmin(algor,k,1,fname, chiscale, & 
 			    w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
-			    spf,lchi,cov)  
+			    ocov,spf,lchi,cov)  
 
 	  	!keep track of results when using nrunsigma
 	  	if (errbar == -2 .and. nruns>1) then 
@@ -1077,16 +1084,8 @@ do j=1,nobj
 		enddo	
 
 		if (covprint == 1) then
-		  ocov(:,:)=0.0_dp
-		  do i=1,nov
-			ii1=indv(i)
-			ulimit=llimits(ii1)+steps(ii1)*(n_p(ii1)-1)
-			do l=1,nov
-				ii2=indv(l)
-				ulimit2=llimits(ii2)+steps(ii2)*(n_p(ii2)-1)
-				ocov(ii2,ii1)=cov(l,i)*(ulimit-llimits(ii1))*(ulimit2-llimits(ii2))
-			enddo
-		  enddo
+		!from normalized to physical units, fill-in the ndim array
+			call fill_ocov(cov,ocov)
 		endif
 
 		where (ospf < 0. .or. ospf > 99999.) 	ospf=-999.999_dp

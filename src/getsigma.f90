@@ -26,7 +26,7 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 	real(dp), intent(in)    :: obs(nlambda1)         ! vector of observations	
 	real(dp), intent(in)    :: lambda_obs(nlambda1)  ! vector of wavelengths for observations
         real(dp), intent(in)    :: e_obs(nlambda1)   ! vector of uncertainties in observations
-    real(dp), intent(in)    :: mobs                  ! mean or median of obs array
+        real(dp), intent(in)    :: mobs                  ! mean or median of obs array
 	real(dp), intent(in)    :: lsfarr(mlsf,nlsf)    ! lsfarray
 	real(dp), intent(out)	:: sp(ndim) 	!derived uncertainties
 								!0=non var. par; -1=unknown
@@ -48,7 +48,7 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 !	use to observe how chi2 changes as the parameters do
 
 
-    call flx(pf,lambda_obs,e_obs,mobs,lsfarr,flux)
+        call flx(pf,lambda_obs,e_obs,mobs,lsfarr,flux)
 
 	lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 	lchi=log10(lchi*chiscale/(nlambda1-nov+1))	

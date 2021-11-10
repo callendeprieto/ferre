@@ -1,7 +1,7 @@
 
 subroutine getmin(algorithm,irun, opti,fname, chiscale,w,& 
 		   pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr,&
-		   spf, lchi, cov)
+		   incov, spf, lchi, cov)
 
 !
 !	Find the minimum the function evaluated in 'objfun'
@@ -18,9 +18,9 @@ subroutine getmin(algorithm,irun, opti,fname, chiscale,w,&
 
 
 
-use share, only		: dp,ndim,npix,nlambda1,nov,errbar,covprint,     &
+use share, only: dp,ndim,npix,nlambda1,nov,indv,errbar,covprint,     &
 			  maxf,iprint,scope,stopcr,nloop,iquad,simp,     &
-			  mlsf,nlsf,flen
+			  mlsf,nlsf,flen,covprop,minusculo
 			  
 			  
 use nelder_mead,  only	: minim
@@ -47,6 +47,8 @@ real(dp), intent(in)    :: lambda_obs(nlambda1)         ! vector of wavelengths
 real(dp), intent(in)    :: e_obs(nlambda1)         ! vector of uncertainties
 real(dp), intent(in)    :: mobs              ! mean or median of obs array
 real(dp), intent(in)    :: lsfarr(mlsf,nlsf) ! lsfarray
+real(dp), intent(in)    :: incov(ndim,ndim)      !input covariance matrix  
+						   !used when covprob=1 to propagate covariance in fixed parameters
 real(dp), intent(out)	   :: spf(ndim)		!vector of uncertainties
 real(dp), intent(out)  	   :: lchi		!log10(chi**2/(nlambda1-nov+1))
 real(dp), intent(out)      :: cov(nov,nov)      !covariance matrix
@@ -58,9 +60,10 @@ real(dp)	   			:: step(nov)	!scope of search for N-M
 real(dp)	   			:: var(nov)	!internal errors from N-M
 real(dp)				:: flux(nlambda1)
 real(dp)	   			:: func		!value of objfun at minimum
-integer					:: iter = 0	!actual number of iterations
-integer					:: ier = 0  !output error code for minimization routine
-integer					:: j,k !dummy indices for loops
+integer				:: iter = 0	!actual number of iterations
+integer				:: ier = 0  !output error code for minimization routine
+integer				:: j,k !dummy indices for loops
+real(dp)		  	        :: cof(nov,nov)      !covariance matrix from propagating errors associated to fixed parameters
 
 !specific to BTR
 integer, parameter  	:: mglobal = 1		
@@ -129,13 +132,13 @@ select case (algorithm)
 	  	endif
 	  	p=x0(1:nov,1)
 	  	func=f0(1)
-	case (3)
+    case (3)
 	        rhobeg=scope*0.1_dp
 	        rhoend=stopcr
                 call uobyqa(w,chiscale, pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,nov,p, & 
                    rhobeg,rhoend,iprint,maxf)
                 call objfun(w,chiscale, pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,p,func)
-	case (4)
+    case (4)
 		maxit=nov/2
 		eta=0.25_dp
 		stepmx=10._dp
@@ -149,7 +152,7 @@ select case (algorithm)
 		call lmqnbc(w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr,ier,nov,p, & 
                    func,g,zeros,ones,ipivot,iprint,maxit,maxf,eta,stepmx,accrcy,xtol)
 
-       case (5)
+    case (5)
                 call mcmcde(fname,w,chiscale,pf,pf0,obs,lambda_obs,e_obs,mobs,lsfarr, &
                             p,cov,gr_conv)
 
@@ -165,7 +168,7 @@ select case (algorithm)
 		lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 		lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
 	
-	case default
+    case default
         write(*,*) 'ERROR in getmin'
         write(*,*) 'algorithm is not in the allowed range (-1,0,1,2,3,4,5)'
         stop
@@ -186,7 +189,7 @@ enddo
 
 !error and cov. matrix determination
 if (algorithm /= 5) then 
-  lchi=-1.0_dp
+  lchi=-1.0_dp  
   cov(1:nov,1:nov)=0.0_dp
 
   select case (errbar)
@@ -207,6 +210,28 @@ if (algorithm /= 5) then
  	write(*,*) 'errbar=',errbar,' must be 0, 1, 2, or 3'
   	stop
   end select
+endif
+
+if (covprop == 1 .and. maxval(incov) > minusculo) then 
+        !propagate covariance matrix from fixed parameters
+	!inconv=0 indicates this is not needed, and it is used
+	!when calling getmin from cofa, to avoid an infinite loop
+        call cofa(incov,w,obs,lambda_obs,mobs,lsfarr,pf,e_obs,cof)
+        !write(*,*)'cov (original)=',cov
+        cov = cov + cof
+        !write(*,*)'cof=',cof
+        !write(*,*)'cov (after)=',cov
+
+	!use diagonal elements to get std. deviation
+  	do j=1,nov
+		if (cov(j,j) >=0.0) then
+			spf(indv(j))=sqrt(cov(j,j))
+		else
+			spf(indv(j))=-1._dp
+		endif
+  	enddo
+
+
 endif
 	
 !need to implement a check here on the quality flags from
