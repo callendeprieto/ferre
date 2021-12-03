@@ -195,7 +195,7 @@ call random_seed()
 
 
 !need nobj?
-if (nobj <= 0 .or. nthreads > 1 .or. lsf == 13 .or. lsf ==14) then ! count the number of lines in
+!if (nobj <= 0 .or. nthreads > 1 .or. lsf == 13 .or. lsf ==14) then ! count the number of lines in
 	open(2,file=pfile,status='old',recl=siobuffer,action='read')!input file to find nobj
 	write(*,*)'Counting the number of input objects...'
 	j=1
@@ -207,8 +207,11 @@ if (nobj <= 0 .or. nthreads > 1 .or. lsf == 13 .or. lsf ==14) then ! count the n
 	enddo
 	nobj=j-1
 	close(2)
-endif
+!endif
 write(*,*)'main         -> nobj =',nobj
+
+!too many threads?
+if (nthreads >  nobj) nthreads=nobj
 
 !need nlambda?
 if (nlambda == 0 .and. winter > 0) then ! if needed, count columns in frd
