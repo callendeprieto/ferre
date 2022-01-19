@@ -56,7 +56,7 @@ real(dp)		::	x2,x3		 !temp storage for elemts. of x
 	
 error=1
 
-call flx(p,lambda_obs,e_obs,mobs,lsfarr,flux)
+call flx(p,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 
 !compute x(i,j)
 do j=1,nov
@@ -70,8 +70,8 @@ do j=1,nov
 		!we have two solutions and take an average
 			
 			
-			call flx(p2,lambda_obs,e_obs,mobs,lsfarr,flux2)
-			call flx(p2,lambda_obs,e_obs,mobs,lsfarr,flux2)
+			call flx(p2,lambda_obs,obs,e_obs,mobs,lsfarr,flux2)
+			call flx(p2,lambda_obs,obs,e_obs,mobs,lsfarr,flux2)
 
 			
 			do i=1,nlambda1
@@ -86,7 +86,7 @@ do j=1,nov
 		if (p2(k).gt.0.0_dp.and.p2(k).le.1.0_dp) then
 		!only one solution upstream
 			
-			call flx(p2,lambda_obs,e_obs,mobs,lsfarr,flux2)
+			call flx(p2,lambda_obs,obs,e_obs,mobs,lsfarr,flux2)
 			
 			do i=1,npix
 				chi=(flux(i)-obs(i))**2
@@ -99,7 +99,7 @@ do j=1,nov
 			if (p3(k).gt.0.0_dp.and.p3(k).le.1.0_dp) then
 			!only one solution downstream
 
-			call flx(p3,lambda_obs,e_obs,mobs,lsfarr,flux3)
+			call flx(p3,lambda_obs,obs,e_obs,mobs,lsfarr,flux3)
 
 			do i=1,npix
 					chi=(flux(i)-obs(i))**2

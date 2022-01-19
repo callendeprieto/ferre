@@ -68,7 +68,7 @@ endif
 
                                                                                 
 !evaluate lchi
-call flx(pp,lambda_obs,e_obs,mobs,lsfarr,flux)
+call flx(pp,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 func=0.0_dp
 func=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
                                                                                

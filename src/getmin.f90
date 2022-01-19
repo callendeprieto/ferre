@@ -164,7 +164,7 @@ select case (algorithm)
 	  	enddo
 
 		!compute lchi
-                call flx(pf,lambda_obs,e_obs,mobs,lsfarr,flux)
+                call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 		lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 		lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
 	
@@ -196,7 +196,7 @@ if (algorithm /= 5) then
 
     case (0)
 	call getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,spf,lchi) 
-	if (covprint .eq. 1) call cova(w,lambda_obs,mobs,lsfarr,pf,e_obs,cov)
+	if (covprint .eq. 1) call cova(w,lambda_obs,obs,mobs,lsfarr,pf,e_obs,cov)
     case (1)
 	call covsigma(chiscale,w,pf,obs,lambda_obs,mobs,lsfarr,e_obs,spf,lchi,cov)	  	
     case (2)

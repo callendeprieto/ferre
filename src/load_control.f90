@@ -26,7 +26,7 @@ namelist / lista / inter,mono,algor,scope,stopcr,simp,nthreads
 namelist / lista / pcaproject,pcachi,lsf,nlsf
 namelist / lista / cont,ncont,obscont,rejectcont
 namelist / lista / ext_chain_filename,ext_gr_filename
-namelist / lista / chain_num, gen_num, burnin_limit
+namelist / lista / chain_num, gen_num, burnin_limit,fprint
 
 
 indini(1:maxndim)=-10
@@ -91,15 +91,15 @@ if (fformat > 1 .or. fformat < 0) then
 	write(*,*) 'fformat = ',fformat,' can only be 0 or 1'
 	stop
 endif
-!cont <=3
-if (cont  > 3) then
+!cont <=4
+if (cont  > 4) then
 	write(*,*) 'load_control: ERROR'
-	write(*,*) 'cont = ',cont,' must be <=0, 1, 2 or 3'
+	write(*,*) 'cont = ',cont,' must be <=0, 1, 2, 3 or 4'
 	stop
 endif
-if (cont /= 0 .and. cont /= 1 .and. cont /= 2 .and. cont /=3) then
+if (cont /= 0 .and. cont /= 1 .and. cont /= 2 .and. cont /=3 .and. cont /=4) then
         write(*,*) 'load_control: ERROR'
-        write(*,*) 'cont = ',cont,' must be 0,1,2 or 3'
+        write(*,*) 'cont = ',cont,' must be 0,1,2,3 or 4'
         stop
 endif
 !ncont >=0
@@ -112,6 +112,12 @@ if (rejectcont <= 0.) then
 	write(*,*) 'load_control: ERROR'
 	write(*,*) 'rejectcont = ',rejectcont,' must be >0'
 	stop
+endif
+!obscont=0 when cont=4
+if (cont == 4) then 
+	obscont=0
+	write(*,*) 'load_control: WARNING'
+	write(*,*) 'obscont is set to 0 for cont=4'
 endif
 !mforce >=0 and <=2
 if (mforce < 0 .or. mforce > 2) then

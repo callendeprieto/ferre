@@ -109,6 +109,8 @@ endif
 
 !loop over multiple control files
 synthfile0(1:maxsynth)=''
+if (fprint > 0) write(*,*)'nfiles=',nfiles
+call flush()
 do ifile = 1, nfiles
 
 write(*,*) ifile, inputnames(ifile)
@@ -444,7 +446,7 @@ write(*,*)'about to enter parallel region!'
 !$omp            f,aa,ee,uu,imap,                                  	&
 !$omp            badflux,fmtformat,                                 	&
 !$omp            wref,waveline,lambda_syn,                          	&
-!$omp            nthreads,                                          	&
+!$omp            nthreads,fprint,                                  	&
 !$omp		 start_time,day_of_the_month) ! module timer 
 
 !confirm nthreads in actual parallel loop
@@ -562,6 +564,9 @@ do j=1,nobj
 	
 	tid=1
 	!$ tid=omp_get_thread_num()+1
+
+	if (fprint > 0) write(*,*)'starting object/tid=',j,tid
+        call flush()
 
 	!reading input data
 	!$omp critical
@@ -816,7 +821,7 @@ do j=1,nobj
 	  	
 	    !continuum normalization
 	    if (cont>0 .and. obscont /= 0) then 
-	      call continuum(obs,lambda_obs,e_obs,fit,nlambda1,cont,ncont,rejectcont)
+	      call continuum(obs,lambda_obs,obs,e_obs,fit,nlambda1,cont,ncont,rejectcont)
               where (fit /= 0._dp)
 	          obs=obs/fit
 	          e_obs=e_obs/fit
@@ -934,10 +939,13 @@ do j=1,nobj
 	
 	if (status == 0 .and. nov > 0) then   !check2 status and 4th nov if
 
+	  if (fprint > 0) write(*,*)'about to call getmin for object/tid=',j,tid
+
 	  call getmin(algor,k,0,fname,chiscale, & 
 		      w,pf,pf0,opf,obs,lambda_obs,e_obs,mobs,lsfarr1,& 
 		      ocov,spf,lchi,cov)  
 		      
+	  if (fprint > 0) write(*,*)'back from getmin for object/tid=',j,tid
 
 	  !keep track of results when using nrunsigma
 	  if (errbar == -2 .and. nruns>1) then 
@@ -1040,7 +1048,11 @@ do j=1,nobj
 		endif
 
         !getting and writing model fluxes
-        call flx(pf,lambda_obs,e_obs,mobs,lsfarr1,fit)
+        call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr1,fit)
+
+
+	if (fprint > 0) write(*,*)'starting critical section for writing output object/tid=',j,tid
+        call flush()
 
         !$omp critical			
 		!writing smoothed/normalized observed fluxes
@@ -1126,6 +1138,9 @@ do j=1,nobj
                 
         !$omp end critical
 
+	if (fprint > 0) write(*,*)'ending critical writing for object/tid=',j,tid
+        call flush()
+
 	endif !if on status > -10 and k>= nruns
 
 
@@ -1145,6 +1160,9 @@ do j=1,nobj
 	endif
 
 	call ellapsed_time(etime)
+
+	if (fprint > 0) write(*,*)'ending object/tid=',j,tid
+        call flush()
 	
 	
 enddo 

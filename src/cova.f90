@@ -1,4 +1,4 @@
-subroutine	cova(w,lambda_obs,mobs,lsfarr,pf,e,cov)
+subroutine	cova(w,lambda_obs,obs,mobs,lsfarr,pf,e,cov)
 
 !
 !	Calculation of the covariance matrix (linear term) assuming 
@@ -17,6 +17,7 @@ implicit none
 !in/out
 real(dp), intent(in)       :: w(nlambda1)           ! weights
 real(dp), intent(in)       :: lambda_obs(nlambda1)  ! wavelengths for observations
+real(dp), intent(in)       :: obs(nlambda1)  ! observations
 real(dp), intent(in)       :: mobs                 ! mean or median of obs array
 real(dp), intent(in)       :: lsfarr(mlsf,nlsf)    ! lsfarray
 real(dp), intent(in)       :: pf(ndim)          ! vector of fixed parameters
@@ -38,7 +39,7 @@ integer			   :: error = 0						!error code from mat_inv
 p=pf
 do i=1,nov
 
-	call flx(pf,lambda_obs,e,mobs,lsfarr,flux)
+	call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
 	
 	k=indv(i)
 	
@@ -49,13 +50,13 @@ do i=1,nov
 	!two estimates of the partials, increasing
 	p(k)=pf(k)*delta
 	if (p(k) <= 1.0_dp) then
-		call flx(p,lambda_obs,e,mobs,lsfarr,flux1)
+		call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux1)
 	endif
 
 	!and decreasing the parameters
 	p(k)=pf(k)/delta
 	if (p(k) >= 0.0_dp) then
-		call flx(p,lambda_obs,e,mobs,lsfarr,flux2)
+		call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux2)
 	endif
 	
 		

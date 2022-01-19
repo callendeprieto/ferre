@@ -29,7 +29,7 @@ integer		  	   :: i,j						!counters
 real(dp)		   :: flux(nlambda1)			!interpolated flux vector
 
 !evaluate lchi
-call flx(pf,lambda_obs,e,mobs,lsfarr,flux)
+call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
 lchi=0.0_dp
 lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
@@ -47,7 +47,7 @@ if (lchi >= 4.0d0) then
 
 else
 	!calculate covariance matrix
-	call cova(w,lambda_obs,mobs,lsfarr,pf,e,cov)
+	call cova(w,lambda_obs,obs,mobs,lsfarr,pf,e,cov)
 	
 	!use diagonal elements to get std. deviation
   	do j=1,nov

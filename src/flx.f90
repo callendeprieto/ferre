@@ -1,5 +1,5 @@
 
-subroutine flx(p,lambda_obs,e_obs,mobs,lsfarr,flux)
+subroutine flx(p,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 
 !model fluxes derived by 
 ! a) interpolation 
@@ -20,6 +20,7 @@ implicit none
 !input/output 
 real(dp),intent(in)	:: p(ndim)	!ndim vector of wanted pars [0-1]
 real(dp), intent(in)	:: lambda_obs(nlambda1)  ! wavelengths for observations
+real(dp), intent(in)	:: obs(nlambda1)  ! observations
 real(dp), intent(in)	:: e_obs(nlambda1)  ! uncertainties in observations
 real(dp), intent(in)    :: mobs ! mean or median of obs array
 real(dp), intent(in)	:: lsfarr(mlsf,nlsf)    ! lsfarray
@@ -66,20 +67,20 @@ if (winter == 2) then
 		call wresample(lambda_syn,sflux,npix,lambda_obs,flux,nlambda1)
 	endif
 	if (nfilter >  1) call smooth1(flux,nlambda1,nfilter)
-	if (cont > 0) call continuum(flux,lambda_obs,e_obs,cflux,nlambda1, & 
+	if (cont > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,nlambda1, & 
 	                             cont,ncont,rejectcont)	
 else
 	if (npca(1) > 0 .and. pcachi == 0) then !need to eval chi**2 in expanded space
 		call decompress(sflux,flux)
 		if (lsf > 0) call convol(flux,totalnpca,lsfarr,flux)
 		if (nfilter >  1) call smooth1(flux,totalnpca,nfilter)
-		if (cont > 0) call continuum(flux,lambda_obs,e_obs,cflux,totalnpca, & 
+		if (cont > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,totalnpca, & 
 		                             cont,ncont,rejectcont)
 	else
 		flux=sflux
 		if (lsf > 0) call convol(flux,npix,lsfarr,flux)
 		if (nfilter >  1) call smooth1(flux,npix,nfilter)
-		if (cont > 0) call continuum(flux,lambda_obs,e_obs,cflux,npix, & 
+		if (cont > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,npix, & 
 		                              cont,ncont,rejectcont)
 	endif
 endif

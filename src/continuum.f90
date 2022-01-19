@@ -1,4 +1,4 @@
-subroutine	continuum(x,wx,sx,y,nx,cont,n,rejectcont)
+subroutine	continuum(x,wx,ox,sx,y,nx,cont,n,rejectcont)
 
 ! determine the continuum with one of the following algorithms:
 !	cont<= 0 -- do nothing
@@ -20,8 +20,8 @@ integer, intent(in)	:: n		    	!order (cont=1)
 					    	!        segment (cont=2) 
 					    	!boxcar width is n+1 (cont=3) 
 real(dp),intent(in)     :: rejectcont           !rel. error threshold for data rejection when cont=1					    	
-integer, intent(in)	:: nx		    	!size for x and sx
-real(dp),intent(in) 	:: x(nx),wx(nx),sx(nx)  !data, wavelengths and errors
+integer, intent(in)	:: nx		    	!size for x, wx, ox and sx
+real(dp),intent(in) 	:: x(nx),wx(nx),ox(nx), sx(nx)  !data, wavelengths, observations and errors
 real(dp),intent(out)    :: y(nx)            	!continuum
 
 !locals
@@ -34,7 +34,7 @@ integer			:: error	    !error code for polynomial fit
 real(dp)                :: xaxis(nx)        !findgen(nx)
 real(dp)		:: w(nx)	    !weights
 real(dp),dimension(0:n) :: coef             !coefs. for polynomial fit
-real(dp)     		:: xaxis2(nx), x2(nx)   !temporary arrays for cleaning up 
+real(dp)     		:: xaxis2(nx), x2(nx), ox2(nx)   !temporary arrays for cleaning up 
 					    !data  with rel. error > rejectcont
 
 
@@ -78,7 +78,7 @@ do j=1,nsynth
 		        x2(1:nx)=1.
 		        xaxis2(1:nx)=xaxis(1:nx)
 		        do i=1,nel
-			    if (abs(sx(p1+i-1)/x(p1+i-1)) < rejectcont) then
+			    if (abs(sx(p1+i-1)/ox(p1+i-1)) < rejectcont) then
 			      nel2=nel2+1
 			      !xaxis2(nel2)=xaxis(p1+i-1)
 			      xaxis2(nel2)=xaxis(i)
@@ -116,6 +116,47 @@ do j=1,nsynth
 		    call pem(x(p1:p2),nel,n,y(p1:p2))	
 	  	  case (3)
 	    	    call filter1(x(p1:p2),nel,n,y(p1:p2))
+		  case (4)
+		        nel2=0
+		        x2(1:nx)=1.
+		        ox2(1:nx)=1.
+		        xaxis2(1:nx)=xaxis(1:nx)
+		        do i=1,nel
+			    if (abs(sx(p1+i-1)/ox(p1+i-1)) < rejectcont) then
+			      nel2=nel2+1
+			      !xaxis2(nel2)=xaxis(p1+i-1)
+			      xaxis2(nel2)=xaxis(i)
+			      x2(nel2)=x(p1+i-1)
+			      ox2(nel2)=ox(p1+i-1)
+			    endif
+		        enddo
+		        !write(*,*) 'rejectcont=',rejectcont, nel, n, nel2
+		        if (nel2 <= n) then
+		          !give up 
+		          write(*,*)'continuum: WARNING'
+		          write(*,*) 'Too few points pass the rejectcont=',rejectcont,' filter', nel, n, nel2
+		          write(*,*) 'It is being ignored!'
+		          nel2=nel
+		          xaxis2(1:nel)=xaxis(1:nel)
+		          x2(1:nel)=x(p1:p2)
+		          ox2(1:nel)=ox(p1:p2)
+		        endif
+		    	if (n == 0) then 
+			    !order 0 is just the mean			    
+			    y(p1:p2)=sum(x2(1:nel2)/ox2(1:nel2))/(nel2*1._dp)
+			else
+			    !fit polynomial
+			    coef(:)=0.0_dp
+			    call lsq_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),nel2,n,coef,error)
+			    !call lsq_fit(xaxis(1:nel),x(p1:p2),nel,n,coef,error)
+			    !call poly_fit(xaxis(1:nel),x(p1:p2),w(p1:p2),nel,n,coef,error)
+
+			    !evaluate it
+			    y(p1:p2)=coef(0)
+			    do i=1,n
+				y(p1:p2)=y(p1:p2)+coef(i)*xaxis(1:nel)**i
+			    enddo
+	  	  	endif
 	  	  case default
 	    		write(*,*)'ferre: ERROR'
 	    		write(*,*)'-- cont must be <=0,1,2,3'
@@ -124,5 +165,6 @@ do j=1,nsynth
 	  end select
 	endif
 enddo
+
 
 end subroutine continuum

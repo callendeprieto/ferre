@@ -51,7 +51,7 @@ call physical(pf0)
 call getmin(algor,1,0,'',1., &
             w,p,pf0,opf,obs,lambda_obs,e,mobs,lsfarr,&
             fullcov,spf,lchi,cov)
-	    call flx(p,lambda_obs,e,mobs,lsfarr,flux)
+	    call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux)
 
 if (flux(1) < 0.0) then 
  cov(:,:)=0.0
@@ -73,7 +73,7 @@ else
     		call getmin(algor,1,0,'',1.0, &
                	    w,p,pf0,opf,obs,lambda_obs,e,mobs,lsfarr,&
                 	    fullcov,spf,lchi,cov)
-	        call flx(p,lambda_obs,e,mobs,lsfarr,flux1)
+	        call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux1)
 	endif
 
 	par1=(p(i)-pf(i))/pf(j)/(delta-1._dp)
@@ -84,7 +84,7 @@ else
     		call getmin(algor,1,0,'',1.0, &
                	    w,p,pf0,opf,obs,lambda_obs,e,mobs,lsfarr,&
                 	    fullcov,spf,lchi,cov)
-	        call flx(p,lambda_obs,e,mobs,lsfarr,flux2)
+	        call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux2)
 	endif
 	
 	par2=(p(i)-pf(i))/pf(j)/(1._dp/delta-1._dp)

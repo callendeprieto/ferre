@@ -36,7 +36,7 @@ real(dp)		   :: low(nov),high(nov)	!low/hi vals for each norm. parameter
 real(dp)		   :: temp						!tmp variable
 
 !evaluate lchi
-call flx(pf,lambda_obs,e,mobs,lsfarr,flux)
+call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
 lchi=0.0_dp
 lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
@@ -56,7 +56,7 @@ if (lchi >= 4.0d0) then
 
 else
 	!calculate covariance matrix, just like in covsigma
-	call cova(w,lambda_obs,mobs,lsfarr,pf,e,cov)
+	call cova(w,lambda_obs,obs,mobs,lsfarr,pf,e,cov)
 	
 	!use diagonal elements to get std. deviation
   	do j=1,nov
@@ -84,7 +84,7 @@ else
 		     	call random_number(temp)
 		     	p(indv(i))=temp*(high(i)-low(i))+low(i)
 	   	enddo
-	   	call flx(p,lambda_obs,e,mobs,lsfarr,flux)
+	   	call flx(p,lambda_obs,obs,e,mobs,lsfarr,flux)
 		pt(j,:)=p
 	   	temp=0.0_dp
 		temp=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)

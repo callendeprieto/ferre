@@ -47,7 +47,7 @@ hobs=obs
 
 !evaluate lchi
 
-call flx(pf,lambda_obs,e,mobs,lsfarr,flux)
+call flx(pf,lambda_obs,obs,e,mobs,lsfarr,flux)
 lchi=sum(w*(obs(:)-flux(:))**2)
 lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
 

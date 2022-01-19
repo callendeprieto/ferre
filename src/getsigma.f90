@@ -48,7 +48,7 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 !	use to observe how chi2 changes as the parameters do
 
 
-        call flx(pf,lambda_obs,e_obs,mobs,lsfarr,flux)
+        call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 
 	lchi=sum(w*(obs(1:nlambda1)-flux(1:nlambda1))**2)
 	lchi=log10(lchi*chiscale/(nlambda1-nov+1))	
@@ -88,7 +88,7 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 			if (ptmp(k) >= 0.0_dp .and. ptmp(k) <= 1.0_dp) then 
 		
 				!eval chi**2
-				call flx(ptmp,lambda_obs,e_obs,mobs,lsfarr,flux)
+				call flx(ptmp,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 				chi2=sum(w*(obs-flux)**2)
 				y(l)=chi2*chiscale/(nlambda1-nov+1)
 				
@@ -108,7 +108,7 @@ subroutine getsigma(chiscale,w,pf,obs,lambda_obs,e_obs,mobs,lsfarr,sp,lchi)
 			if (ptmp(k) >= 0.0_dp .and. ptmp(k) <= 1.0_dp) then 
 				
 				!eval chi**2
-				call flx(ptmp,lambda_obs,e_obs,mobs,lsfarr,flux)
+				call flx(ptmp,lambda_obs,obs,e_obs,mobs,lsfarr,flux)
 				chi2=sum(w*(obs-flux)**2)
 				y(l+np)=chi2*chiscale/(nlambda1-nov+1)		
 		
