@@ -8,7 +8,7 @@ subroutine	continuum(x,wx,ox,sx,y,nx,cont,n,rejectcont)
 !
 
 use share, only: dp,nsynth,hs,winter
-use booklib
+!use booklib
 use lsq
 		 		 
 implicit none
@@ -34,7 +34,7 @@ integer			:: error	    !error code for polynomial fit
 real(dp)                :: xaxis(nx)        !findgen(nx)
 real(dp)		:: w(nx)	    !weights
 real(dp),dimension(0:n) :: coef             !coefs. for polynomial fit
-real(dp)     		:: xaxis2(nx), x2(nx), ox2(nx)   !temporary arrays for cleaning up 
+real(dp)     		:: xaxis2(nx), x2(nx), ox2(nx), w2(nx)   !temporary arrays for cleaning up 
 					    !data  with rel. error > rejectcont
 
 
@@ -75,14 +75,18 @@ do j=1,nsynth
 	  select case (cont)
 		  case (1)
 		        nel2=0
-		        x2(1:nx)=1.
+		        x2(1:nx)=1._dp
 		        xaxis2(1:nx)=xaxis(1:nx)
+			w2(1:nx)=1._dp
+		        ox2(1:nx)=1._dp
 		        do i=1,nel
 			    if (abs(sx(p1+i-1)/ox(p1+i-1)) < rejectcont) then
 			      nel2=nel2+1
 			      !xaxis2(nel2)=xaxis(p1+i-1)
 			      xaxis2(nel2)=xaxis(i)
 			      x2(nel2)=x(p1+i-1)
+			      w2(nel2)=w(p1+i-1)
+			      ox2(nel2)=ox(p1+i-1)
 			    endif
 		        enddo
 		        !write(*,*) 'rejectcont=',rejectcont, nel, n, nel2
@@ -94,6 +98,8 @@ do j=1,nsynth
 		          nel2=nel
 		          xaxis2(1:nel)=xaxis(1:nel)
 		          x2(1:nel)=x(p1:p2)
+                          w2(1:nel)=w(p1:p2)
+		          ox2(1:nel)=ox(p1:p2)
 		        endif
 		    	if (n == 0) then 
 			    !order 0 is just the mean			    
@@ -102,9 +108,9 @@ do j=1,nsynth
 			else
 			    !fit polynomial
 			    coef(:)=0.0_dp
-			    call lsq_fit(xaxis2(1:nel2),x2(1:nel2),nel2,n,coef,error)
-			    !call lsq_fit(xaxis(1:nel),x(p1:p2),nel,n,coef,error)
-			    !call poly_fit(xaxis(1:nel),x(p1:p2),w(p1:p2),nel,n,coef,error)
+			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2),w2(1:nel2)*(ox2(1:nel2)/x2(1:nel2))**2,nel2,n,coef,error)
+			    call poly_fit(xaxis2(1:nel2),x2(1:nel2),x2(1:nel2)/100.,nel2,n,coef,error)
+
 
 			    !evaluate it
 			    y(p1:p2)=coef(0)
@@ -118,15 +124,17 @@ do j=1,nsynth
 	    	    call filter1(x(p1:p2),nel,n,y(p1:p2))
 		  case (4)
 		        nel2=0
-		        x2(1:nx)=1.
-		        ox2(1:nx)=1.
+		        x2(1:nx)=1._dp
 		        xaxis2(1:nx)=xaxis(1:nx)
+			w2(1:nx)=1._dp
+		        ox2(1:nx)=1._dp
 		        do i=1,nel
 			    if (abs(sx(p1+i-1)/ox(p1+i-1)) < rejectcont) then
 			      nel2=nel2+1
 			      !xaxis2(nel2)=xaxis(p1+i-1)
 			      xaxis2(nel2)=xaxis(i)
 			      x2(nel2)=x(p1+i-1)
+			      w2(nel2)=w(p1+i-1)
 			      ox2(nel2)=ox(p1+i-1)
 			    endif
 		        enddo
@@ -139,6 +147,7 @@ do j=1,nsynth
 		          nel2=nel
 		          xaxis2(1:nel)=xaxis(1:nel)
 		          x2(1:nel)=x(p1:p2)
+                          w2(1:nel)=w(p1:p2)
 		          ox2(1:nel)=ox(p1:p2)
 		        endif
 		    	if (n == 0) then 
@@ -147,9 +156,8 @@ do j=1,nsynth
 			else
 			    !fit polynomial
 			    coef(:)=0.0_dp
-			    call lsq_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),nel2,n,coef,error)
-			    !call lsq_fit(xaxis(1:nel),x(p1:p2),nel,n,coef,error)
-			    !call poly_fit(xaxis(1:nel),x(p1:p2),w(p1:p2),nel,n,coef,error)
+			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),w2(1:nel2)*(ox2(1:nel2)**2/x2(1:nel2))**2,nel2,n,coef,error)
+			    call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),x2(1:nel2)/ox2(1:nel2)/100.,nel2,n,coef,error)
 
 			    !evaluate it
 			    y(p1:p2)=coef(0)
