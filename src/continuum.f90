@@ -35,8 +35,10 @@ real(dp)                :: xaxis(nx)        !findgen(nx)
 real(dp)		:: w(nx)	    !weights
 real(dp),dimension(0:n) :: coef             !coefs. for polynomial fit
 real(dp)     		:: xaxis2(nx), x2(nx), ox2(nx), w2(nx)   !temporary arrays for cleaning up 
+real(dp)                :: ones(nx)
 					    !data  with rel. error > rejectcont
 
+ones(:)=1.0_dp
 
 if (cont <= 0) then
   y(1:nx)=1._dp
@@ -109,7 +111,7 @@ do j=1,nsynth
 			    !fit polynomial
 			    coef(:)=0.0_dp
 			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2),w2(1:nel2)*(ox2(1:nel2)/x2(1:nel2))**2,nel2,n,coef,error)
-			    call poly_fit(xaxis2(1:nel2),x2(1:nel2),x2(1:nel2)/100.,nel2,n,coef,error)
+			    call poly_fit(xaxis2(1:nel2),x2(1:nel2),ones(1:nel2),nel2,n,coef,error)
 
 
 			    !evaluate it
@@ -157,7 +159,9 @@ do j=1,nsynth
 			    !fit polynomial
 			    coef(:)=0.0_dp
 			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),w2(1:nel2)*(ox2(1:nel2)**2/x2(1:nel2))**2,nel2,n,coef,error)
-			    call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),x2(1:nel2)/ox2(1:nel2)/100.,nel2,n,coef,error)
+			    call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),ones(1:nel2),nel2,n,coef,error)
+
+
 
 			    !evaluate it
 			    y(p1:p2)=coef(0)
