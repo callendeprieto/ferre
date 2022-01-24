@@ -9,7 +9,8 @@ subroutine	continuum(x,wx,ox,sx,y,nx,cont,n,rejectcont)
 
 use share, only: dp,nsynth,hs,winter
 !use booklib
-use lsq
+!use lsq
+use qr
 		 		 
 implicit none
 
@@ -111,7 +112,8 @@ do j=1,nsynth
 			    !fit polynomial
 			    coef(:)=0.0_dp
 			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2),w2(1:nel2)*(ox2(1:nel2)/x2(1:nel2))**2,nel2,n,coef,error)
-			    call poly_fit(xaxis2(1:nel2),x2(1:nel2),ones(1:nel2),nel2,n,coef,error)
+			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2),ones(1:nel2),nel2,n,coef,error)
+			    call polyfit(xaxis2(1:nel2),x2(1:nel2),nel2,n,coef)
 
 
 			    !evaluate it
@@ -159,7 +161,9 @@ do j=1,nsynth
 			    !fit polynomial
 			    coef(:)=0.0_dp
 			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),w2(1:nel2)*(ox2(1:nel2)**2/x2(1:nel2))**2,nel2,n,coef,error)
-			    call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),ones(1:nel2),nel2,n,coef,error)
+			    !call poly_fit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),ones(1:nel2),nel2,n,coef,error)
+ 			    call polyfit(xaxis2(1:nel2),x2(1:nel2)/ox2(1:nel2),nel2,n,coef)
+
 
 
 

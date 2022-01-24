@@ -60,7 +60,7 @@ count_words.f90 quit.f90
 
 SOURCE_MODULES = share.f90 fun.f90 nelder_mead.f90 \
 booklib.f90 random.f90 timer.f90 btr.f90 uob.f90 trn.f90 \
-m_mrgrnk.f90 lsq.f90 rnglib.f90 ranlib.f90 pdflib.f90 mcmc.f90
+m_mrgrnk.f90 lsq.f90 rnglib.f90 ranlib.f90 pdflib.f90 mcmc.f90 qr.f90
 
 MODS = $(SOURCE_MODULES:.f90=.mod)
 
