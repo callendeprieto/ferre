@@ -67,20 +67,20 @@ if (winter == 2) then
 		call wresample(lambda_syn,sflux,npix,lambda_obs,flux,nlambda1)
 	endif
 	if (nfilter >  1) call smooth1(flux,nlambda1,nfilter)
-	if (cont > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,nlambda1, & 
+	if (abs(cont) > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,nlambda1, & 
 	                             cont,ncont,rejectcont)	
 else
 	if (npca(1) > 0 .and. pcachi == 0) then !need to eval chi**2 in expanded space
 		call decompress(sflux,flux)
 		if (lsf > 0) call convol(flux,totalnpca,lsfarr,flux)
 		if (nfilter >  1) call smooth1(flux,totalnpca,nfilter)
-		if (cont > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,totalnpca, & 
+		if (abs(cont) > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,totalnpca, & 
 		                             cont,ncont,rejectcont)
 	else
 		flux=sflux
 		if (lsf > 0) call convol(flux,npix,lsfarr,flux)
 		if (nfilter >  1) call smooth1(flux,npix,nfilter)
-		if (cont > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,npix, & 
+		if (abs(cont) > 0) call continuum(flux,lambda_obs,obs,e_obs,cflux,npix, & 
 		                              cont,ncont,rejectcont)
 	endif
 endif
@@ -90,7 +90,7 @@ endif
 !write(*,*)'cflux=',cflux
 
 !continuum normalize
-if (cont > 0) flux=flux/cflux
+if (abs(cont) > 0) flux=flux/cflux
 
 
 !force same mean/median as obs array when mforce>0

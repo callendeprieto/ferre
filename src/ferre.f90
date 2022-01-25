@@ -820,7 +820,7 @@ do j=1,nobj
 
 	  	
 	    !continuum normalization
-	    if (cont>0 .and. obscont /= 0) then 
+	    if (abs(cont) > 0 .and. obscont /= 0) then 
 	      call continuum(obs,lambda_obs,obs,e_obs,fit,nlambda1,cont,ncont,rejectcont)
               where (fit /= 0._dp)
 	          obs=obs/fit

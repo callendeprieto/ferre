@@ -91,15 +91,15 @@ if (fformat > 1 .or. fformat < 0) then
 	write(*,*) 'fformat = ',fformat,' can only be 0 or 1'
 	stop
 endif
-!cont <=4
-if (cont  > 4) then
+!cont <=3
+if (cont  > 3 .or. cont < -2) then
 	write(*,*) 'load_control: ERROR'
-	write(*,*) 'cont = ',cont,' must be <=0, 1, 2, 3 or 4'
+	write(*,*) 'cont = ',cont,' must be -2,-1,0, 1, 2, or 3'
 	stop
 endif
-if (cont /= 0 .and. cont /= 1 .and. cont /= 2 .and. cont /=3 .and. cont /=4) then
+if (cont /= 0 .and. cont /= 1 .and. cont /= 2 .and. cont /=3 .and. cont /=-1 .and. cont /=-2) then
         write(*,*) 'load_control: ERROR'
-        write(*,*) 'cont = ',cont,' must be 0,1,2,3 or 4'
+        write(*,*) 'cont = ',cont,' must be -2,-1,0, 1, 2, or 3'
         stop
 endif
 !ncont >=0
@@ -113,11 +113,11 @@ if (rejectcont <= 0.) then
 	write(*,*) 'rejectcont = ',rejectcont,' must be >0'
 	stop
 endif
-!obscont=0 when cont=4
-if (cont == 4) then 
+!obscont=0 when cont<0
+if (cont < 0 ) then 
 	obscont=0
 	write(*,*) 'load_control: WARNING'
-	write(*,*) 'obscont is set to 0 for cont=4'
+	write(*,*) 'obscont is set to 0 for cont<0 (fitting the ratio model/obs)'
 endif
 !mforce >=0 and <=2
 if (mforce < 0 .or. mforce > 2) then
