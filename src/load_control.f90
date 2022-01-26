@@ -92,14 +92,14 @@ if (fformat > 1 .or. fformat < 0) then
 	stop
 endif
 !cont <=3
-if (cont  > 3 .or. cont < -2) then
+if (cont  > 3 .or. cont < -3) then
 	write(*,*) 'load_control: ERROR'
-	write(*,*) 'cont = ',cont,' must be -2,-1,0, 1, 2, or 3'
+	write(*,*) 'cont = ',cont,' must be -3, -2,-1,0, 1, 2, or 3'
 	stop
 endif
-if (cont /= 0 .and. cont /= 1 .and. cont /= 2 .and. cont /=3 .and. cont /=-1 .and. cont /=-2) then
+if (cont /= 0 .and. cont /= 1 .and. cont /= 2 .and. cont /=3 .and. cont /=-1 .and. cont /=-2 .and. cont /=-3) then
         write(*,*) 'load_control: ERROR'
-        write(*,*) 'cont = ',cont,' must be -2,-1,0, 1, 2, or 3'
+        write(*,*) 'cont = ',cont,' must be -3, -2,-1,0, 1, 2, or 3'
         stop
 endif
 !ncont >=0

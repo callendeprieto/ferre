@@ -114,9 +114,11 @@ real(dp)		:: wphot = -1.0_dp	!photom.weigth<0 ->npix/nphotpix
 integer         	:: balance = 0      !use weights w(i)=1/obs(i)**2 to balance
 integer			:: optimize = 0		!optimize weights
 integer			:: impact = 0		!use impact factors to optimize
-integer			:: cont = 0		!0=no normalization, 1=polynomial fit, 2=pem, 3=running mean, 4=polynomial fit to obs/mdl
+integer			:: cont = 0		!0=no normalization, 1=polynomial fit, 2=pem, 3=running mean,
+						! positive codes work on both data and models
+						! negative codes imply the same algorithm applied to mdl/obs
 integer			:: ncont = 0		!order/pieces/filter width -1/order for cont=1/2/3/4 respectively
-integer			:: obscont = 1	    !if cont>0, cont<4 and obscont/=0 normalize both data and models
+integer			:: obscont = 1	    !if obscont/=0 normalize both data and models, =0 only to model
 real(dp)                :: rejectcont = huge(1.0_dp) ! threshold in relative error beyond which data are
 					      !ignored for polynomial continuum fitting (cont=1)
 integer			:: mforce = 0       !force equal mean/median between obs and 
