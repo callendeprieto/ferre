@@ -17,14 +17,14 @@ do i=1,ndim
   ulimiti=llimits(i)+steps(i)*(n_p(i)-1)
   do j=1,ndim
     ulimitj=llimits(j)+steps(j)*(n_p(j)-1)
-    ocov(j,i)=ocov(j,i)/((pf(i)*(ulimiti-llimits(i)))/(pf(i)-llimits(i)))/((pf(j)*(ulimitj-llimits(j)))/(pf(j)-llimits(j)))
+    ocov(j,i)=ocov(j,i)/(ulimiti-llimits(i))/(ulimitj-llimits(j))
   enddo
 enddo
 
 do i=1,ndim
   ulimiti=llimits(i)+steps(i)*(n_p(i)-1)
   !pf(i)=0.5_dp+(2._dp*pf(i)-llimits(i)-ulimiti)/(2._dp*(ulimit-llimits(i)))
-  pf(i)=pf(i)/((pf(i)*(ulimiti-llimits(i)))/(pf(i)-llimits(i)))
+  pf(i)=(pf(i)-llimits(i)) / (ulimiti-llimits(i))
 enddo
 
 if (indtie(1) > 0) then 
