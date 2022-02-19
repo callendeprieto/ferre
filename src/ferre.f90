@@ -1175,7 +1175,7 @@ close(2)
 close(3)
 close(4)
 if (snr == -1._dp) close(5)
-if((nfilter > 1 .or. cont > 0) .and. sffile.gt.' ') close(7)
+if((nfilter > 1 .or. abs(cont) > 0) .and. sffile.gt.' ') close(7)
 if (lsf > 10) close(9)
 if (f_access == 1) close(10)
 
