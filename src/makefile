@@ -37,8 +37,8 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -march=armv6 -mfpu=vfp -mfloat-abi=hard
 
 
-#F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/2021/compilers/bin/nvfortran
-#OPT = -fast -Mconcur=allcores -Minfo=accel -mp 
+#F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/21.9/compilers/bin/nvfortran
+#OPT = -fast -Mconcur=allcores -Minfo=accel -mp
 
 
 OS1 = ${shell perl -e 'my $$osVersion = `uname `; chomp($$osVersion); print "$$osVersion"'}

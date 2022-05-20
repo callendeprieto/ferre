@@ -110,7 +110,7 @@ endif
 !loop over multiple control files
 synthfile0(1:maxsynth)=''
 if (fprint > 0) write(*,*)'nfiles=',nfiles
-call flush()
+!call flush()
 do ifile = 1, nfiles
 
 write(*,*) ifile, inputnames(ifile)
@@ -566,7 +566,8 @@ do j=1,nobj
 	!$ tid=omp_get_thread_num()+1
 
 	if (fprint > 0) write(*,*)'starting object/tid=',j,tid
-        call flush()
+        call flush(4)
+	if(sffile.gt.' '  .and. nov > 0) call flush(7)
 
 	!reading input data
 	!$omp critical
@@ -1052,7 +1053,8 @@ do j=1,nobj
 
 
 	if (fprint > 0) write(*,*)'starting critical section for writing output object/tid=',j,tid
-        call flush()
+        call flush(4)
+	if(sffile.gt.' '  .and. nov > 0) flush(7)
 
         !$omp critical			
 		!writing smoothed/normalized observed fluxes
@@ -1139,7 +1141,8 @@ do j=1,nobj
         !$omp end critical
 
 	if (fprint > 0) write(*,*)'ending critical writing for object/tid=',j,tid
-        call flush()
+        call flush(4)
+	if(sffile.gt.' '  .and. nov > 0) flush(7)
 
 	endif !if on status > -10 and k>= nruns
 
@@ -1162,7 +1165,8 @@ do j=1,nobj
 	call ellapsed_time(etime)
 
 	if (fprint > 0) write(*,*)'ending object/tid=',j,tid
-        call flush()
+        call flush(4)
+	if(sffile.gt.' '  .and. nov > 0) flush(7)
 	
 	
 enddo 
