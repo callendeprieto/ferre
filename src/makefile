@@ -37,8 +37,8 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT = -march=armv6 -mfpu=vfp -mfloat-abi=hard
 
 
-F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/21.9/compilers/bin/nvfortran
-OPT = -fast -Mconcur=allcores -Minfo=accel -mp
+#F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/2022/compilers/bin/nvfortran
+#OPT = -fast -mp 
 
 
 OS1 = ${shell perl -e 'my $$osVersion = `uname `; chomp($$osVersion); print "$$osVersion"'}
@@ -49,7 +49,7 @@ OS4 = ${shell perl -e 'my $$osVersion = `hostname`; chomp($$osVersion); print "$
 SOURCE = ferre.f90 lin.f90 getee.f90 checkstat.f90 read_f.f90 \
 getsigma.f90 load_control.f90 optimum.f90 chisurf.f90 median.f90 rmedian.f90 \
 minlocus.f90 getaa.f90 \
-qbezier.f90 qua.f90 cbezier.f90 vcbezier.f90 cub.f90 nea.f90 spl.f90 likely.f90 \
+qbezier.f90 vqbezier.f90 qua.f90 cbezier.f90 vcbezier.f90 cub.f90 nea.f90 spl.f90 likely.f90 \
 filter1.f90 filter2.f90 \
 flx.f90 smooth1.f90 smooth2.f90 getmin.f90 pinin.f90 getuu.f90 \
 cova.f90 cofa.f90 covsigma.f90 fill_ocov.f90 continuum.f90 pem.f90 \

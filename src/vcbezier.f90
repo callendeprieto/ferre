@@ -16,20 +16,20 @@
 	implicit none
 	
 	real(dp) :: y1(npix),y2(npix),y3(npix),y4(npix)
-        real(dp) :: xp4(npix,4),yp(npix)
+        real(dp) :: xp4(4),yp(npix)
         real(dp) :: c0(npix),c1(npix),yprime0(npix),yprime1(npix)
 
 
-	yprime0=0.5_dp*(y3-y1)
-	c0=y2+0.333333333333333333333333_dp*yprime0
-	yprime1=0.5_dp*(y4-y2)
-	c1=y3-0.333333333333333333333333_dp*yprime1
+	yprime0(1:npix)=0.5_dp*(y3(1:npix)-y1(1:npix))
+	c0(1:npix)=y2(1:npix)+0.333333333333333333333333_dp*yprime0(1:npix)
+	yprime1(1:npix)=0.5_dp*(y4(1:npix)-y2(1:npix))
+	c1(1:npix)=y3(1:npix)-0.333333333333333333333333_dp*yprime1(1:npix)
 		
 
 	!yp=y2*(1.0_dp-xp)**3+y3*xp**3+c0*3.0_dp*xp*(1.0_dp-xp)**2+  &
 	!	c1*3.0_dp*xp**2*(1.0_dp-xp)
 	
-	yp(1:npix)=y2(1:npix)*xp4(1:npix,1) + y3(1:npix)*xp4(1:npix,2) + c0(1:npix)*xp4(1:npix,3) + c1(1:npix)*xp4(1:npix,4)
+	yp(1:npix)=y2(1:npix)*xp4(1) + y3(1:npix)*xp4(2) + c0(1:npix)*xp4(3) + c1(1:npix)*xp4(4)
 
 	end subroutine vcbezier
 
