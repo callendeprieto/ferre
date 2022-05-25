@@ -2,11 +2,14 @@
  NDIM = 3
  NOV = 3
  INDV= 1 2 3
- SYNTHFILE(1) = 'f_ki13_1000.dat'
- PFILE = 'ki13_1000.ipf '
- FFILE = 'ki13_1000.frd '
- ERFILE = 'ki13_1000.err'
- OPFILE = 'ki13_1000.opf'
- OFFILE = 'ki13_1000.mdl'
+ SYNTHFILE(1) = 'n_rdesi2-b.dat'
+ PFILE = 'rdesi2-b.ipf '
+ FFILE = 'rdesi2-b.frd '
+ ERFILE = 'rdesi2-b.err'
+ OPFILE = 'rdesi2-b.opf'
+ OFFILE = 'rdesi2-b.mdl'
+ SFFILE = 'rdesi2-b.nrd'
+ CONT = 1
+ NCONT = 0
  ERRBAR = 1
  /

@@ -21,14 +21,14 @@
 
 \maketitle
 
-FERRE is a data analysis code written in FORTRAN90. 
-It matches models to data, taking a set of observations 
-and identifying the model parameters that best
-reproduce the data, in a chi-squared sense. 
+FERRE is an analysis code written in FORTRAN90. 
+It matches models to data,  
+identifying the model parameters that best
+reproduce observations. 
 Model predictions are to be given as an array whose values are a function of 
 the model parameters, i.e. numerically. 
 FERRE holds this array in memory, or in a direct-access binary file,
-and interpolates in it. The code returns, in addition to the optimal 
+and interpolates in it. The code returns, in addition to the 
 set of parameters, their error covariance, and the corresponding model prediction. 
 
 \tableofcontents
@@ -435,11 +435,11 @@ grid for the corresponding parameters in the output parameter file.
 \label{test}
 
 Bundled together with the source code, there are several examples, 
-all based on a grid of models used in the SEGUE Stellar Parameters  Pipeline
-(Lee et al. 2008a,b; Allende Prieto et al. 2008). The grid is in the file
-{\tt f\_ki13\_1000.dat}, which is a 3D grid of model stellar spectra spanning 
-the range $4400\le \lambda \le 5500$ \AA,
-that covers $-3.83\le$[Fe/H]$\le0.67$, $4500\le T_{\rm eff} \le 7500$ K, 
+all based on a grid of models made for the blue arm of the DESI spectrographs
+(Abareshi et al. 2022). The grid is in the file
+{\tt n\_rdesi2-b.dat}, which is a 3D grid of model stellar spectra spanning 
+the range $3579\le \lambda \le 5958$ \AA,
+that covers $-5\le$[Fe/H]$\le 0.5$, $5500\le T_{\rm eff} \le 8000$ K, 
 and $1\le \log g \le 5$. We will first interpolate models in the grid, 
 then analyze a set of fake observations to inferred the model parameters, and 
 lastly fix two of the parameters and derive the third.
@@ -460,7 +460,7 @@ in \\
  \&LISTA \\
  NDIM = 3 \\
  NOV = 0 \\
- SYNTHFILE(1) = 'f\_ki13\_1000.dat' \\
+ SYNTHFILE(1) = 'n\_rdesi2-b.dat' \\
  PFILE = 'interpol.ipf ' \\
  OFFILE = 'interpol.mdl' \\
  \// 
@@ -475,11 +475,11 @@ To run the code in the test directory, where the input parameter file and the
 input.nml file are, call the ferre executable \\
 $>$ ../src/a.out \\
 and watch the standard output information come out. Go ahead, plot the data 
-in {\tt interpol.mdl} (one spectrum per line, each with 670 columns/wavelengths) 
+in {\tt interpol.mdl} (one spectrum per line, each with 4759 columns/wavelengths) 
 and examine how the depth of the lines reduces with the metal abundance of the star. 
 If you want to reconstruct the wavelength scale of the spectra, look at the 
 information in the {\sc wave} and {\sc npix} keywords in the header of the model 
-grid: $\lambda = 10.^{0.000144864784013797 \times (k-1) + 3.64345108784598}$, with $k=1,2...,670$.
+grid: $\lambda = 0.5 \times (k-1) + 3579.19995117$, with $k=1,2...,4759$. By default the interpolation is linear in all the parameters, but this can be changed as explained below.
 
 
 
@@ -489,31 +489,35 @@ Next we will try to fit a bunch of fake observations. The observations
 must have the same resolution as the model grid (coded in the {\sc resolution}
 keyword in the header of the grid), and be sampled on the same wavelength scale
 for consistency. In this case or {\it observations} are nothing but models from 
-the grid to which we have injected Gaussian noise at a 5\% level. 
+the grid to which we have injected Gaussian noise at a 10\% level. 
 
 This example is given in the file {\tt input.nml\_all}, which looks like this \\
  \&LISTA \\ 
  NDIM = 3 \\
  NOV = 3 \\
  INDV= 1 2 3 \\
- SYNTHFILE(1) = 'f\_ki13\_1000.dat' \\
- PFILE = 'ki13\_1000.ipf ' \\
- FFILE = 'ki13\_1000.frd ' \\
- ERFILE = 'ki13\_1000.err' \\
- OPFILE = 'ki13\_1000.opf' \\
- OFFILE = 'ki13\_1000.mdl' \\
- ERRBAR = 1 \\
+ SYNTHFILE(1) = 'n\_rdesi2-b.dat' \\
+ PFILE = 'rdesi2-b.ipf ' \\
+ FFILE = 'rdesi2-b.frd ' \\
+ ERFILE = 'rdesi2-b.err' \\
+ OPFILE = 'rdesi2-b.opf' \\
+ OFFILE = 'rdesi2-b.mdl' \\
+ SFFILE = 'rdesi2-b.nrd' \\
+ CONT = 1 \\
+ NCONT = 0 \\
+ ERRBAR = 1 
  \// 
 
 Again, this is a nearly minimal file that specifies the number of dimensions {\tt ndim}, 
 how many we're actually searching {\tt nov}, their indices {\tt indv}, the name of 
 the grid file, the input parameters, observations and error bars ({\tt pfile, ffile, erfile}), 
 as well as the name for the sought-after parameters ({\tt opfile})
-and best-fitting spectra ({\tt offile}). We also have an optional keyword for telling 
+and best-fitting spectra ({\tt offile}). Since {
+tt cont} is equal 1 we are normalizing the observations and the models on the fly with a polynomial. The parameter {\tt ncont} is set to 0, so we are normalizing by a constant -- dividing the observed spectra and the interpolated models by their respective mean values. With the keyword {\tt sffile} we indicate the output file for the normalized data -- the normalized version of the input data in {\tt ffile}. We also have an optional keyword for telling 
 FERRE how to compute the error bars. By default the code uses a simple procedure that 
 looks how far one has to perturb the solution to cause a large change in 
 the $\chi^2$ ({\tt errbar=0}), but setting {\tt errbar=1} makes the code to 
-invert the curvature matrix and take the diagonal for the variances.
+invert the curvature matrix and take the diagonal for the variances. 
 
 \begin{figure}[t!]
 \includegraphics[width=14cm]{f1.ps}
@@ -536,21 +540,18 @@ As in the previous example, we copy the file {\tt input.nml\_all} to {\tt input.
 and run ferre in the test directory \\
 ../src/a.out \\
 where the output files will appear after a few seconds. Plot one of the spectra
-in the input file {\tt ki13\_1000.frd} -- there is one per line. Compare it with 
-the best fitting model in the same line of the {\tt ki13\_1000.mdl} file. 
-Look at  the best-fitting parameters in {\tt ki13\_1000.opf} and compare 
-them with the true parameters of the fake observations in {\tt ki13\_1000.ipf}. 
+in the input file {\tt rdesi2-b.frd} -- there is one per line. The file {\tt rdesi-bnrd} contains the normalized version of these data, which is what FERRE is fitting. You will 
+find these are identifical to the input data but scaled to have a mean value of unity.  
+Compare one of the normalized spectra  with 
+the best fitting model in the same row of the {\tt rdesi2-b.mdl} file. 
+Look at  the best-fitting parameters in {\tt rdesi2-b.opf} and compare 
+them with the true parameters of the fake observations in {\tt rdesi2-b.ipf}. 
 In some cases, especially at low metallicities, the errors are significant.
-The information that can be extracted from a stellar spectrum that has  been 
-continuum normalized, has low resolution ($R\equiv \lambda/\delta\lambda \sim 1000$), 
-narrow wavelength coverage (450-550 nm), and a signal-to-noise ratio of 20, is limited. 
-Fig. \ref{f1} shows some statics for the residuals of the
-62 spectra in this example.
+Fig. \ref{f1} shows some statics for the residuals of the spectra in this example.
 
 
 In this case, since we are fitting all three parameters, the input parameter file 
-does not need to include sensible values, unless we what to give the code a 
-sensible place to start the search. By default the code 
+does not need to include sensible starting values. By default the code 
 starts searching at the grid center, but there are several other options available
  (see \S \ref{init}).
 
@@ -562,13 +563,9 @@ NOV = 1 \\
 INDV =  2 \\
 the search will only be done for the second parameter of the grid ($T_{\rm eff}$), 
 holding constant the first and the third ([Fe/H] and $\log g$) to the values 
-in the input parameter file ({\tt ki13\_1000.ipf}), which is our test case 
+in the input parameter file ({\tt rdesi2-b.ipf}), which is our test case 
 contains the 'true' values for the simulated {\it observations}.
 
-If we repeat the statistics for the differences between the output and input 
-('true') effective temperatures, we will find that the scatter has reduced from 
-about 130 down to just 60 K. As might be expected, knowing the true values of 
-the other two parameters leads to more accurate determination of the third.
 
 \section{Advanced use}
 
@@ -589,10 +586,10 @@ FERRE comes with a tool for transforming from text to
 binary any properly formatted grid: ascii2bin. 
 For example, to transform to binary format the grid in the test directory type \\
 ../src/ascii2bin \\
-and the code will ask for the input file ('f\_ki13\_1000.dat' in this case). 
+and the code will ask for the input file ('n\_rdesi2-b.dat' in this case). 
 
-Once the code is finished, you should end up with two new files: {\tt f\_ki13\_1000.hdr},
-which contains the header, and {\tt f\_ki13\_1000.unf}, which holds the unformatted (binary)
+Once the code is finished, you should end up with two new files: {\tt n\_rdesi2-b.hdr},
+which contains the header, and {\tt n\_rdesi2-b.unf}, which holds the unformatted (binary)
 data. Once you have the model grid converted, you can start using it this fashion
 immediately by adding the keyword \\
 F\_FORMAT=1 \\

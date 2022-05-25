@@ -1,7 +1,7 @@
  &LISTA
  NDIM = 3
  NOV = 0
- SYNTHFILE(1) = 'f_ki13_1000.dat'
+ SYNTHFILE(1) = 'n_rdesi2-b.dat'
  PFILE = 'interpol.ipf '
  OFFILE = 'interpol.mdl'
  /
