@@ -82,15 +82,15 @@ do i=1,ndim
 		delta4(4)=3._dp*delta**2*omdelta
 		do j=1,4**(ndim-i)
 
-		        !call vcbezier(wrk(1:npix,4*j-3),wrk(1:npix,4*j-2), &
-			!	 wrk(1:npix,4*j-1),wrk(1:npix,4*j),delta4,  &
-                       	!	 wrk(1:npix,j))
+		       call vcbezier(wrk(1:npix,4*j-3),wrk(1:npix,4*j-2), &
+				wrk(1:npix,4*j-1),wrk(1:npix,4*j),delta4,  &
+                       		wrk(1:npix,j))
 
-			do l=1,npix
-			   	call cbezier(wrk(l,4*j-3),wrk(l,4*j-2), &
-					wrk(l,4*j-1),wrk(l,4*j),delta4,yp)
-				wrk(l,j)=yp
-			enddo
+			!do l=1,npix
+			!   	call cbezier(wrk(l,4*j-3),wrk(l,4*j-2), &
+			!		wrk(l,4*j-1),wrk(l,4*j),delta4,yp)
+			!	wrk(l,j)=yp
+			!enddo
 		enddo
 	else
 		if (offset(ndim-i+1) == 1) then
@@ -103,17 +103,17 @@ do i=1,ndim
 		delta3(3)=2._dp*delta*omdelta
 		do j=1,4**(ndim-i)
 
-                	!call vqbezier(wrk(1:npix,4*j-2-qoffset),  & 
-                        !  wrk(1:npix,4*j-1-qoffset),wrk(1:npix,4*j-qoffset), & 
-                        !  delta3,wrk(1:npix,j),qoffset)
+                	call vqbezier(wrk(1:npix,4*j-2-qoffset),  & 
+                          wrk(1:npix,4*j-1-qoffset),wrk(1:npix,4*j-qoffset), & 
+                          delta3,wrk(1:npix,j),qoffset)
 
 
-			do l=1,npix
-				call qbezier(wrk(l,4*j-2-qoffset), 	&
-				  wrk(l,4*j-1-qoffset),wrk(l,4*j-qoffset),& 
-				  delta3,yp,qoffset)
-				wrk(l,j)=yp
-			enddo
+			!do l=1,npix
+			!	call qbezier(wrk(l,4*j-2-qoffset), 	&
+			!	  wrk(l,4*j-1-qoffset),wrk(l,4*j-qoffset),& 
+			!  delta3,yp,qoffset)
+			!	wrk(l,j)=yp
+			!enddo
 		enddo
 	endif
 enddo

@@ -15,32 +15,30 @@
 ! 	The value xp is not actually needed, but 3 derived quantities in xp3
 !	xp3=( (1-xp)**2, xp**2, 2*xp*(1-xp) )
 !
-!       This routine is very similar to qbezier, but acts on entire arrays
-! 	doing the interpolations at various wavelengths concurrently
 
-	use share, only: dp, npix
+	use share, only: dp,npix
 	implicit none
 	
-	integer	::	offset
-	real(dp)	::	y1(npix),y2(npix),y3(npix),xp3(3),yp(npix)
-        real(dp)	::      c0(npix),yprime(npix)
+	integer	::	 i,offset
+	real(dp)::	 y1(npix),y2(npix),y3(npix),xp3(3),yp(npix),c0,yprime
 
-	yprime(1:npix)=0.5_dp*(y3(1:npix)-y1(1:npix))
-	c0(1:npix)=y2(1:npix)+0.5_dp*yprime(1:npix)
 	
 	if (offset == 0) then
 
-		!yp=y2*(1.0_dp-xp)**2+y3*xp**2+c0*2.d0*xp*(1.0_dp-xp)
-		yp(1:npix)=y2(1:npix)*xp3(1) + y3(1:npix)*xp3(2) + &
-                  c0(1:npix)*xp3(3)
+                do concurrent (i=1:npix)
+		  yprime=0.5_dp*(y3(i)-y1(i))
+		  c0=y2(i)+0.5_dp*yprime
+		  yp(i)=y2(i)*xp3(1) + y3(i)*xp3(2) + c0*xp3(3)
+                enddo
 
 	else
-		
-		!yp=y1*(1.0_dp-xp)**2+y2*xp**2+c0*2.d0*xp*(1.0_dp-xp)
-		yp(1:npix)=y1(1:npix)*xp3(1) + y2(1:npix)*xp3(2) + &
-                  c0(1:npix)*xp3(3)
+
+                do concurrent (i=1:npix)
+		  yprime=0.5_dp*(y3(i)-y1(i))
+		  c0=y2(i)-0.5_dp*yprime
+		  yp(i)=y1(i)*xp3(1) + y2(i)*xp3(2) + c0*xp3(3)
+	        enddo	
 
 	endif
 		
 	end subroutine vqbezier
-
