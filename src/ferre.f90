@@ -1185,7 +1185,10 @@ if (f_access == 1) close(10)
 
 
 !sort output files when nthreads>1
-if (nthreads > 1) call fsort()
+if (nthreads > 1) then
+  if (allocated(f)) deallocate(f)
+  call msort()
+endif
 
 
 end do !loop over multiple control (input nml) files
