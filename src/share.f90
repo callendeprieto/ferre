@@ -100,7 +100,7 @@ character(len=flen) 	:: opfile=''	!file with output pars
 character(len=flen) 	:: offile=''	!file with output fluxes
 character(len=flen)	:: sffile=''	!smoothed/normalized output fluxes
 character(len=flen)	:: lsffile=''	!file with input lsf
-character(len=flen)    :: scratch=''   !scratch folder to place _sorted temporary files
+character(len=flen)    :: scratch=''   !scratch folder to place _sorted temporary files (only used with fsort, not msort, so obsolete)
 integer         	:: f_format = 0     !format for synth files
 						!0=ascii, 1=unformatted
 integer         	:: f_access = 0     !access style for synth files
