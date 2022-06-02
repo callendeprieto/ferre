@@ -23,9 +23,9 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT= -O2 
 
 #F90 = ifort
-#F90 = ifx
+F90 = ifx
 #OPT = -O3 -xHost -qopenmp -ipo 
-#OPT = -O0 -g -traceback
+OPT = -O0 -g -traceback
 
 #F90 = xlf95_r
 #OPT = -O3 -qstrict -qtune=ppc970 -qarch=ppc970 -qcache=auto -qsmp=omp
