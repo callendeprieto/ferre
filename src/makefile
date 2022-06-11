@@ -23,6 +23,7 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #OPT= -O2 
 
 #F90 = ifx
+#F90 = /opt/intel/oneapi/compiler/2022.0.2/linux/bin/ifx
 #F90 = ifort
 #OPT = -O3 -xHost -qopenmp -ipo 
 #OPT = -O0 -g -traceback
@@ -34,7 +35,7 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #F90 = gfortran
 #OPT = -march=armv6 -mfpu=vfp -mfloat-abi=hard
 
-
+#F90 = nvfortran
 #F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/2021/compilers/bin/nvfortran
 #OPT = -fast -mp 
 
