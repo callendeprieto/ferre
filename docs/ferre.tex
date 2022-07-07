@@ -11,6 +11,15 @@
  bottom=20mm,
  }
 
+\newcommand{\aj}{AJ}
+\newcommand{\apj}{ApJ}
+\newcommand{\apjs}{ApJS}
+\newcommand{\apjl}{ApJ}
+\newcommand{\mnras}{MNRAS}
+\newcommand{\aap}{A\&A}
+\newcommand{\procspie}{Proc. of the SPIE}
+
+
 
 \begin{document}
 
@@ -89,7 +98,8 @@ the Intel compiler (ifort), the  Sun Studio Compiler, the PGI compiler,
 the IBM compiler (xlf90), and a few other.
 
 The code can be obtained from \\
-{\tt https://github.com/callendeprieto/ferre} \\
+{\tt https://github.com/callendeprieto/ferre} \\ 
+
 You should end up with four
 folders: src (the 'code'), test (test data), bin (empty folder for the executables), 
 and doc (this manual). Change directories to src and invoke
@@ -770,12 +780,17 @@ be set to 0 for the code to use all the available cores in a processor.
 
 \section{Acknowledgements}
 
-The development of FERRE has benefited from numerous discussions and suggestions
+Users of FERRE are kindly asked to cite the first paper in which the code was used
+
+{\bf Allende Prieto, C., Beers, T.~C., Wilhelm, R., et al.\ 2006, ApJ, 636, 804.}
+
+
+\noindent The development of FERRE has benefited from numerous discussions and suggestions
 from colleagues, including 
 Lars Koesterke (Texas Advanced Computing Center), Jo Bovy (University of Toronto), and
 Jon Holtzman (New Mexico State University).
 
-While the bulk of FERRE has been written from scratch, it benefits from a number of FORTRAN
+\noindent While the bulk of FERRE has been written from scratch, it benefits from a number of FORTRAN
 modules publicly available from other authors:
 
 \begin{itemize}
@@ -787,7 +802,7 @@ Original code by D. E. Shaw (CSIRO), amended by R. W. M. Wedderburn
 \item {\it booklib.f90}: general utilities module by S. J. Chapman, distributed with the book 
 Fortran 90/95 for Scientists and Engineers by the same author\footnote{http://www.mhhe.com/engcs/general/chapman/}.
 
-\item {\it random.f90}: random number code by A. Miller.
+\item {\it random.f90}: random number generation code by A. Miller.
 
 \item {\it btr.f90}: Boender-Timmer-Rinnoy Kan algorithm orinally from T. Csendes (University of Szeged).
 Translated to FORTRAN90 by A. Miller.
@@ -803,14 +818,119 @@ Converted to FORTRAN90 by A. Miller.
 \item {\it median.f90}: Median calculation code by A. Miller.
 \end{itemize}
 
-\section{Literature using FERRE}
+\section{Literature using FERRE or FERRE results}
 \label{literature}
 
 The following list is not complete. The main applications of the code so far 
 have been the Century survey galactic halo project, SEGUE, the ELM survey, 
-APOGEE, and the Gaia-ESO survey.
+APOGEE, and the Gaia-ESO survey. Now it is being used in DESI and WEAVE.
 
 \begin{enumerate}
+
+\item Rockosi, C.~M., Lee, Y.~S., Morrison, H.~L., et al.\ 2022, \apjs, 259, 60. %doi:10.3847/1538-4365/ac5323
+
+\item Abdurro'uf, Accetta, K., Aerts, C., et al.\ 2022, \apjs, 259, 35. %doi:10.3847/1538-4365/ac4414
+
+\item Phillips, S.~G., Schiavon, R.~P., Mackereth, J.~T., et al.\ 2022, \mnras, 510, 3727. %doi:10.1093/mnras/stab3532
+
+\item Garc{\'\i}a P{\'e}rez, A.~E., S{\'a}nchez-Bl{\'a}zquez, P., Vazdekis, A., et al.\ 2021, \mnras, 505, 4496. %doi:10.1093/mnras/stab076
+
+\item Horta, D., Mackereth, J.~T., Schiavon, R.~P., et al.\ 2021, \mnras, 500, 5462. %doi:10.1093/mnras/staa3598
+
+\item Horta, D., Schiavon, R.~P., Mackereth, J.~T., et al.\ 2021, \mnras, 500, 1385. %doi:10.1093/mnras/staa2987
+
+\item Aguado, D.~S., Myeong, G.~C., Belokurov, V., et al.\ 2021, \mnras, 500, 889. %doi:10.1093/mnras/staa3250
+
+\item Dalton, G., Trager, S., Abrams, D.~C., et al.\ 2020, \procspie, 11447, 1144714. %doi:10.1117/12.2561067
+
+\item J{\"o}nsson, H., Holtzman, J.~A., Allende Prieto, C., et al.\ 2020, \aj, 160, 120. %doi:10.3847/1538-3881/aba592
+
+\item Price-Jones, N., Bovy, J., Webb, J.~J., et al.\ 2020, \mnras, 496, 5101. %doi:10.1093/mnras/staa1905
+
+\item Arentsen, A., Starkenburg, E., Martin, N.~F., et al.\ 2020, \mnras, 496, 4964. %doi:10.1093/mnras/staa1661
+
+\item Nidever, D.~L., Hasselquist, S., Hayes, C.~R., et al.\ 2020, \apj, 895, 88. %doi:10.3847/1538-4357/ab7305
+
+\item Donor, J., Frinchaboy, P.~M., Cunha, K., et al.\ 2020, \aj, 159, 199. %doi:10.3847/1538-3881/ab77bc
+
+\item Hayes, C.~R., Majewski, S.~R., Hasselquist, S., et al.\ 2020, \apj, 889, 63. %doi:10.3847/1538-4357/ab62ad
+
+\item Aguado, D.~S., Youakim, K., Gonz{\'a}lez Hern{\'a}ndez, J.~I., et al.\ 2019, \mnras, 490, 2241. %doi:10.1093/mnras/stz2643
+
+
+\item Garcia-Dias, R., Allende Prieto, C., S{\'a}nchez Almeida, J., et al.\ 2019, \aap, 629, A34. %doi:10.1051/0004-6361/201935223
+
+\item Aguado, D.~S., Gonz{\'a}lez Hern{\'a}ndez, J.~I., Allende Prieto, C., et al.\ 2019, \apjl, 874, L21. %doi:10.3847/2041-8213/ab1076
+
+\item Weinberg, D.~H., Holtzman, J.~A., Hasselquist, S., et al.\ 2019, \apj, 874, 102. %doi:10.3847/1538-4357/ab07c7
+
+\item Souto, D., Allende Prieto, C., Cunha, K., et al.\ 2019, \apj, 874, 97. %doi:10.3847/1538-4357/ab0b43
+
+\item Hasselquist, S., Carlin, J.~L., Holtzman, J.~A., et al.\ 2019, \apj, 872, 58. %doi:10.3847/1538-4357/aafdac
+
+\item Mackereth, J.~T., Schiavon, R.~P., Pfeffer, J., et al.\ 2019, \mnras, 482, 3426. %doi:10.1093/mnras/sty2955
+
+\item Starkenburg, E., Aguado, D.~S., Bonifacio, P., et al.\ 2018, \mnras, 481, 3838. %doi:10.1093/mnras/sty2276
+
+\item Anguiano, B., Majewski, S.~R., Allende Prieto, C., et al.\ 2018, \aap, 620, A76. %doi:10.1051/0004-6361/201833387
+
+\item Fu, S.~W., Simon, J.~D., Shetrone, M., et al.\ 2018, \apj, 866, 42. %doi:10.3847/1538-4357/aad9f9
+
+\item J{\"o}nsson, H., Allende Prieto, C., Holtzman, J.~A., et al.\ 2018, \aj, 156, 126. %doi:10.3847/1538-3881/aad4f5
+
+\item Holtzman, J.~A., Hasselquist, S., Shetrone, M., et al.\ 2018, \aj, 156, 125. %doi:10.3847/1538-3881/aad4f9
+
+\item Dalton, G., Trager, S., Abrams, D.~C., et al.\ 2018, \procspie, 10702, 107021B. %doi:10.1117/12.2312031
+
+\item Palicio, P.~A., Martinez-Valpuesta, I., Allende Prieto, C., et al.\ 2018, \mnras, 478, 1231. 
+
+\item Garcia-Dias, R., Allende Prieto, C., S{\'a}nchez Almeida, J., et al.\ 2018, \aap, 612, A98. 
+
+\item Abolfathi, B., Aguado, D.~S., Aguilar, G., et al.\ 2018, \apjs, 235, 42. 
+
+\item Souto, D., Cunha, K., Smith, V.~V., et al.\ 2018, \apj, 857, 14. 
+
+\item L{\'o}pez-Corredoira, M., Allende Prieto, C., Garz{\'o}n, F., et al.\ 2018, \aap, 612, L8. 
+
+\item Aguado, D.~S., Allende Prieto, C., Gonz{\'a}lez Hern{\'a}ndez, J.~I., et al.\ 2018, \apjl, 854, L34. 
+
+\item Badenes, C., Mazzola, C., Thompson, T.~A., et al.\ 2018, \apj, 854, 147. 
+
+\item Wilson, R.~F., Teske, J., Majewski, S.~R., et al.\ 2018, \aj, 155, 68. 
+
+\item Aguado, D.~S., Gonz{\'a}lez Hern{\'a}ndez, J.~I., Allende Prieto, C., et al.\ 2018, \apjl, 852, L20. 
+
+\item Garc{\'\i}a P{\'e}rez, A.~E., Ness, M., Robin, A.~C., et al.\ 2018, \apj, 852, 91. 
+
+\item Fern{\'a}ndez-Alvar, E., Carigi, L., Schuster, W.~J., et al.\ 2018, \apj, 852, 50. 
+
+\item Hayes, C.~R., Majewski, S.~R., Shetrone, M., et al.\ 2018, \apj, 852, 49. 
+
+
+\item Youakim, K., Starkenburg, E., Aguado, D.~S., et al.\ 2017, \mnras, 472, 2963. 
+
+\item Fern{\'a}ndez-Trincado, J.~G., Zamora, O., Garc{\'\i}a-Hern{\'a}ndez, D.~A., et al.\ 2017, \apjl, 846, L2. 
+
+\item Majewski, S.~R., Schiavon, R.~P., Frinchaboy, P.~M., et al.\ 2017, \aj, 154, 94.
+
+\item Aguado, D.~S., Gonz{\'a}lez Hern{\'a}ndez, J.~I., Allende Prieto, C., et al.\ 2017, \aap, 605, A40. 
+
+\item Hasselquist, S., Shetrone, M., Smith, V., et al.\ 2017, \apj, 845, 162. 
+
+\item Blanton, M.~R., Bershady, M.~A., Abolfathi, B., et al.\ 2017, \aj, 154, 28. 
+
+\item Aguado, D.~S., Allende Prieto, C., Gonz{\'a}lez Hern{\'a}ndez, J.~I., et al.\ 2017, \aap, 604, A9. 
+
+\item Linden, S.~T., Pryal, M., Hayes, C.~R., et al.\ 2017, \apj, 842, 49. 
+
+
+\item Recio-Blanco, A., Rojas-Arriagada, A., de Laverny, P., et al.\ 2017, \aap, 602, L14. 
+
+\item Tayar, J., Somers, G., Pinsonneault, M.~H., et al.\ 2017, \apj, 840, 17. 
+
+\item Schiavon, R.~P., Johnson, J.~A., Frinchaboy, P.~M., et al.\ 2017, \mnras, 466, 1010.
+
+\item Schultheis, M., Rojas-Arriagada, A., Garc{\'\i}a P{\'e}rez, A.~E., et al.\ 2017, A\&A, 600, A14. 
 
 \item Fern{\'a}ndez-Alvar, E., Carigi, L., Allende Prieto, C., et al.\ 2017, MNRAS, 465, 1586 
 
