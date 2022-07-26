@@ -584,7 +584,7 @@ do j=1,nobj
 	if (covprop == 1) then 
 		read(2,*,iostat=ierr) fname,pf,spf,cphot,medsnr,lchi,ocov
 	else
-		read(2,*,iostat=ierr) fname,pf
+		read(2,*,iostat=ierr) fname,pf,spf,cphot,medsnr,lchi
 	endif
 
         if (trkout /= 0)  then 
