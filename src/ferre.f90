@@ -1186,7 +1186,6 @@ if (f_access == 1) close(10)
 
 !sort output files when nthreads>1
 if (nthreads > 1) then
-  if (allocated(f)) deallocate(f)
   write(*,*)'sorting output ...'
   if (scratch == '') then
     call msort() !sorting files in memory
