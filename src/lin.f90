@@ -59,13 +59,13 @@ endif
 do i=1,ndim
 	delta=t(indi(i))-int(t(indi(i)))
 	do j=1,2**(ndim-i)
-		wrk(1:npix,j)=wrk(1:npix,2*j-1) + (wrk(1:npix,2*j)-wrk(1:npix,2*j-1))* & 
-        	!do concurrent (k=1:npix)
-		!  wrk(k,j)=wrk(k,2*j-1) + (wrk(k,2*j)-wrk(k,2*j-1))* & 
+		!wrk(1:npix,j)=wrk(1:npix,2*j-1) + (wrk(1:npix,2*j)-wrk(1:npix,2*j-1))* & 
+        	do concurrent (k=1:npix)
+		  wrk(k,j)=wrk(k,2*j-1) + (wrk(k,2*j)-wrk(k,2*j-1))* & 
 		  !(t(ndim-i+1)-int(t(ndim-i+1)))   !original
 		  !(t(indi(i))-int(t(indi(i))))     !allow new interp. order 
 		  delta				  !faster
-               !enddo
+                enddo
 	enddo
 enddo
 flux(1:npix)=wrk(1:npix,1)

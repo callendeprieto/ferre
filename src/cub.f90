@@ -82,7 +82,7 @@ do i=1,ndim
 		delta4(4)=3._dp*delta**2*omdelta
 		do j=1,4**(ndim-i)
 
-		       call vcbezier(wrk(1:npix,4*j-3),wrk(1:npix,4*j-2), &
+		        call vcbezier(wrk(1:npix,4*j-3),wrk(1:npix,4*j-2), &
 				wrk(1:npix,4*j-1),wrk(1:npix,4*j),delta4,  &
                        		wrk(1:npix,j))
 

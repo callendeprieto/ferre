@@ -75,14 +75,14 @@ do i=1,ndim
 	delta3(2)=delta**2
 	delta3(3)=2._dp*delta*omdelta	
 	do j=1,3**(ndim-i)
-		!call vqbezier(wrk(1:npix,3*j-2),wrk(1:npix,3*j-1),wrk(1:npix,3*j),& 
-		!	delta3,wrk(1:npix,j),offset(ndim-i+1))
+		call vqbezier(wrk(1:npix,3*j-2),wrk(1:npix,3*j-1),wrk(1:npix,3*j),& 
+			delta3,wrk(1:npix,j),offset(ndim-i+1))
 
-		do l=1,npix
-			call qbezier(wrk(l,3*j-2),wrk(l,3*j-1),wrk(l,3*j),& 
-				delta3,yp,offset(ndim-i+1))
-			wrk(l,j)=yp
-		enddo
+		!do l=1,npix
+		!	call qbezier(wrk(l,3*j-2),wrk(l,3*j-1),wrk(l,3*j),& 
+		!		delta3,yp,offset(ndim-i+1))
+		!	wrk(l,j)=yp
+		!enddo
 	enddo
 enddo
 flux(1:npix)=wrk(1:npix,1)
