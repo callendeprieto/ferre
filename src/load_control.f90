@@ -10,7 +10,7 @@ use share
 implicit none
 
 !locals
-integer :: i
+integer :: i, j
 character(*) :: filename
 		
 namelist / lista / ndim,nov,indv
@@ -72,6 +72,25 @@ if (maxval(indv(1:nov)) > ndim .or. minval(indv(1:nov)) < 1) then
 	write(*,*) 'max(indv) = ',maxval(indv),' is > ndim =',ndim,' or'
 	write(*,*) 'min(indv) = ',minval(indv),' is < 1'
 	stop
+endif
+!checks on ties
+if (ntie > 0) then
+  !ntie+nov=ndim
+  if (ntie + nov /= ndim) then 
+	write(*,*) 'load_control: ERROR'
+	write(*,*) 'ntie (',ntie,') + nov (',nov,') should be equal to ndim (',ndim,')'
+	stop
+  endif
+  !indtie does not overlap with indv
+  do i=1,ntie
+    do j=1,nov
+      if (indtie(i) == indv(j)) then 
+	    write(*,*) 'load_control: ERROR'
+	    write(*,*) 'indtie and indv cannot have indices in common'
+	    stop      
+      endif
+    enddo
+  enddo
 endif
 !1>f_format>0
 if (f_format > 1 .or. f_format < 0) then

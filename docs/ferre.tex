@@ -778,6 +778,46 @@ for low values of $n$, and in general it is not useful to push $n$ beyond a few,
 and keeping always $n$ smaller than the number of available cores. NTHREADS can
 be set to 0 for the code to use all the available cores in a processor.
 
+\subsection{Ties}
+
+In some cases it is desirable to have one (or more) parameter of the models 
+changing as a function of other parameters rather than held constant or 
+freely changing. For example, 
+if we are analyzing spectra of stars in the red giant branch of a cluster with solar
+metallicity, and expect the surface gravity to be strongly correlated with effective
+temperature, we may choose to tie $\log g$ (the 3$^{\rm rd}$ parameter in our example 
+in Section \ref{test}) to $T_{\rm eff}$ (the 2$^{\rm nd}$ parameter in our example) 
+as follows
+
+\begin{equation}
+\log g = 0.0018 T_{\rm eff} -5.9.
+\label{redgiant}
+\end{equation}
+
+This and any other linear tie can be implemented using the parameter NTIE 
+(number of parameters tied) and the array INDTIE (indices of the parameters tied), 
+together with the arrays TTIE0 and TTIE to specify the coefficients for the linear ties.
+Thus, in general the values of a tied parameter P(INDTIE(i)) will be computed from other 
+parameters P(j)
+
+
+P(INDTIE(i)) = TTIE0(i) + $\sum_{\rm j=1,NDIM}$ TTIE(i,j) P(j).
+
+
+In the example above, Eq. \ref{redgiant} would be implemented adding the following 
+options to the control file
+
+\noindent
+ NOV = 2 \\
+ INDV= 1 2 \\
+ NTIE = 1 \\
+ INDTIE = 3 \\
+ TTIE0(1) = -5.9 \\
+ TTIE(1,2) = 0.0018. \\
+ 
+The flag TYPETIE, set by default to 0, can be changed to 1 in order not to
+tie variables themselves but the changes in their values.
+ 
 \section{Acknowledgements}
 
 Users of FERRE are kindly asked to cite the first paper in which the code was used

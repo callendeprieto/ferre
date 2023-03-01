@@ -70,7 +70,7 @@ type(headsynth)	        :: hs(maxsynth)
 integer			:: ndim	!dim of grid
 integer		  	:: nov	!# of variable parameters (0 for pure interpolation)
 integer		  	:: indv(maxndim)  !indices of the var pars.
-integer			:: ntie = 1 !# of tied parameters 
+integer			:: ntie = 0 !# of tied parameters 
 integer			:: indtie(maxndim)!indices of the tied pars.
 integer			:: typetie = 0    !0 linear ties with pars.
 					  !1 linear ties with param. deltas
