@@ -25,8 +25,8 @@ OPT = -O2 -fopenmp -ftree-vectorize
 #F90 = ifx
 #F90 = /opt/intel/oneapi/compiler/2022.0.2/linux/bin/ifx
 #F90 = ifort
-#OPT = -O3 -xHost -qopenmp -ipo 
-#OPT = -O0 -g -traceback
+#OPT = -O2 -xHost -qopenmp -ipo
+#OPT = -O0 -g -traceback 
 
 #F90 = xlf95_r
 #OPT = -O3 -qstrict -qtune=ppc970 -qarch=ppc970 -qcache=auto -qsmp=omp
@@ -37,7 +37,7 @@ OPT = -O2 -fopenmp -ftree-vectorize
 
 #F90 = nvfortran
 #F90 = /opt/nvidia/hpc_sdk/Linux_x86_64/2021/compilers/bin/nvfortran
-#OPT = -fast -mp=multicore  -Minfo-mp,accel
+#OPT = -O2 -mp=multicore  -Minfo=mp,accel
 #OPT = -O3 -stdpar=gpu -Minfo=mp,accel
 
 OS1 = ${shell perl -e 'my $$osVersion = `uname `; chomp($$osVersion); print "$$osVersion"'}
