@@ -14,7 +14,7 @@ integer :: i, j
 character(*) :: filename
 		
 namelist / lista / ndim,nov,indv
-namelist / lista / ntie,indtie,typetie,ttie0,ttie
+namelist / lista / ntie,indtie,typetie,ttie0,ttie,ttie2,ttie
 namelist / lista / indini,nobj,nlambda,synthfile,fixfile,filterfile
 namelist / lista / pfile,ffile,erfile,wfile
 namelist / lista / opfile,offile,sffile,lsffile

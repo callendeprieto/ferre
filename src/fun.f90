@@ -1,8 +1,8 @@
 MODULE fun
 
-use share, only: dp,ndim,nov,indv,                    &
-                 ntie,indtie,typetie,ttie0,ttie,      &
-                 nlambda1,mlsf,nlsf,                  &
+use share, only: dp,ndim,nov,indv,                           &
+                 ntie,indtie,typetie,ttie0,ttie,ttie2,      &
+                 nlambda1,mlsf,nlsf,                         &
                  trkout
 
 implicit none
@@ -47,12 +47,16 @@ if (indtie(1) > 0) then
 	call physical(pphys)
 	if (typetie == 0) then
 	  do i=1,ntie
-		pphys(indtie(i))=ttie0(i)+sum(ttie(i,1:ndim)*pphys(1:ndim))
+		pphys(indtie(i))=ttie0(i)                       + & 
+		  sum(ttie(i,1:ndim)*pphys(1:ndim))            + &
+		  sum(ttie2(i,1:ndim)*pphys(1:ndim)**2)
 	  enddo
 	else
 	  pphys(1:ndim)=pphys(1:ndim)-pf0(1:ndim)
           do i=1,ntie
-                pphys(indtie(i))=ttie0(i)+sum(ttie(i,1:ndim)*pphys(1:ndim))
+                pphys(indtie(i))=ttie0(i)               + & 
+                  sum(ttie(i,1:ndim)*pphys(1:ndim))    + &
+                  sum(ttie2(i,1:ndim)*pphys(1:ndim)**2)
           enddo
  52       pphys(1:ndim)=pphys(1:ndim)+pf0(1:ndim)
 	endif

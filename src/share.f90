@@ -75,8 +75,9 @@ integer			:: indtie(maxndim)!indices of the tied pars.
 integer			:: typetie = 0    !0 linear ties with pars.
 					  !1 linear ties with param. deltas
 real(dp)                :: ttie0(maxndim)
-real(dp)                :: ttie(maxndim,maxndim) !arrays with coeff. for ties
-			 ! p(indtie(j))= ttie0(j)+sum(ttie(j,1:ndim)*p(1:ndim))
+real(dp)                :: ttie(maxndim,maxndim) !arrays with coeff. for linear ties
+real(dp)                :: ttie2(maxndim,maxndim) !arrays with coeff. for quadratic ties
+			 ! p(indtie(j))= ttie0(j)+sum(ttie(j,1:ndim)*p(1:ndim))+sum(ttie2(j,1:ndim)*p(1:ndim)**2)
 			 ! j=1,ntie
 integer			:: indini(maxndim)!init type for var pars.
                          !<0 start at value in pfile 

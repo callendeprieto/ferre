@@ -125,10 +125,12 @@ write(*,'(1x,a12,i2,a1,i2,a1,i4,2x,a4,2x,i2,a1,i2,a1,f5.2)')'starting on ', &
 write(*,*)'-----------------------------------------------------------------'
 
 
-!zero ttie0 and ttie
+!zero ttie0, ttie and ttie2
 indtie(1:maxndim)=0
 ttie0(1:maxndim)=0._dp
 ttie(1:maxndim,1:maxndim)=0._dp
+ttie2(1:maxndim,1:maxndim)=0._dp
+
 
 write(*,*) trim(inputnames(ifile)),len(trim(inputnames(ifile)))
 call load_control(trim(inputnames(ifile)))				!read control file
@@ -432,7 +434,7 @@ write(*,*)'about to enter parallel region!'
 !$omp		 rango,minusculo,                   	            	&
 !$omp	         nsynth,hs,					    	&
 !$omp            ndim,nov,indv,indini,                                  &
-!$omp            ntie,indtie,typetie,ttie0,ttie,                        &
+!$omp            ntie,indtie,typetie,ttie0,ttie,ttie2,                 &
 !$omp            nlambda,nobj,                 	                        &
 !$omp		 synthfile,fixfile,filterfile,pfile,ffile,erfile,   	&
 !$omp		 opfile,offile,sffile,lsffile,wfile,       	    	&

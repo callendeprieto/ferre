@@ -794,14 +794,17 @@ as follows
 \label{redgiant}
 \end{equation}
 
-This and any other linear tie can be implemented using the parameter NTIE 
+This and any other linear or quadratic tie can be implemented using the parameter NTIE 
 (number of parameters tied) and the array INDTIE (indices of the parameters tied), 
-together with the arrays TTIE0 and TTIE to specify the coefficients for the linear ties.
-Thus, in general the values of a tied parameter P(INDTIE(i)) will be computed from other 
+together with the arrays TTIE0, TTIE and TTIE2 to specify the coefficients for the ties.
+In general the values of a tied parameter P(INDTIE(i)) will be computed from other 
 parameters P(j)
 
 
-P(INDTIE(i)) = TTIE0(i) + $\sum_{\rm j=1,NDIM}$ TTIE(i,j) P(j).
+\begin{equation}
+{\rm P(INDTIE(i))} = {\rm TTIE0(i)} + \sum_{\rm j=1,NDIM} {\rm TTIE(i,j) P(j)} + 
+\sum_{\rm j=1,NDIM} {\rm TTIE2(i,j)} {\rm P}^2{\rm (j)}.
+\end{equation}
 
 
 In the example above, Eq. \ref{redgiant} would be implemented adding the following 
