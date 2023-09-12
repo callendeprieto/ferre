@@ -25,6 +25,7 @@ real(dp), allocatable	   :: sfit(:)		! vector of fit model fluxes
 integer(longenough)        :: j				!counter
 integer                    :: i,k,l			!+counters
 integer                    :: istat			!allocate status var
+integer                    :: npixbad       !pixels with values out of range
 integer                    :: tid,nthreads_env		   !omp
 logical                    :: samesynth                 !tracks if the synthfiles change
 !$ integer                 :: omp_get_thread_num, omp_get_num_threads  !omp
@@ -414,6 +415,7 @@ write(*,*)'about to enter parallel region!'
 !$omp   private(pf,pf0,spf,pt,obs,mobs,e_obs,w,fit,sfit,                &
 !$omp		 j,i,k,l,    						&
 !$omp   	 istat,                               		        & 
+!$omp        npixbad,                                           &
 !$omp	         tid,nthreads_env,					&
 !$omp		 ii,ii1,ii2,jj,kk,offset,stlen,                       	&
 !$omp            ulimit,ulimit2,cphot,ierr,opterr,	                &
@@ -757,8 +759,17 @@ do j=1,nobj
 	endif	! 2nd nov if
 
 	!$omp end critical
+	
+ 	!check data are not too large for the adopted floating-point precision
+ 	npixbad = count (obs > huge(1._dp))
+ 	if (npixbad > 0) then
+ 	  status=-1
+ 	  write(*,*)'ERROR: input data for target ',fname
+ 	  write(*,*)'contains numbers that are too large for the adopted floating-point precision'
+ 	  write(*,*)' -- check the definition of dp in share.f90'
+    endif
 
-        !write(*,*) 'status,tid,pf=',status,tid,pf
+    !write(*,*) 'status,tid,pf=',status,tid,pf
 	!check status
 	if (status == 0) then  !check1 status	
 	  if (nov > 0) then    !3rd nov if
@@ -820,7 +831,7 @@ do j=1,nobj
 	  	else
 			status=-1		
 	  	endif	
-
+	  	
 	  	
 	    !continuum normalization
 	    if (abs(cont) > 0 .and. obscont /= 0) then 
@@ -872,7 +883,7 @@ do j=1,nobj
 			    w=w/e_obs**2/chiscale
 			else
 			    status=-3
-                            write(*,*)'This object appears to have all data equal to zero. It will be skipped.'
+                write(*,*)'This object appears to have all data equal to zero. It will be skipped.'
 			endif
 		
 			!write(*,*)'weights=',w(1:14)
