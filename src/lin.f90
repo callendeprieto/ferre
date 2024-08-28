@@ -38,7 +38,6 @@ enddo
 !load wrk
 if (f_access == 0) then
   do i=1,2**ndim	
-        write(*,*)'i,imap(i),findex(imap(i))=',i,imap(i),findex(imap(i))
 	wrk(1:npix,i)=f(1:npix,findex(imap(i)))		
   enddo
 else
