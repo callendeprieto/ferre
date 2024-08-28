@@ -64,8 +64,8 @@ character(len=80)          :: iqheader(6)	!iq-style header holder
 character(len=80)          :: iqh 		 	!singe-line header holder
 character(len=48)          :: iqmargin		!margin preceding flux data
 character(len=2000000)     :: dummyline     !string to hold the first line of wfile
-integer		           :: status			!object status
 character(len=flen)        :: inputnames(maxinputnml), inputfile
+integer                    :: status                    !object status
 !=0 ok
 !<0 issue with a particular object, skip object and go on
 !-1: frd,  -2: ipf,   -3: err,   -10: j< only_object(1)
@@ -1062,7 +1062,9 @@ do j=1,nobj
 		endif
 
         !getting and writing model fluxes
-        call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr1,fit)
+        if (status >= 0) then
+          call flx(pf,lambda_obs,obs,e_obs,mobs,lsfarr1,fit)
+        endif 
 
 
 	if (fprint > 0) write(*,*)'starting critical section for writing output object/tid=',j,tid

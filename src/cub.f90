@@ -33,7 +33,7 @@ integer			:: findex(4**ndim)!indices of rows in f needed for
 					  !the interpolation
 
 
-!write(*,*)'in cub'
+write(*,*)'in cub'
 
 	
 !	get t's from p's. The p's run between 0-1, while t's run 
@@ -51,10 +51,19 @@ do i=1,4**ndim
    findex(i)=dot_product(ntimes,int(t(1:ndim))+ee(1:ndim,i)-2+offset(1:ndim))+1		
 enddo
 
+write(*,*)'ntimes=',ntimes
+write(*,*)'p(1:ndim)=',p(1:ndim)
+write(*,*)'t(1:ndim)=',t(1:ndim)
+write(*,*)'int(t(1:ndim))=',int(t(1:ndim))
+!write(*,*)'ee(1:ndim,:)=',ee(1:ndim,:)
+!write(*,*)'findex=',findex
+
+write(*,*)'loading data in work...'
+
 !load wrk
 if (f_access == 0) then
   do i=1,4**ndim	
-	wrk(1:npix,i)=f(1:npix,findex(imap(i)))		
+	wrk(1:npix,i)=f(1:npix,findex(imap(i)))	
   enddo
 else
   !$omp critical
@@ -70,6 +79,7 @@ else
   !$omp end critical
 endif
 
+write(*,*)'interpolating ...'
 
 !interpolate
 do i=1,ndim
@@ -119,7 +129,7 @@ do i=1,ndim
 enddo
 flux(1:npix)=wrk(1:npix,1)
 
-!write(*,*)'exiting cub'
+write(*,*)'exiting cub'
 
 		
 end subroutine cub
