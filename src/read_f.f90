@@ -15,7 +15,7 @@ use share, only: dp,maxndim,maxsynth,flen,    &
 		 constant,pcaproject,pcachi,        &
 		 npca,meanspca,vpca,wpca,ff,        &
 		 nelnpca,totalnpca,nvar,            &
-		 n_p,ntot,ntimes,                   &
+		 n_p,ntot, ntimes,                  &
 		 npix,llimits,steps, 	            & 
 		 nphotpix,photpixels,		    &
 		 nsynth,hs,			    &
@@ -24,7 +24,8 @@ use share, only: dp,maxndim,maxsynth,flen,    &
 		 f_format,f_access,nov,cont,        &
 		 f,scalef,scaled,badflux,fmtformat, &
 		 winter,nfilter,lsf,npca,pcaproject,&
-		 transposed,file_data19,file_data20
+		 transposed,type,                   &
+                 file_data19,file_data20
 
 		 
 implicit none
@@ -43,24 +44,25 @@ integer			::  modo=-1000 ! synspec imode used
 integer, allocatable	::  photpixels2(:)	!temp list of pixels with photometry
 integer				::  multi = 0
 integer				::  npcasynth = 0 !tracks the number of npca synth modules
-character(len=flen)     ::      synthfile_internal = 'Unknown'
-character(len=flen)     ::      id = 'Unknown'
-character(len=flen)     ::      date = 'Unknown' 
-character(len=flen)     ::      synthfile_binary
-character(len=30)	::	synspec	! synspec version used
-character(len=45)	::	label(maxndim),label1(maxndim)
-real(dp)			:: 	llimits1(maxndim),steps1(maxndim) !phys. pars synth1
-character(len=80)	::	comments1,comments2,comments3,comments4
-character(len=80)	::	comments5,comments6,comments7,comments8,comments9,comments10
-character(len=80)       ::      comments11,comments12,comments13,comments14 
-character(len=80)       ::      speclib_vers
-real(dp)			:: 	wave(2)= (/0,0/)
+integer                 ::  ntot1 ! ntot from the grid header
+character(len=flen)     ::  synthfile_internal = 'Unknown'
+character(len=flen)     ::  id = 'Unknown'
+character(len=flen)     ::  date = 'Unknown' 
+character(len=flen)     ::  synthfile_binary
+character(len=30)	::  synspec	! synspec version used
+character(len=45)	::  label(maxndim),label1(maxndim)
+real(dp)		::  llimits1(maxndim),steps1(maxndim) !phys. pars synth1
+character(len=80)	::  comments1,comments2,comments3,comments4
+character(len=80)	::  comments5,comments6,comments7,comments8,comments9,comments10
+character(len=80)       ::  comments11,comments12,comments13,comments14 
+character(len=80)       ::  speclib_vers
+real(dp)		::  wave(2)= (/0,0/)
 real(dp)       	 	::  resolution,original_sampling,continuum(4),precontinuum(4)
-real(dp)			:: 	invalid_code=0.0_dp ! signals invalid entries
-real(dp)			::  constant_pca=0.0_dp !tracks the value of constant for npca grids
-real(dp)			::	rangef		    !range of values in f
-real(dp)			::	maximo		    !max value of f
-real(dp)			::	minimo		    !min value of f
+real(dp)		::  invalid_code=0.0_dp ! signals invalid entries
+real(dp)		::  constant_pca=0.0_dp !tracks the value of constant for npca grids
+real(dp)		::  rangef		    !range of values in f
+real(dp)		::  maximo		    !max value of f
+real(dp)		::  minimo		    !min value of f
 
 
 namelist / synth / multi,synthfile_internal,id,date,n_of_dim,npca,n_p,npix
@@ -70,7 +72,7 @@ namelist / synth / transposed,file_data19,file_data20
 namelist / synth / comments1,comments2,comments3,comments4,comments5,comments6
 namelist / synth / comments7,comments8,comments9,comments10
 namelist / synth / comments11,comments12,comments13,comments14
-namelist / synth / speclib_vers
+namelist / synth / speclib_vers,type,ntot
 
 
 !reading header
@@ -333,12 +335,18 @@ endif
 
 allocate(ntimes(ndim),stat=istat)
 call checkstat(istat,'ntimes')
+ntot1=ntot
 ntot=n_p(ndim)
 ntimes(ndim)=1
 do j=2,ndim
         ntimes(ndim-j+1)=ntot
         ntot=ntot*n_p(ndim-j+1)
 enddo
+if (ntot /= ntot1 .and. ntot1 > 0) then
+  write(*,*) 'ERROR in read_f'
+  write(*,*) 'ntot in the header grid does not match prod(n_p)'
+  return
+endif
 
 
 if (npca(1) > 0) then !npca files contain means, v and w

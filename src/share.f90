@@ -20,7 +20,7 @@ integer, parameter      :: flen=300 ! chars in strings for paths/files
 real(dp), parameter     :: lambdatol = 1.e-3_dp	!accepted wavelength error 
 real(dp), parameter     :: pi=3.1415926535897932384626433832795_dp
 
-character(len=12)    	:: ver = 'v5.1.1'  !version
+character(len=12)    	:: ver = 'v5.1.2'  !version
 
 
 !params to read or built from synthfile 
@@ -40,6 +40,7 @@ real(dp),allocatable    :: lambda_syn(:) 	!wavelength array for library
 real(dp)		:: scalef=1.0_dp	        !(<f>)
 integer 		:: scaled = 0				!scalef applied to read_f
 integer			:: transposed = 0           !f array is (npix,ntot) for transposed=0
+character(len=9)        :: type = 'regular'     !regular/irregular
 									 !        of (ntot,npix) for transpose=1
 character(len=flen)     :: file_data19 ='' ! name of the atomic .19 linelist
 character(len=flen)     :: file_data20 ='' ! name of the moleculer .20 linelist

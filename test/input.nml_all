@@ -12,4 +12,5 @@
  CONT = 1
  NCONT = 0
  ERRBAR = 1
+ COVPRINT=1
  /
