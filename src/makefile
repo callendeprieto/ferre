@@ -5,10 +5,10 @@
 
 F90 = gfortran 
 #F90 = /gpfs/apps/GCC/4.6.1/bin/gfortran
-OPT = -O2 -fopenmp -ftree-vectorize 
+##OPT = -O2 -fopenmp -ftree-vectorize 
 #OPT= -O2 -fopenmp -pg
 #OPT= -O2 -fopenmp -R /gpfs/apps/GCC/4.6.1/lib 
-#OPT= -O0
+OPT= -O0
 #OPT = -O0 -g 
 
 #F90 = g95

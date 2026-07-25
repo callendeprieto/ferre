@@ -14,7 +14,7 @@ use share, only: dp,maxndim,maxsynth,flen,  &
 		 nsynth,hs,							&
 		 ndim,nov,synthfile,fixfile,    	&
 		 f,scalef,badflux,fmtformat,        &
-		 transposed,file_data19,file_data20
+		 transposed,type,file_data19,file_data20
 		 
 		 
 implicit none
@@ -25,12 +25,13 @@ integer                          ::  istat ! allocate status var
 integer 			 ::  ii,j,i,n_of_dim,recordlength,npix1,npix2
 integer				 ::  n_p1(maxndim)
 integer				 ::  logw=0	!wavelength scale equidistant in log10?
-integer			     ::  vacuum=0 ! wavelength scale in vacuum or std. air
+integer			         ::  vacuum=0 ! wavelength scale in vacuum or std. air
 integer				 ::	modo=-1000 ! synspec imode used
 integer				 :: nelnpca = 0, totalnpca = 0
-integer              :: multi = 0
+integer                          :: multi = 0
+integer                          ::  ntot1 ! ntot from the grid header
 character(len=flen)	 ::	synthfile_internal,id,date,synthfile_binary,synthfile_header
-character(len=3)    :: style !fmt/unf
+character(len=3)         ::     style !fmt/unf
 character(len=30)	 ::	synspec	! synspec version used
 character(len=45)	 ::	label(maxndim),label1(maxndim)
 real(dp)			 :: llimits1(maxndim),steps1(maxndim) !phys. pars synth1
@@ -38,7 +39,7 @@ character(len=80)	 ::	comments1,comments2,comments3,comments4
 character(len=80)	 ::	comments5,comments6,comments7,comments8,comments9,comments10
 character(len=80)       ::      comments11,comments12,comments13,comments14
 character(len=80)       ::      speclib_vers
-character(len=600)   :: line  ! dummy variable to copy header to hdr file
+character(len=600)      :: line  ! dummy variable to copy header to hdr file
 real(dp)		 	 :: wave(2)= (/0,0/)
 real(dp)        	 :: resolution,original_sampling,continuum(4),precontinuum(4)
 real(dp)			 :: invalid_code=0.0_dp ! signals invalid entries
@@ -54,7 +55,8 @@ namelist / synth / transposed,file_data19,file_data20
 namelist / synth / comments1,comments2,comments3,comments4,comments5,comments6
 namelist / synth / comments7,comments8,comments9,comments10
 namelist / synth / comments11,comments12,comments13,comments14
-namelist / synth / speclib_vers
+namelist / synth / speclib_vers, type, ntot
+
 
 write(*,'(A)')'name of the f_ file to transform'
 read(*,'(A)') synthfile(1)
@@ -206,11 +208,16 @@ do ii=0,multi
 	enddo	
 enddo
 npix=npix2
-
+ntot1=ntot
 ntot=n_p(n_of_dim)
 do j=2,n_of_dim
 	ntot=ntot*n_p(n_of_dim-j+1)
 enddo
+if (ntot /= ntot1 .and. ntot1 > 0) then
+  write(*,*) 'ERROR in ascii2bin'
+  write(*,*) 'ntot in the header grid does not match prod(n_p)'
+  return
+endif
 
 if (npca(1) > 0) then !npca files contain means, v and w
 
