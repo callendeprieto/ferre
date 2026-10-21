@@ -42,7 +42,6 @@ set of parameters, their error covariance, and the corresponding model predictio
 
 \tableofcontents
 
-\newpage
 
 \section{Introduction}
 \label{intro}
@@ -77,8 +76,8 @@ Several optimization algorithms are available to search for the
 best-fitting model parameters: 
 the Nelder-Mead algorithm (Nelder \& Mead 1965), 
 the  Boender-Timmer-Rinnoy Kan global algorithm (Boender et al. 1982), 
-Powell's UOBYQA algorithm (Powell 2000), 
-a Truncated Newton algorithm (Dembo \& Steihaug 1983), 
+Powell's UOBYQA (Powell 2000), 
+a Truncated Newton algorithm (Dembo \& Steihaug 1983), Markov Chain Monte Carlo (Vrugt et al. 2009),  
 or a weighted sum over the parameters space. Several schemes are also available 
 for estimating error bars on the derived abundances. 
 
@@ -336,8 +335,8 @@ winter  &   integer            & Switch to wavelength interpolation (default 0) 
         &                      & 0 No interpolation \\
         &                      & 1 Interpolate observations, 2 fluxes (both require wfile) \\
  algor  &  integer             & Search algorithm (default 1) \\
-         &                      & 1/2/3/4 for Nelder-Mead, Boender-Timmer-Rinnoy Kan, \\
-         &                      &   Powell's or Nash's truncated Newton algorithms \\
+         &                      & 1/2/3/4/5 for Nelder-Mead, Boender-Timmer-Rinnoy Kan, \\
+         &                      & Powell's,  Nash's, and MCMC algorithms \\
  lsf     &  integer             & LSF shape (0/1/2/3/4/11/12/13/14 -- default is 0) \\
  nthreads &  integer            & Number of threads for parallel processing (default 1) \\
 %fixfile   & 
